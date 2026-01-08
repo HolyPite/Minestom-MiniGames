@@ -8,6 +8,8 @@ import net.minestom.server.event.player.PlayerDeathEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
 
+import me.holypite.games.kits.ClassicKit;
+
 public class DuelGame extends Game {
 
     private EventNode<Event> gameNode;
@@ -15,6 +17,7 @@ public class DuelGame extends Game {
     public DuelGame() {
         super("Duel 1v1", 2, 2);
         setPvpEnabled(true);
+        registerKit(new ClassicKit());
     }
 
     @Override

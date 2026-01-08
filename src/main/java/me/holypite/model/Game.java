@@ -6,6 +6,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.timer.TaskSchedule;
 import me.holypite.manager.PvpManager;
+import me.holypite.manager.projectile.ProjectileManager;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
@@ -13,6 +14,7 @@ import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.event.trait.InstanceEvent;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class Game {
@@ -33,6 +35,11 @@ public abstract class Game {
     private final PvpManager pvpManager = new PvpManager();
     private boolean pvpEnabled = false;
     private EventNode<Event> gameEventNode;
+    
+    // Kits
+    private final List<Kit> registeredKits = new ArrayList<>();
+    private Kit defaultKit;
+    private final Map<Player, Kit> playerKits = new ConcurrentHashMap<>();
 
     public Game(String gameName, int minPlayers, int maxPlayers) {
         this.gameId = UUID.randomUUID();
@@ -55,6 +62,24 @@ public abstract class Game {
     
     protected void setPvpEnabled(boolean enabled) {
         this.pvpEnabled = enabled;
+    }
+    
+    protected void registerKit(Kit kit) {
+        registeredKits.add(kit);
+        if (defaultKit == null) {
+            defaultKit = kit;
+        }
+    }
+    
+    public void selectKit(Player player, Kit kit) {
+        if (registeredKits.contains(kit)) {
+            playerKits.put(player, kit);
+            player.sendMessage("Selected kit: " + kit.getName());
+        }
+    }
+    
+    public List<Kit> getRegisteredKits() {
+        return Collections.unmodifiableList(registeredKits);
     }
 
     // Abstract methods to be implemented by specific games
@@ -79,6 +104,8 @@ public abstract class Game {
 
     public void removePlayer(Player player) {
         players.remove(player);
+        playerKits.remove(player);
+        player.getInventory().clear(); // Clear inventory on quit
         onPlayerQuit(player);
         
         if (players.isEmpty() && state != GameState.LOBBY) {
@@ -123,6 +150,7 @@ public abstract class Game {
         // Setup PvP if enabled
         if (pvpEnabled) {
             this.gameEventNode.addChild(pvpManager.getEventNode());
+            new ProjectileManager(this.gameEventNode);
         }
         
         // Register the game node globally
@@ -143,8 +171,22 @@ public abstract class Game {
         java.util.concurrent.CompletableFuture.allOf(teleportFutures.toArray(new java.util.concurrent.CompletableFuture[0]))
             .thenRun(() -> {
                 // Unregister Lobby Instance (cleanup)
-                instanceManager.unregisterInstance(lobbyInstance);
+                if (instanceManager != null) { // Safety check though var is local
+                   instanceManager.unregisterInstance(lobbyInstance);
+                } else {
+                    MinecraftServer.getInstanceManager().unregisterInstance(lobbyInstance);
+                }
                 this.lobbyInstance = null;
+                
+                // Give Kits
+                for (Player p : players) {
+                    p.heal();
+                    p.setFood(20);
+                    Kit kit = playerKits.getOrDefault(p, defaultKit);
+                    if (kit != null) {
+                        kit.apply(p);
+                    }
+                }
                 
                 sendMessageToAll("Game Started!");
                 onGameStart();
