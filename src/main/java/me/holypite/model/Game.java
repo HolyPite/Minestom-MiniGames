@@ -7,6 +7,9 @@ import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.timer.TaskSchedule;
 import me.holypite.manager.PvpManager;
 import me.holypite.manager.projectile.ProjectileManager;
+import me.holypite.model.map.MapConfig;
+import me.holypite.model.map.TeamConfig;
+import me.holypite.model.map.SpawnPos;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
@@ -16,6 +19,7 @@ import net.minestom.server.event.trait.InstanceEvent;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Game {
 
@@ -30,6 +34,8 @@ public abstract class Game {
     // Config
     private final String gameName;
     private Runnable onEndCallback;
+    protected MapConfig mapConfig;
+    protected final Map<Player, TeamConfig> playerTeams = new ConcurrentHashMap<>();
     
     // Managers
     private final PvpManager pvpManager = new PvpManager();
@@ -161,12 +167,40 @@ public abstract class Game {
         
         this.state = GameState.IN_GAME;
         
+        // Assign Teams if Config exists
+        if (mapConfig != null && mapConfig.teams != null && !mapConfig.teams.isEmpty()) {
+            List<Player> unassigned = new ArrayList<>(players);
+            Collections.shuffle(unassigned);
+            
+            int teamIndex = 0;
+            for (Player p : unassigned) {
+                TeamConfig team = mapConfig.teams.get(teamIndex);
+                // Check max players per team? For now simple round robin
+                playerTeams.put(p, team);
+                p.sendMessage("You are in team: " + team.name);
+                
+                teamIndex = (teamIndex + 1) % mapConfig.teams.size();
+            }
+        }
+        
         // Teleport everyone to the game instance
         List<java.util.concurrent.CompletableFuture<Void>> teleportFutures = new ArrayList<>();
         
         for (Player p : players) {
+            net.minestom.server.coordinate.Pos spawnPos = new net.minestom.server.coordinate.Pos(0, 42, 0);
+            
+            // Use Config Spawn
+            if (mapConfig != null) {
+                TeamConfig team = playerTeams.get(p);
+                if (team != null && team.spawns != null && !team.spawns.isEmpty()) {
+                    SpawnPos randomSpawn = team.spawns.get(ThreadLocalRandom.current().nextInt(team.spawns.size()));
+                    spawnPos = randomSpawn.toPos();
+                }
+            }
+            
+            final net.minestom.server.coordinate.Pos finalPos = spawnPos;
             teleportFutures.add(p.setInstance(gameInstance).thenAccept(ignored -> {
-               p.teleport(new net.minestom.server.coordinate.Pos(0, 42, 0)); 
+               p.teleport(finalPos); 
             }));
         }
         

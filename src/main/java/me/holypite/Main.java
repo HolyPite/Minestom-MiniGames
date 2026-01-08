@@ -1,3 +1,5 @@
+package me.holypite;
+
 import me.holypite.commands.PlayCommand;
 import me.holypite.manager.GameManager;
 import me.holypite.manager.HubManager;
