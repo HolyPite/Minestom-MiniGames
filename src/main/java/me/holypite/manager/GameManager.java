@@ -15,9 +15,11 @@ public class GameManager {
 
     private final List<Game> activeGames = new ArrayList<>();
     private final HubManager hubManager;
+    private final MapManager mapManager;
 
-    public GameManager(HubManager hubManager) {
+    public GameManager(HubManager hubManager, MapManager mapManager) {
         this.hubManager = hubManager;
+        this.mapManager = mapManager;
     }
 
     public void joinGame(Player player, GameType type) {
@@ -51,9 +53,9 @@ public class GameManager {
     private Game createGame(GameType type) {
         switch (type) {
             case TEST_GAME:
-                return new TestGame();
+                return new TestGame(mapManager);
             case DUEL:
-                return new DuelGame();
+                return new DuelGame(mapManager);
             default:
                 throw new IllegalArgumentException("Unknown game type: " + type);
         }

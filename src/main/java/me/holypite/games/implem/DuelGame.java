@@ -1,23 +1,41 @@
 package me.holypite.games.implem;
 
+import me.holypite.manager.MapManager;
+
 import me.holypite.model.Game;
+
 import net.minestom.server.entity.Player;
+
 import net.minestom.server.event.Event;
+
 import net.minestom.server.event.EventNode;
+
 import net.minestom.server.event.player.PlayerDeathEvent;
+
 import net.minestom.server.instance.InstanceContainer;
+
 import net.minestom.server.instance.block.Block;
 
 import me.holypite.games.kits.ClassicKit;
 
+
+
 public class DuelGame extends Game {
+
+
 
     private EventNode<Event> gameNode;
 
-    public DuelGame() {
-        super("Duel 1v1", 2, 2);
+
+
+    public DuelGame(MapManager mapManager) {
+
+        super("Duel 1v1", 2, 2, mapManager);
+
         setPvpEnabled(true);
+
         registerKit(new ClassicKit());
+
     }
 
     @Override

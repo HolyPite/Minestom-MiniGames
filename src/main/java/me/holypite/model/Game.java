@@ -33,19 +33,22 @@ public abstract class Game {
     
     // Managers
     private final PvpManager pvpManager = new PvpManager();
+    protected final me.holypite.manager.MapManager mapManager; // Protected so subclasses can use it
     private boolean pvpEnabled = false;
     private EventNode<Event> gameEventNode;
+    private ProjectileManager projectileManager;
     
     // Kits
     private final List<Kit> registeredKits = new ArrayList<>();
     private Kit defaultKit;
     private final Map<Player, Kit> playerKits = new ConcurrentHashMap<>();
 
-    public Game(String gameName, int minPlayers, int maxPlayers) {
+    public Game(String gameName, int minPlayers, int maxPlayers, me.holypite.manager.MapManager mapManager) {
         this.gameId = UUID.randomUUID();
         this.gameName = gameName;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
+        this.mapManager = mapManager;
         this.players = new HashSet<>();
         this.state = GameState.LOBBY;
         

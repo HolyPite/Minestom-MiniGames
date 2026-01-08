@@ -1,5 +1,6 @@
 package me.holypite.games.implem;
 
+import me.holypite.manager.MapManager;
 import me.holypite.model.Game;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.InstanceContainer;
@@ -10,8 +11,8 @@ import net.minestom.server.timer.TaskSchedule;
 
 public class TestGame extends Game {
 
-    public TestGame() {
-        super("Test Game", 1, 10);
+    public TestGame(MapManager mapManager) {
+        super("Test Game", 1, 10, mapManager);
         setPvpEnabled(true);
     }
 

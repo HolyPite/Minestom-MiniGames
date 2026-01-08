@@ -1,8 +1,7 @@
-package me.holypite;
-
 import me.holypite.commands.PlayCommand;
 import me.holypite.manager.GameManager;
 import me.holypite.manager.HubManager;
+import me.holypite.manager.MapManager;
 import me.holypite.model.Game;
 import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
@@ -14,11 +13,12 @@ import net.minestom.server.coordinate.Pos;
 
 public class Main {
     public static void main(String[] args) {
-        MinecraftServer minecraftServer = MinecraftServer.init(new Auth.Online());
+        MinecraftServer minecraftServer = MinecraftServer.init();
 
         // Managers
         HubManager hubManager = new HubManager();
-        GameManager gameManager = new GameManager(hubManager);
+        MapManager mapManager = new MapManager();
+        GameManager gameManager = new GameManager(hubManager, mapManager);
 
         // Commands
         MinecraftServer.getCommandManager().register(new PlayCommand(gameManager));
