@@ -96,7 +96,7 @@ public class DuelGame extends Game {
 
 
 
-    public DuelGame(MapManager mapManager) {
+        public DuelGame(MapManager mapManager) {
 
 
 
@@ -104,7 +104,6 @@ public class DuelGame extends Game {
 
 
 
-        super("Duel 1v1", 2, 2, mapManager);
 
 
 
@@ -112,15 +111,14 @@ public class DuelGame extends Game {
 
 
 
-        setPvpEnabled(true);
 
+            super("Duel 1v1", 2, 2, mapManager);
 
 
 
 
 
 
-        registerKit(new ClassicKit());
 
 
 
@@ -128,9 +126,9 @@ public class DuelGame extends Game {
 
 
 
-    }
 
 
+            setPvpEnabled(true);
 
 
 
@@ -144,15 +142,14 @@ public class DuelGame extends Game {
 
 
 
-    @Override
 
 
+            setCanRespawn(false); // Elimination mode
 
 
 
 
 
-    public void setupLobbyInstance(InstanceContainer instance) {
 
 
 
@@ -160,111 +157,18 @@ public class DuelGame extends Game {
 
 
 
-        // Simple glass platform for lobby
 
 
 
+            registerKit(new ClassicKit());
 
 
 
 
-        instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GLASS));
 
 
 
 
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Override
-
-
-
-
-
-
-
-    public void setupGameInstance(InstanceContainer instance) {
-
-
-
-
-
-
-
-        // Try to load map
-
-
-
-
-
-
-
-                LoadedMap loadedMap = mapManager.createInstanceFromMap("map_test");
-
-
-
-
-
-
-
-                if (loadedMap != null) {
-
-
-
-
-
-
-
-                    instance.setChunkLoader(loadedMap.getInstance().getChunkLoader());
-
-
-
-
-
-
-
-                    this.mapConfig = loadedMap.getConfig();
-
-
-
-
-
-
-
-                } else {
-
-
-
-
-
-
-
-            // Fallback: Small arena for duel
-
-
-
-
-
-
-
-            instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.SANDSTONE));
 
 
 
@@ -280,7 +184,6 @@ public class DuelGame extends Game {
 
 
 
-        
 
 
 
@@ -288,7 +191,8 @@ public class DuelGame extends Game {
 
 
 
-        instance.setWorldBorder(instance.getWorldBorder().withDiameter(50)); // Limit arena size
+
+    
 
 
 
@@ -296,42 +200,879 @@ public class DuelGame extends Game {
 
 
 
-    }
 
-    @Override
-    public void onPlayerJoin(Player player) {
-        sendMessageToAll(player.getUsername() + " joined the Duel!");
-    }
 
-    @Override
-    public void onPlayerQuit(Player player) {
-        sendMessageToAll(player.getUsername() + " fled the fight!");
-        // If someone quits during game, the other wins automatically
-        if (getState().toString().equals("IN_GAME")) {
-            endGame(); 
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void setupLobbyInstance(InstanceContainer instance) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Simple glass platform for lobby
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GLASS));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
-    }
 
-    @Override
-    public void onGameStart() {
-        sendMessageToAll("Duel started! Fight to the death!");
-        
-        getGameEventNode().addListener(PlayerDeathEvent.class, event -> {
-            Player victim = event.getPlayer();
-            sendMessageToAll(victim.getUsername() + " was eliminated!");
-            
-            // Find winner (the other player)
-            for (Player p : getPlayers()) {
-                if (!p.equals(victim)) {
-                    sendMessageToAll("Winner: " + p.getUsername());
-                    break;
-                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void setupGameInstance(InstanceContainer instance) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Try to load map
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            LoadedMap loadedMap = mapManager.createInstanceFromMap("map_test");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if (loadedMap != null) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                instance.setChunkLoader(loadedMap.getInstance().getChunkLoader());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                this.mapConfig = loadedMap.getConfig();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            } else {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // Fallback: Small arena for duel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.SANDSTONE));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            instance.setWorldBorder(instance.getWorldBorder().withDiameter(50)); // Limit arena size
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void onPlayerJoin(Player player) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            sendMessageToAll(player.getUsername() + " joined the Duel!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void onPlayerQuit(Player player) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            sendMessageToAll(player.getUsername() + " fled the fight!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // If someone quits during game, the other wins automatically
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if (getState().toString().equals("IN_GAME")) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                endGame(); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void onPlayerEliminated(Player victim) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            sendMessageToAll(victim.getUsername() + " was eliminated!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Find winner (the other player)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            for (Player p : getPlayers()) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                if (!p.equals(victim)) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    sendMessageToAll("Winner: " + p.getUsername());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             // End game
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             endGame();
-        });
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        @Override
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public void onGameStart() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            sendMessageToAll("Duel started! Fight to the death!");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
 
     @Override
     public void onGameEnd() {

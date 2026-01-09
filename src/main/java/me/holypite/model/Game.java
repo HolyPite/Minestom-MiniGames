@@ -6,6 +6,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.timer.TaskSchedule;
 import me.holypite.manager.PvpManager;
+import me.holypite.manager.DeathManager;
 import me.holypite.manager.projectile.ProjectileManager;
 import me.holypite.model.map.MapConfig;
 import me.holypite.model.map.TeamConfig;
@@ -13,8 +14,11 @@ import me.holypite.model.map.MapSpawn;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.player.PlayerBlockBreakEvent;
+import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.event.trait.InstanceEvent;
+import net.minestom.server.coordinate.Pos;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,10 +43,16 @@ public abstract class Game {
     
     // Managers
     private final PvpManager pvpManager = new PvpManager();
-    protected final me.holypite.manager.MapManager mapManager; // Protected so subclasses can use it
+    protected final me.holypite.manager.MapManager mapManager; 
     private boolean pvpEnabled = false;
     private EventNode<Event> gameEventNode;
     private ProjectileManager projectileManager;
+    private DeathManager deathManager;
+    
+    // Game Rules
+    private boolean canRespawn = false;
+    private int respawnDelay = 3;
+    private boolean canBreakBlocks = false;
     
     // Kits
     private final List<Kit> registeredKits = new ArrayList<>();
@@ -71,6 +81,52 @@ public abstract class Game {
     
     protected void setPvpEnabled(boolean enabled) {
         this.pvpEnabled = enabled;
+    }
+
+    protected void setCanRespawn(boolean canRespawn) {
+        this.canRespawn = canRespawn;
+    }
+
+    protected void setRespawnDelay(int respawnDelay) {
+        this.respawnDelay = respawnDelay;
+    }
+    
+    protected void setCanBreakBlocks(boolean canBreakBlocks) {
+        this.canBreakBlocks = canBreakBlocks;
+    }
+
+    public boolean isCanRespawn() {
+        return canRespawn;
+    }
+
+    public int getRespawnDelay() {
+        return respawnDelay;
+    }
+
+    public void onPlayerEliminated(Player player) {
+        // To be overridden by specific games
+    }
+
+    public Pos getRespawnPos(Player p) {
+        Pos spawnPos = new Pos(0, 42, 0);
+        if (mapConfig != null) {
+            TeamConfig team = playerTeams.get(p);
+            if (team != null && team.spawns != null && !team.spawns.isEmpty()) {
+                MapSpawn randomSpawn = team.spawns.get(ThreadLocalRandom.current().nextInt(team.spawns.size()));
+                spawnPos = randomSpawn.toPos();
+            } else if (mapConfig.spawns != null && !mapConfig.spawns.isEmpty()) {
+                MapSpawn randomSpawn = mapConfig.spawns.get(ThreadLocalRandom.current().nextInt(mapConfig.spawns.size()));
+                spawnPos = randomSpawn.toPos();
+            }
+        }
+        return spawnPos;
+    }
+
+    public void applyKit(Player p) {
+        Kit kit = playerKits.getOrDefault(p, defaultKit);
+        if (kit != null) {
+            kit.apply(p);
+        }
     }
     
     protected void registerKit(Kit kit) {
@@ -162,6 +218,22 @@ public abstract class Game {
             new ProjectileManager(this.gameEventNode);
         }
         
+        // Setup Death Management
+        this.deathManager = new DeathManager(this, this.gameEventNode);
+        
+        // Setup Block Protection
+        this.gameEventNode.addListener(PlayerBlockBreakEvent.class, event -> {
+            if (!canBreakBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+        });
+        
+        this.gameEventNode.addListener(PlayerBlockPlaceEvent.class, event -> {
+            if (!canBreakBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+        });
+        
         // Register the game node globally
         MinecraftServer.getGlobalEventHandler().addChild(this.gameEventNode);
         
@@ -187,22 +259,7 @@ public abstract class Game {
         List<java.util.concurrent.CompletableFuture<Void>> teleportFutures = new ArrayList<>();
         
         for (Player p : players) {
-            net.minestom.server.coordinate.Pos spawnPos = new net.minestom.server.coordinate.Pos(0, 42, 0);
-            
-            // Use Config Spawn
-            if (mapConfig != null) {
-                TeamConfig team = playerTeams.get(p);
-                if (team != null && team.spawns != null && !team.spawns.isEmpty()) {
-                    MapSpawn randomSpawn = team.spawns.get(ThreadLocalRandom.current().nextInt(team.spawns.size()));
-                    spawnPos = randomSpawn.toPos();
-                } else if (mapConfig.spawns != null && !mapConfig.spawns.isEmpty()) {
-                    // Fallback to global spawns
-                    MapSpawn randomSpawn = mapConfig.spawns.get(ThreadLocalRandom.current().nextInt(mapConfig.spawns.size()));
-                    spawnPos = randomSpawn.toPos();
-                }
-            }
-            
-            final net.minestom.server.coordinate.Pos finalPos = spawnPos;
+            final Pos finalPos = getRespawnPos(p);
             teleportFutures.add(p.setInstance(gameInstance).thenAccept(ignored -> {
                p.teleport(finalPos); 
             }));
@@ -223,10 +280,7 @@ public abstract class Game {
                 for (Player p : players) {
                     p.heal();
                     p.setFood(20);
-                    Kit kit = playerKits.getOrDefault(p, defaultKit);
-                    if (kit != null) {
-                        kit.apply(p);
-                    }
+                    applyKit(p);
                 }
                 
                 sendMessageToAll("Game Started!");

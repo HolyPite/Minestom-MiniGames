@@ -7,6 +7,8 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 
+import net.minestom.server.entity.GameMode;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -46,5 +48,15 @@ public class HubManager {
     public void joinHub(Player player) {
         InstanceContainer targetHub = getBestHub();
         player.setInstance(targetHub, new Pos(0, 42, 0));
+        
+        // Reset Player State
+        player.setGameMode(GameMode.ADVENTURE);
+        player.getInventory().clear();
+        player.heal();
+        player.setFood(20);
+        player.setInvisible(false);
+        player.setAllowFlying(false);
+        player.setFlying(false);
+        player.clearEffects();
     }
 }

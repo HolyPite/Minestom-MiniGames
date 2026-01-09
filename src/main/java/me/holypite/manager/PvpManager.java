@@ -62,8 +62,8 @@ public class PvpManager {
         // Minestom handles basic knockback if we use takeKnockback with the right params
         // x and z are essentially the direction vector components based on attacker's yaw
         double yaw = Math.toRadians(attacker.getPosition().yaw());
-        double kbX = -Math.sin(yaw);
-        double kbZ = Math.cos(yaw);
+        double kbX = Math.sin(yaw);
+        double kbZ = -Math.cos(yaw);
         
         victim.takeKnockback(0.4f, kbX, kbZ);
     }
