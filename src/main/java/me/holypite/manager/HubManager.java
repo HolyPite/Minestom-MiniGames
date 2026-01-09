@@ -7,6 +7,7 @@ import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.block.Block;
 
+import me.holypite.model.map.LoadedMap;
 import net.minestom.server.entity.GameMode;
 
 import java.util.ArrayList;
@@ -16,22 +17,33 @@ import java.util.List;
 public class HubManager {
 
     private final List<InstanceContainer> hubs = new ArrayList<>();
+    private final MapManager mapManager;
     private static final int MAX_PLAYERS_PER_HUB = 50;
 
-    public HubManager() {
+    public HubManager(MapManager mapManager) {
+        this.mapManager = mapManager;
         // Create initial hub
         createNewHub();
     }
 
     public void createNewHub() {
-        InstanceManager instanceManager = MinecraftServer.getInstanceManager();
-        InstanceContainer hub = instanceManager.createInstanceContainer();
+        // Try to load Hub map
+        LoadedMap loadedMap = mapManager.createInstanceFromMap("hub");
         
-        // Simple flat generation for Hub
-        hub.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK));
+        InstanceContainer hub;
+        if (loadedMap != null) {
+            hub = loadedMap.getInstance();
+            System.out.println("Loaded Hub map successfully.");
+        } else {
+            // Fallback
+            InstanceManager instanceManager = MinecraftServer.getInstanceManager();
+            hub = instanceManager.createInstanceContainer();
+            hub.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK));
+            System.err.println("Failed to load Hub map, using fallback generator.");
+        }
         
         hubs.add(hub);
-        System.out.println("New Hub created. Total Hubs: " + hubs.size());
+        System.out.println("Total Hubs: " + hubs.size());
     }
 
     public InstanceContainer getBestHub() {
@@ -47,7 +59,7 @@ public class HubManager {
 
     public void joinHub(Player player) {
         InstanceContainer targetHub = getBestHub();
-        player.setInstance(targetHub, new Pos(0, 42, 0));
+        player.setInstance(targetHub, new Pos(0.5, 64, 0.5));
         
         // Reset Player State
         player.setGameMode(GameMode.ADVENTURE);

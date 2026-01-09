@@ -15,11 +15,11 @@ import net.minestom.server.coordinate.Pos;
 
 public class Main {
     public static void main(String[] args) {
-        MinecraftServer minecraftServer = MinecraftServer.init( new Auth.Online());
+        MinecraftServer minecraftServer = MinecraftServer.init(new Auth.Online());
 
         // Managers
-        HubManager hubManager = new HubManager();
         MapManager mapManager = new MapManager();
+        HubManager hubManager = new HubManager(mapManager);
         GameManager gameManager = new GameManager(hubManager, mapManager);
 
         // Commands
@@ -36,7 +36,7 @@ public class Main {
             } else {
                 System.out.println("Assigning hub to player " + event.getPlayer().getUsername());
                 event.setSpawningInstance(hub);
-                event.getPlayer().setRespawnPoint(new Pos(0, 42, 0));
+                event.getPlayer().setRespawnPoint(new Pos(0.5, 64, 0.5));
             }
         });
 
