@@ -3,9 +3,9 @@ package me.holypite.model.map;
 import java.util.List;
 
 public class MapConfig {
-    public List<TeamConfig> teams;
-
-    public MapConfig(List<TeamConfig> teams) {
-        this.teams = teams;
-    }
+    public String name;
+    public int minPlayers;
+    public int maxPlayers;
+    public List<MapSpawn> spawns; // Global spawns (if no teams)
+    public List<TeamConfig> teams; // Teams configuration
 }

@@ -9,7 +9,7 @@ import me.holypite.manager.PvpManager;
 import me.holypite.manager.projectile.ProjectileManager;
 import me.holypite.model.map.MapConfig;
 import me.holypite.model.map.TeamConfig;
-import me.holypite.model.map.SpawnPos;
+import me.holypite.model.map.MapSpawn;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
@@ -193,7 +193,11 @@ public abstract class Game {
             if (mapConfig != null) {
                 TeamConfig team = playerTeams.get(p);
                 if (team != null && team.spawns != null && !team.spawns.isEmpty()) {
-                    SpawnPos randomSpawn = team.spawns.get(ThreadLocalRandom.current().nextInt(team.spawns.size()));
+                    MapSpawn randomSpawn = team.spawns.get(ThreadLocalRandom.current().nextInt(team.spawns.size()));
+                    spawnPos = randomSpawn.toPos();
+                } else if (mapConfig.spawns != null && !mapConfig.spawns.isEmpty()) {
+                    // Fallback to global spawns
+                    MapSpawn randomSpawn = mapConfig.spawns.get(ThreadLocalRandom.current().nextInt(mapConfig.spawns.size()));
                     spawnPos = randomSpawn.toPos();
                 }
             }

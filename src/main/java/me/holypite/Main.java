@@ -15,7 +15,7 @@ import net.minestom.server.coordinate.Pos;
 
 public class Main {
     public static void main(String[] args) {
-        MinecraftServer minecraftServer = MinecraftServer.init();
+        MinecraftServer minecraftServer = MinecraftServer.init( new Auth.Online());
 
         // Managers
         HubManager hubManager = new HubManager();

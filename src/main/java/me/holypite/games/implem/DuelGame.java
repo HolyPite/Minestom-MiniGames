@@ -32,7 +32,31 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 
+import me.holypite.model.map.LoadedMap;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 public class DuelGame extends Game {
+
+
+
+
+
+
+
+
 
 
 
@@ -44,7 +68,27 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     private static final List<String> MAPS = List.of("arena_1", "arena_2");
+
+
+
+
+
+
+
+
 
 
 
@@ -56,7 +100,15 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
         super("Duel 1v1", 2, 2, mapManager);
+
+
+
+
 
 
 
@@ -64,7 +116,15 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
         registerKit(new ClassicKit());
+
+
+
+
 
 
 
@@ -76,7 +136,19 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
+
+
+
+
     @Override
+
+
+
+
 
 
 
@@ -84,11 +156,23 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
         // Simple glass platform for lobby
 
 
 
+
+
+
+
         instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GLASS));
+
+
+
+
 
 
 
@@ -100,7 +184,19 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
+
+
+
+
     @Override
+
+
+
+
 
 
 
@@ -108,131 +204,47 @@ public class DuelGame extends Game {
 
 
 
-        // Pick a random map
 
 
 
-        String mapName = MAPS.get(ThreadLocalRandom.current().nextInt(MAPS.size()));
 
+        // Try to load map
 
 
-        System.out.println("DuelGame: Trying to load map '" + mapName + "'...");
 
 
 
-        
 
 
+                LoadedMap loadedMap = mapManager.createInstanceFromMap("map_test");
 
-        boolean loaded = mapManager.loadMap(instance, mapName);
 
 
 
-        
 
 
 
-                
+                if (loadedMap != null) {
 
 
 
-        
 
 
 
-                if (loaded) {
 
+                    instance.setChunkLoader(loadedMap.getInstance().getChunkLoader());
 
 
-        
 
 
 
-                    System.out.println("DuelGame: Map '" + mapName + "' loaded successfully.");
 
 
+                    this.mapConfig = loadedMap.getConfig();
 
-        
 
 
 
-                    
-
-
-
-        
-
-
-
-                    // Load config
-
-
-
-        
-
-
-
-                    this.mapConfig = mapManager.loadMapConfig(mapName);
-
-
-
-        
-
-
-
-                    if (this.mapConfig != null) {
-
-
-
-        
-
-
-
-                        System.out.println("DuelGame: Config loaded. Teams: " + mapConfig.teams.size());
-
-
-
-        
-
-
-
-                    }
-
-
-
-        
-
-
-
-                    
-
-
-
-        
-
-
-
-                    // Important: Remove generator if map is loaded so it doesn't overwrite chunks
-
-
-
-        
-
-
-
-                    instance.setGenerator(null);
-
-
-
-        
-
-
-
-                    instance.setWorldBorder(instance.getWorldBorder().withDiameter(100)); // Larger border for real maps
-
-
-
-        
 
 
 
@@ -240,7 +252,7 @@ public class DuelGame extends Game {
 
 
 
-            System.out.println("DuelGame: Map not found. Falling back to default generator.");
+
 
 
 
@@ -248,15 +260,39 @@ public class DuelGame extends Game {
 
 
 
+
+
+
+
             instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.SANDSTONE));
 
 
 
-            instance.setWorldBorder(instance.getWorldBorder().withDiameter(50));
+
 
 
 
         }
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        instance.setWorldBorder(instance.getWorldBorder().withDiameter(50)); // Limit arena size
+
+
+
+
 
 
 

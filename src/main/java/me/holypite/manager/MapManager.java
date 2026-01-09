@@ -1,11 +1,12 @@
 package me.holypite.manager;
 
+import com.google.gson.Gson;
+import me.holypite.model.map.LoadedMap;
+import me.holypite.model.map.MapConfig;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.instance.anvil.AnvilLoader;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
-import com.google.gson.Gson;
-import me.holypite.model.map.MapConfig;
 
 import java.io.Reader;
 import java.nio.file.Files;
@@ -24,53 +25,38 @@ public class MapManager {
     }
 
     /**
-     * Loads the map configuration (teams, spawns) from config.json.
-     */
-    public MapConfig loadMapConfig(String mapName) {
-        Path configPath = MAPS_FOLDER.resolve(mapName).resolve("config.json");
-        if (!configPath.toFile().exists()) {
-            System.err.println("Warning: config.json not found for map " + mapName);
-            return null;
-        }
-
-        try (Reader reader = Files.newBufferedReader(configPath)) {
-            return gson.fromJson(reader, MapConfig.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Creates an instance from a map folder.
+     * Creates an instance from a map folder and loads its config.
      * The instance will NOT save changes back to disk (RAM-only session).
      *
      * @param mapName The name of the folder inside the 'maps' directory.
-     * @return The created InstanceContainer, or null if loading failed.
+     * @return The LoadedMap containing instance and config, or null if loading failed.
      */
-    public InstanceContainer createInstanceFromMap(String mapName) {
+    public LoadedMap createInstanceFromMap(String mapName) {
         Path mapPath = MAPS_FOLDER.resolve(mapName);
         if (!mapPath.toFile().exists()) {
             System.err.println("Error: Map folder not found: " + mapPath.toAbsolutePath());
             return null;
+        }
+
+        // Load Config
+        MapConfig config = null;
+        Path configPath = mapPath.resolve("config.json");
+        if (configPath.toFile().exists()) {
+            try (Reader reader = Files.newBufferedReader(configPath)) {
+                config = gson.fromJson(reader, MapConfig.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Warning: No config.json found for map " + mapName);
         }
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
         
-        loadMap(instance, mapName);
-        
-        return instance;
-    }
-
-    public boolean loadMap(InstanceContainer instance, String mapName) {
-        Path mapPath = MAPS_FOLDER.resolve(mapName);
-        if (!mapPath.toFile().exists()) {
-            System.err.println("Error: Map folder not found: " + mapPath.toAbsolutePath());
-            return false;
-        }
-
+        // Use AnvilLoader to load the world
         instance.setChunkLoader(new AnvilLoader(mapPath));
-        return true;
+        
+        return new LoadedMap(instance, config);
     }
 }
