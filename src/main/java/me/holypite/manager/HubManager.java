@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import net.minestom.server.instance.Instance;
+
 public class HubManager {
 
     private final List<InstanceContainer> hubs = new ArrayList<>();
@@ -24,6 +26,10 @@ public class HubManager {
         this.mapManager = mapManager;
         // Create initial hub
         createNewHub();
+    }
+
+    public boolean isHub(Instance instance) {
+        return hubs.contains(instance);
     }
 
     public void createNewHub() {

@@ -13,6 +13,10 @@ import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 import net.minestom.server.event.player.PlayerDisconnectEvent;
 import net.minestom.server.coordinate.Pos;
 
+import net.minestom.server.event.player.PlayerBlockBreakEvent;
+import net.minestom.server.event.player.PlayerBlockPlaceEvent;
+import net.minestom.server.entity.GameMode;
+
 public class Main {
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init(new Auth.Online());
@@ -27,6 +31,19 @@ public class Main {
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
+
+        // Hub Protection
+        globalEventHandler.addListener(PlayerBlockBreakEvent.class, event -> {
+            if (hubManager.isHub(event.getInstance()) && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+        });
+        
+        globalEventHandler.addListener(PlayerBlockPlaceEvent.class, event -> {
+            if (hubManager.isHub(event.getInstance()) && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                event.setCancelled(true);
+            }
+        });
 
         // Login -> Send to Hub
         globalEventHandler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
