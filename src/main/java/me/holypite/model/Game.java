@@ -7,6 +7,7 @@ import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.timer.TaskSchedule;
 import me.holypite.manager.PvpManager;
 import me.holypite.manager.DeathManager;
+import me.holypite.manager.explosion.ExplosionManager;
 import me.holypite.manager.projectile.ProjectileManager;
 import me.holypite.model.map.MapConfig;
 import me.holypite.model.map.TeamConfig;
@@ -44,6 +45,7 @@ public abstract class Game {
     // Managers
     private final PvpManager pvpManager = new PvpManager();
     protected final me.holypite.manager.MapManager mapManager; 
+    protected final ExplosionManager explosionManager = new ExplosionManager();
     private boolean pvpEnabled = false;
     private EventNode<Event> gameEventNode;
     private ProjectileManager projectileManager;
@@ -215,7 +217,7 @@ public abstract class Game {
         // Setup PvP if enabled
         if (pvpEnabled) {
             this.gameEventNode.addChild(pvpManager.getEventNode());
-            new ProjectileManager(this.gameEventNode);
+            new ProjectileManager(this.gameEventNode, this.explosionManager);
         }
         
         // Setup Death Management

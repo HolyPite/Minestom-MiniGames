@@ -59,13 +59,22 @@ public class PvpManager {
         victim.damage(new Damage(DamageType.PLAYER_ATTACK, attacker, attacker, attacker.getPosition(), damage));
         
         // 4. Knockback
-        // Minestom handles basic knockback if we use takeKnockback with the right params
-        // x and z are essentially the direction vector components based on attacker's yaw
-        double yaw = Math.toRadians(attacker.getPosition().yaw());
-        double kbX = Math.sin(yaw);
-        double kbZ = -Math.cos(yaw);
+        // Calculate direction vector: Attacker -> Victim
+        Vec direction = victim.getPosition().sub(attacker.getPosition()).asVec();
+        direction = direction.withY(0).normalize(); // Horizontal only logic first
         
-        victim.takeKnockback(0.4f, kbX, kbZ);
+        // Strength
+        double strength = 12.0; // Velocity multiplier (needs tuning, Minestom units are blocks/tick * conversion)
+        // Note: Minestom velocity is approx blocks/tick * 8000/20 in packets? No, setVelocity uses server units.
+        // Let's try a reasonable value. Standard jump is ~10 Y.
+        
+        Vec knockback = direction.mul(strength).withY(4.0); // Add lift
+        
+        // Apply (Add to current velocity or set?)
+        // Usually setting adds impulse if we just add.
+        // But to be sure we override previous motion or add to it?
+        // Let's add to simulate impact.
+        victim.setVelocity(victim.getVelocity().add(knockback));
     }
     
     private float getDamageFromItem(Material material) {

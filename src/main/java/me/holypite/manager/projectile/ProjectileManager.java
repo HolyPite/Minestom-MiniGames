@@ -1,5 +1,6 @@
 package me.holypite.manager.projectile;
 
+import me.holypite.manager.explosion.ExplosionManager;
 import me.holypite.manager.projectile.entities.ArrowProjectile;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.coordinate.Pos;
@@ -11,6 +12,7 @@ import net.minestom.server.entity.damage.Damage;
 import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
+import net.minestom.server.event.entity.projectile.ProjectileCollideWithBlockEvent;
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent;
 import net.minestom.server.event.item.PlayerBeginItemUseEvent;
 import net.minestom.server.event.item.PlayerCancelItemUseEvent;
@@ -28,9 +30,11 @@ public class ProjectileManager {
     private static final Tag<Double> BOW_POWER = Tag.Double("bow_power").defaultValue(0.0);
     
     private final EventNode<Event> node;
+    private final ExplosionManager explosionManager;
 
-    public ProjectileManager(EventNode<Event> node) {
+    public ProjectileManager(EventNode<Event> node, ExplosionManager explosionManager) {
         this.node = node;
+        this.explosionManager = explosionManager;
         registerBowLogic();
         registerCollisionLogic();
     }
@@ -58,31 +62,34 @@ public class ProjectileManager {
             projectile.shoot(shootPosition.asVec(), power * 3, 1f);
             
             player.getInstance().playSound(Sound.sound(SoundEvent.ENTITY_ARROW_SHOOT, Sound.Source.PLAYER, 1f, getRandomPitchFromPower(power)), player);
-            
-            // Consume arrow? (Creative check usually)
-            // For now infinite arrows or we check inventory
         });
     }
 
     private void registerCollisionLogic() {
+        // Explode on Block Hit
+        node.addListener(ProjectileCollideWithBlockEvent.class, event -> {
+            if (!(event.getEntity() instanceof AbstractProjectile projectile)) return;
+            // Boom!
+            explosionManager.explode(projectile.getInstance(), event.getCollisionPosition(), 2.0f, false); // No block break for test
+            projectile.remove();
+        });
+
         node.addListener(ProjectileCollideWithEntityEvent.class, event -> {
             if (!(event.getTarget() instanceof LivingEntity victim)) return;
             if (!(event.getEntity() instanceof AbstractProjectile projectile)) return;
             
-            Entity shooter = ((AbstractProjectile) event.getEntity()).shooter; // Need to expose shooter or cast
-            // AbstractProjectile has protected shooter, let's verify visibility. 
-            // It is protected, but we are in the same package (me.holypite.manager.projectile).
-            // So we can access it.
+            Entity shooter = ((AbstractProjectile) event.getEntity()).shooter;
             
-            float damage = 6.0f; // Base damage
+            float damage = 6.0f;
             if (projectile instanceof ArrowProjectile arrow && arrow.isCritical()) {
-                damage = 9.0f; // Critical damage
+                damage = 9.0f;
             }
             
-            // Apply damage
             victim.damage(new Damage(DamageType.ARROW, projectile, shooter, projectile.getPosition(), damage));
             
-            // Remove arrow
+            // Boom on Entity Hit too!
+            explosionManager.explode(projectile.getInstance(), projectile.getPosition(), 2.0f, false);
+            
             projectile.remove();
         });
     }
