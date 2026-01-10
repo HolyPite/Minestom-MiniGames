@@ -207,6 +207,9 @@ public abstract class Game {
         this.gameInstance = instanceManager.createInstanceContainer();
         setupGameInstance(this.gameInstance);
         
+        // Setup Explosion Supplier
+        this.gameInstance.setExplosionSupplier(explosionManager.getSupplier(canBreakBlocks));
+        
         // Setup Scoped Event Node
         this.gameEventNode = EventNode.event("game-" + gameId, EventFilter.ALL, event -> {
             if (event instanceof InstanceEvent ie) return ie.getInstance() == gameInstance;
