@@ -51,9 +51,7 @@ public class ProjectileManager {
                 
                 // Launch Explosive Sheep
                 ExplosiveSheep sheep = new ExplosiveSheep(player);
-                Pos shootPos = player.getPosition().add(0, player.getEyeHeight(), 0);
-                sheep.shoot(shootPos.asVec(), 1.5, 0); // Power 1.5
-                sheep.setInstance(player.getInstance(), shootPos);
+                sheep.shoot(1.5); 
                 
                 // Consume item
                 // player.getItemInHand(event.getHand()).consume(1); // Need correct API
