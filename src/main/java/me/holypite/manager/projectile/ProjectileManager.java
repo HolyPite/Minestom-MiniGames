@@ -4,6 +4,7 @@ import me.holypite.manager.explosion.ExplosionManager;
 import me.holypite.manager.projectile.entities.ArrowProjectile;
 import net.kyori.adventure.sound.Sound;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
@@ -66,14 +67,6 @@ public class ProjectileManager {
     }
 
     private void registerCollisionLogic() {
-        // Explode on Block Hit
-        node.addListener(ProjectileCollideWithBlockEvent.class, event -> {
-            if (!(event.getEntity() instanceof AbstractProjectile projectile)) return;
-            // Boom!
-            explosionManager.explode(projectile.getInstance(), event.getCollisionPosition(), 2.0f, false); // No block break for test
-            projectile.remove();
-        });
-
         node.addListener(ProjectileCollideWithEntityEvent.class, event -> {
             if (!(event.getTarget() instanceof LivingEntity victim)) return;
             if (!(event.getEntity() instanceof AbstractProjectile projectile)) return;
@@ -87,8 +80,9 @@ public class ProjectileManager {
             
             victim.damage(new Damage(DamageType.ARROW, projectile, shooter, projectile.getPosition(), damage));
             
-            // Boom on Entity Hit too!
-            explosionManager.explode(projectile.getInstance(), projectile.getPosition(), 2.0f, false);
+            // KB Direct (impulse from arrow speed)
+            Vec directKB = projectile.getVelocity().normalize().mul(8.0).withY(2.0);
+            victim.setVelocity(victim.getVelocity().add(directKB));
             
             projectile.remove();
         });
