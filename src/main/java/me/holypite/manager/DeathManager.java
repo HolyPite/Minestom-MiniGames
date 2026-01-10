@@ -65,6 +65,8 @@ public class DeathManager {
             player.sendMessage("You are out! Waiting for game end...");
             // Custom logic: Call a method in Game to notify an elimination
             game.onPlayerEliminated(player);
+            // Check if game should end
+            game.checkWinCondition();
         }
     }
 

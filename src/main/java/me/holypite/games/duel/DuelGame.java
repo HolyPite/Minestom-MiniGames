@@ -768,7 +768,7 @@ public class DuelGame extends Game {
 
 
 
-        @Override
+            @Override
 
 
 
@@ -784,7 +784,7 @@ public class DuelGame extends Game {
 
 
 
-        public void onPlayerEliminated(Player victim) {
+    
 
 
 
@@ -800,7 +800,7 @@ public class DuelGame extends Game {
 
 
 
-            sendMessageToAll(victim.getUsername() + " was eliminated!");
+            public void onPlayerEliminated(Player victim) {
 
 
 
@@ -816,7 +816,7 @@ public class DuelGame extends Game {
 
 
 
-            
+    
 
 
 
@@ -832,7 +832,7 @@ public class DuelGame extends Game {
 
 
 
-            // Find winner (the other player)
+                sendMessageToAll(victim.getUsername() + " was eliminated!");
 
 
 
@@ -848,71 +848,7 @@ public class DuelGame extends Game {
 
 
 
-            for (Player p : getPlayers()) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                if (!p.equals(victim)) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    sendMessageToAll("Winner: " + p.getUsername());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                }
+    
 
 
 
@@ -929,70 +865,6 @@ public class DuelGame extends Game {
 
 
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // End game
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            endGame();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }
 
 
 

@@ -1,5 +1,6 @@
 package me.holypite.model;
 
 public enum GameType {
-    DUEL
+    DUEL,
+    SHEEP_WARS
 }

@@ -25,6 +25,9 @@ import org.jetbrains.annotations.NotNull;
 
 import me.holypite.games.sheepwars.sheeps.ExplosiveSheep;
 import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.event.player.PlayerBlockInteractEvent;
+import net.minestom.server.entity.Player;
+import net.minestom.server.entity.PlayerHand;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -47,17 +50,25 @@ public class ProjectileManager {
     private void registerSheepLogic() {
         node.addListener(PlayerUseItemEvent.class, event -> {
             if (event.getItemStack().material() == Material.RED_WOOL) {
-                Player player = event.getPlayer();
-                
-                // Launch Explosive Sheep
-                ExplosiveSheep sheep = new ExplosiveSheep(player);
-                sheep.shoot(1.5); 
-                
-                // Consume item
-                // player.getItemInHand(event.getHand()).consume(1); // Need correct API
-                player.setItemInHand(event.getHand(), event.getItemStack().withAmount(a -> a - 1));
+                launchSheep(event.getPlayer(), event.getHand());
             }
         });
+        
+        // Handle Block Click
+        node.addListener(PlayerBlockInteractEvent.class, event -> {
+            if (event.getPlayer().getItemInHand(event.getHand()).material() == Material.RED_WOOL) {
+                event.setCancelled(true); // Prevent placing wool
+                event.setBlockingItemUse(true);
+                launchSheep(event.getPlayer(), event.getHand());
+            }
+        });
+    }
+    
+    private void launchSheep(Player player, PlayerHand hand) {
+        // Launch Explosive Sheep
+        ExplosiveSheep sheep = new ExplosiveSheep(player);
+        sheep.shoot(3.0); 
+        player.setItemInHand(hand, player.getItemInHand(hand).withAmount(a -> a - 1));
     }
 
     private void registerBowLogic() {

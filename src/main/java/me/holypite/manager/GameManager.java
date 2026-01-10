@@ -1,6 +1,7 @@
 package me.holypite.manager;
 
 import me.holypite.games.duel.DuelGame;
+import me.holypite.games.sheepwars.SheepWarsGame;
 import me.holypite.model.Game;
 import me.holypite.model.GameState;
 import me.holypite.model.GameType;
@@ -53,6 +54,8 @@ public class GameManager {
         switch (type) {
             case DUEL:
                 return new DuelGame(mapManager);
+            case SHEEP_WARS:
+                return new SheepWarsGame(mapManager);
             default:
                 throw new IllegalArgumentException("Unknown game type: " + type);
         }
@@ -61,6 +64,7 @@ public class GameManager {
     // Helper to identify game type (naive implementation, usually Game would have a getType() method)
     private GameType getGameType(Game game) {
         if (game instanceof DuelGame) return GameType.DUEL;
+        if (game instanceof SheepWarsGame) return GameType.SHEEP_WARS;
         return null;
     }
     

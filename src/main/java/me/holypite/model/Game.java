@@ -171,12 +171,54 @@ public abstract class Game {
 
     public void removePlayer(Player player) {
         players.remove(player);
+        playerTeams.remove(player); // Remove from team
         playerKits.remove(player);
         player.getInventory().clear(); // Clear inventory on quit
         onPlayerQuit(player);
         
+        if (state == GameState.IN_GAME) {
+            checkWinCondition();
+        }
+        
         if (players.isEmpty() && state != GameState.LOBBY) {
             endGame(); // Security: Close game if empty
+        }
+    }
+    
+    public boolean isAlive(Player player) {
+        if (deathManager == null) return true;
+        return !deathManager.isGhost(player);
+    }
+
+    public void checkWinCondition() {
+        List<Player> livingPlayers = players.stream().filter(this::isAlive).toList();
+        
+        if (livingPlayers.size() < 2) { 
+            if (minPlayers > 1) {
+                if (livingPlayers.size() == 1) {
+                    sendMessageToAll("Game Over! Victory for " + livingPlayers.get(0).getUsername());
+                } else {
+                    sendMessageToAll("Not enough players to continue.");
+                }
+                endGame();
+                return;
+            }
+        }
+        
+        // Team Check
+        if (!playerTeams.isEmpty()) {
+            Set<String> activeTeams = new HashSet<>();
+            for (Player p : livingPlayers) {
+                TeamConfig team = playerTeams.get(p);
+                if (team != null) {
+                    activeTeams.add(team.name);
+                }
+            }
+            
+            if (activeTeams.size() <= 1 && livingPlayers.size() > 0) {
+                sendMessageToAll("Game Over! Victory for " + activeTeams.iterator().next());
+                endGame();
+            }
         }
     }
 
