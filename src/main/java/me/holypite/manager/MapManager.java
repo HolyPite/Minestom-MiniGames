@@ -169,14 +169,15 @@ public class MapManager {
         // Spawn logic
         if (parent == null) {
             if (config.pos != null) {
-                entity.setInstance(instance, config.pos.toPos());
+                entity.setInstance(instance, config.pos.toPos()).join();
             } else {
                 // Default pos
-                entity.setInstance(instance, new net.minestom.server.coordinate.Pos(0, 100, 0));
+                entity.setInstance(instance, new net.minestom.server.coordinate.Pos(0, 100, 0)).join();
             }
         } else {
             // Passenger
-            entity.setInstance(instance, parent.getPosition());
+            // Spawn at parent pos first
+            entity.setInstance(instance, parent.getPosition()).join();
             parent.addPassenger(entity);
         }
         
