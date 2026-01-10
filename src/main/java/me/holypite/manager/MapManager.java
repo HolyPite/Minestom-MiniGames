@@ -9,12 +9,16 @@ import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
 import net.minestom.server.entity.metadata.display.BlockDisplayMeta;
+import net.minestom.server.entity.metadata.display.ItemDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
 import net.minestom.server.instance.anvil.AnvilLoader;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
 
 import java.io.Reader;
 import java.nio.file.Files;
@@ -32,13 +36,6 @@ public class MapManager {
         }
     }
 
-    /**
-     * Creates an instance from a map folder and loads its config.
-     * The instance will NOT save changes back to disk (RAM-only session).
-     *
-     * @param mapName The name of the folder inside the 'maps' directory.
-     * @return The LoadedMap containing instance and config, or null if loading failed.
-     */
     public LoadedMap createInstanceFromMap(String mapName) {
         Path mapPath = MAPS_FOLDER.resolve(mapName);
         if (!mapPath.toFile().exists()) {
@@ -62,7 +59,6 @@ public class MapManager {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
         
-        // Use AnvilLoader to load the world
         instance.setChunkLoader(new AnvilLoader(mapPath));
         
         // Spawn Entities from Config
@@ -75,55 +71,119 @@ public class MapManager {
 
     private void spawnEntities(InstanceContainer instance, MapConfig config) {
         for (MapEntityConfig entityConfig : config.entities) {
-            EntityType type = null;
-            // Try to find type
+            spawnEntityRecursive(instance, entityConfig, null);
+        }
+    }
+
+    private void spawnEntityRecursive(InstanceContainer instance, MapEntityConfig config, Entity parent) {
+        EntityType type = null;
+        for (EntityType t : EntityType.values()) {
+            if (t.name().equalsIgnoreCase(config.type) || t.key().asString().equalsIgnoreCase(config.type)) {
+                type = t;
+                break;
+            }
+        }
+        
+        if (type == null) {
+            String shortName = config.type.replace("minecraft:", "");
             for (EntityType t : EntityType.values()) {
-                if (t.name().equalsIgnoreCase(entityConfig.type) || t.key().asString().equalsIgnoreCase(entityConfig.type)) {
+                if (t.name().equalsIgnoreCase(shortName)) {
                     type = t;
                     break;
                 }
             }
-            
-            if (type == null) {
-                // Try removing minecraft: prefix
-                String shortName = entityConfig.type.replace("minecraft:", "");
-                for (EntityType t : EntityType.values()) {
-                    if (t.name().equalsIgnoreCase(shortName)) {
-                        type = t;
-                        break;
-                    }
+        }
+
+        if (type == null) {
+            System.err.println("Unknown entity type: " + config.type);
+            return;
+        }
+
+        Entity entity = new Entity(type);
+        
+        // Metadata handling
+        if (config.meta != null) {
+            if (entity.getEntityMeta() instanceof BlockDisplayMeta meta) {
+                if (config.meta.containsKey("block_state")) {
+                    Block block = getBlock(config.meta.get("block_state"));
+                    if (block != null) meta.setBlockState(block);
                 }
-            }
-
-            if (type == null) {
-                System.err.println("Unknown entity type: " + entityConfig.type);
-                continue;
-            }
-
-            Entity entity = new Entity(type);
-            entity.setInstance(instance, entityConfig.pos.toPos());
-
-            // Metadata handling
-            if (entityConfig.meta != null) {
-                if (entity.getEntityMeta() instanceof BlockDisplayMeta meta) {
-                    if (entityConfig.meta.containsKey("block_state")) {
-                        Block block = getBlock(entityConfig.meta.get("block_state"));
-                        if (block != null) meta.setBlockState(block);
-                    }
-                    if (entityConfig.meta.containsKey("scale")) {
-                        // Parse scale "x,y,z"
-                        String[] scale = entityConfig.meta.get("scale").split(",");
-                        if (scale.length == 3) {
-                            try {
-                                meta.setScale(new Vec(Double.parseDouble(scale[0]), Double.parseDouble(scale[1]), Double.parseDouble(scale[2])));
-                            } catch (NumberFormatException ignored) {}
+            } else if (entity.getEntityMeta() instanceof ItemDisplayMeta meta) {
+                if (config.meta.containsKey("item")) {
+                    String itemName = config.meta.get("item");
+                    // Simple parsing for now (no count/nbt support in string yet)
+                    // If itemName is "minecraft:stick", it works
+                    // If it's json like {id:"...", Count:1}, we need more parsing or assume simple ID
+                    // The config provided has "minecraft:stick" as value for "item" key in meta map?
+                    // Wait, the config provided has nested JSON for "item"?
+                    // My converter flattened it?
+                    // The provided JSON example has "item": "minecraft:stick" (String) ? 
+                    // No, the original command had {item:{id:...,Count:1}}.
+                    // My JSON generator put "item": "minecraft:carrot" -> Simple string.
+                    // So Material.fromNamespaceId should work if I strip minecraft:
+                    
+                    String matName = itemName.replace("minecraft:", "").toUpperCase();
+                    Material material = null;
+                    for (Material m : Material.values()) {
+                        if (m.name().equalsIgnoreCase(matName)) {
+                            material = m;
+                            break;
                         }
                     }
-                } else if (entity.getEntityMeta() instanceof TextDisplayMeta meta) {
-                    if (entityConfig.meta.containsKey("text")) {
-                        meta.setText(Component.text(entityConfig.meta.get("text")));
+                    
+                    if (material != null) {
+                        meta.setItemStack(ItemStack.of(material));
                     }
                 }
+            } else if (entity.getEntityMeta() instanceof TextDisplayMeta meta) {
+                if (config.meta.containsKey("text")) {
+                    meta.setText(Component.text(config.meta.get("text")));
+                }
+            }
+            
+            // Common Display Meta (Transformation)
+            if (entity.getEntityMeta() instanceof AbstractDisplayMeta meta) {
+                if (config.meta.containsKey("scale")) {
+                    String[] scale = config.meta.get("scale").split(",");
+                    if (scale.length == 3) {
+                        try {
+                            meta.setScale(new Vec(Double.parseDouble(scale[0]), Double.parseDouble(scale[1]), Double.parseDouble(scale[2])));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+                if (config.meta.containsKey("transformation")) {
+                    String[] t = config.meta.get("transformation").split(",");
+                    if (t.length == 16) {
+                        try {
+                            // Extract Translation (Column 3)
+                            double tx = Double.parseDouble(t[3]);
+                            double ty = Double.parseDouble(t[7]);
+                            double tz = Double.parseDouble(t[11]);
+                            meta.setTranslation(new Vec(tx, ty, tz));
+                        } catch (NumberFormatException ignored) {}
+                    }
+                }
+            }
+        }
+
+        // Spawn logic
+        if (parent == null) {
+            if (config.pos != null) {
+                entity.setInstance(instance, config.pos.toPos());
+            } else {
+                // Default pos
+                entity.setInstance(instance, new net.minestom.server.coordinate.Pos(0, 100, 0));
+            }
+        } else {
+            // Passenger
+            entity.setInstance(instance, parent.getPosition());
+            parent.addPassenger(entity);
+        }
+        
+        // Recursion
+        if (config.passengers != null) {
+            for (MapEntityConfig passengerConfig : config.passengers) {
+                spawnEntityRecursive(instance, passengerConfig, entity);
             }
         }
     }
