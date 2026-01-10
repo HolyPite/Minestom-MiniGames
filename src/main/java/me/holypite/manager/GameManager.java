@@ -1,7 +1,6 @@
 package me.holypite.manager;
 
-import me.holypite.games.implem.DuelGame;
-import me.holypite.games.implem.TestGame;
+import me.holypite.games.duel.DuelGame;
 import me.holypite.model.Game;
 import me.holypite.model.GameState;
 import me.holypite.model.GameType;
@@ -52,8 +51,6 @@ public class GameManager {
 
     private Game createGame(GameType type) {
         switch (type) {
-            case TEST_GAME:
-                return new TestGame(mapManager);
             case DUEL:
                 return new DuelGame(mapManager);
             default:
@@ -63,7 +60,6 @@ public class GameManager {
     
     // Helper to identify game type (naive implementation, usually Game would have a getType() method)
     private GameType getGameType(Game game) {
-        if (game instanceof TestGame) return GameType.TEST_GAME;
         if (game instanceof DuelGame) return GameType.DUEL;
         return null;
     }

@@ -1,4 +1,4 @@
-package me.holypite.games.implem;
+package me.holypite.games.duel;
 
 import me.holypite.manager.MapManager;
 
