@@ -6,6 +6,7 @@ public class MapConfig {
     public String name;
     public int minPlayers;
     public int maxPlayers;
-    public List<MapSpawn> spawns; // Global spawns (if no teams)
-    public List<TeamConfig> teams; // Teams configuration
+    public List<MapSpawn> spawns; // Global spawns
+    public List<TeamConfig> teams; // Teams
+    public List<MapEntityConfig> entities; // Decorative entities
 }

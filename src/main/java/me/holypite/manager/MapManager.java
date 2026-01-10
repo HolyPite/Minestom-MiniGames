@@ -3,10 +3,18 @@ package me.holypite.manager;
 import com.google.gson.Gson;
 import me.holypite.model.map.LoadedMap;
 import me.holypite.model.map.MapConfig;
+import me.holypite.model.map.MapEntityConfig;
+import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.instance.anvil.AnvilLoader;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.metadata.display.BlockDisplayMeta;
+import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
+import net.minestom.server.instance.anvil.AnvilLoader;
+import net.minestom.server.instance.block.Block;
 
 import java.io.Reader;
 import java.nio.file.Files;
@@ -57,6 +65,75 @@ public class MapManager {
         // Use AnvilLoader to load the world
         instance.setChunkLoader(new AnvilLoader(mapPath));
         
+        // Spawn Entities from Config
+        if (config != null && config.entities != null) {
+            spawnEntities(instance, config);
+        }
+        
         return new LoadedMap(instance, config);
+    }
+
+    private void spawnEntities(InstanceContainer instance, MapConfig config) {
+        for (MapEntityConfig entityConfig : config.entities) {
+            EntityType type = null;
+            // Try to find type
+            for (EntityType t : EntityType.values()) {
+                if (t.name().equalsIgnoreCase(entityConfig.type) || t.key().asString().equalsIgnoreCase(entityConfig.type)) {
+                    type = t;
+                    break;
+                }
+            }
+            
+            if (type == null) {
+                // Try removing minecraft: prefix
+                String shortName = entityConfig.type.replace("minecraft:", "");
+                for (EntityType t : EntityType.values()) {
+                    if (t.name().equalsIgnoreCase(shortName)) {
+                        type = t;
+                        break;
+                    }
+                }
+            }
+
+            if (type == null) {
+                System.err.println("Unknown entity type: " + entityConfig.type);
+                continue;
+            }
+
+            Entity entity = new Entity(type);
+            entity.setInstance(instance, entityConfig.pos.toPos());
+
+            // Metadata handling
+            if (entityConfig.meta != null) {
+                if (entity.getEntityMeta() instanceof BlockDisplayMeta meta) {
+                    if (entityConfig.meta.containsKey("block_state")) {
+                        Block block = getBlock(entityConfig.meta.get("block_state"));
+                        if (block != null) meta.setBlockState(block);
+                    }
+                    if (entityConfig.meta.containsKey("scale")) {
+                        // Parse scale "x,y,z"
+                        String[] scale = entityConfig.meta.get("scale").split(",");
+                        if (scale.length == 3) {
+                            try {
+                                meta.setScale(new Vec(Double.parseDouble(scale[0]), Double.parseDouble(scale[1]), Double.parseDouble(scale[2])));
+                            } catch (NumberFormatException ignored) {}
+                        }
+                    }
+                } else if (entity.getEntityMeta() instanceof TextDisplayMeta meta) {
+                    if (entityConfig.meta.containsKey("text")) {
+                        meta.setText(Component.text(entityConfig.meta.get("text")));
+                    }
+                }
+            }
+        }
+    }
+
+    private Block getBlock(String id) {
+        for (Block b : Block.values()) {
+            if (b.name().equalsIgnoreCase(id) || b.key().asString().equalsIgnoreCase(id)) {
+                return b;
+            }
+        }
+        return null;
     }
 }

@@ -21,7 +21,6 @@ public class HubManager {
 
     private final List<InstanceContainer> hubs = new ArrayList<>();
     private final MapManager mapManager;
-    private final EntityLoader entityLoader = new EntityLoader();
     private static final int MAX_PLAYERS_PER_HUB = 50;
 
     public HubManager(MapManager mapManager) {
@@ -42,10 +41,6 @@ public class HubManager {
         if (loadedMap != null) {
             hub = loadedMap.getInstance();
             System.out.println("Loaded Hub map successfully.");
-            
-            // Load Entities (Displays, etc.)
-            entityLoader.loadEntities(hub, Path.of("maps/hub"));
-            
         } else {
             // Fallback
             InstanceManager instanceManager = MinecraftServer.getInstanceManager();
