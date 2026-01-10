@@ -41,6 +41,11 @@ public abstract class SheepProjectile extends EntityCreature {
     public void update(long time) {
         super.update(time);
         
+        // Flight Hook
+        if (!landed) {
+            onFlightTick();
+        }
+        
         // Check Landing
         // isOnGround() detects floor.
         // Collided with wall? Velocity drops to 0.
@@ -58,4 +63,6 @@ public abstract class SheepProjectile extends EntityCreature {
     }
 
     public abstract void onLand();
+    
+    protected void onFlightTick() {}
 }

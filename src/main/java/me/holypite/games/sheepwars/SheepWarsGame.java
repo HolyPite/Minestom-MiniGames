@@ -1,5 +1,6 @@
 package me.holypite.games.sheepwars;
 
+import me.holypite.games.sheepwars.SheepRegistry;
 import me.holypite.manager.MapManager;
 import me.holypite.model.Game;
 import me.holypite.model.map.LoadedMap;
@@ -55,10 +56,6 @@ public class SheepWarsGame extends Game {
         sendMessageToAll(player.getUsername() + " left.");
     }
 
-import me.holypite.games.sheepwars.SheepRegistry;
-
-public class SheepWarsGame extends Game {
-    // ...
     @Override
     public void onGameStart() {
         sendMessageToAll("SheepWars Started! Destroy everything!");
