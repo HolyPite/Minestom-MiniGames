@@ -18,9 +18,14 @@ import net.minestom.server.event.player.PlayerBlockBreakEvent;
 import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.entity.GameMode;
 
+import me.holypite.games.sheepwars.SheepRegistry;
+
 public class Main {
     public static void main(String[] args) {
         MinecraftServer minecraftServer = MinecraftServer.init(new Auth.Online());
+        
+        // Init Registries
+        SheepRegistry.init();
 
         // Managers
         MapManager mapManager = new MapManager();

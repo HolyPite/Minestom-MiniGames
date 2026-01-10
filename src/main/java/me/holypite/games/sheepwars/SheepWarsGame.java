@@ -1,12 +1,15 @@
 package me.holypite.games.sheepwars;
 
-import me.holypite.games.kits.ClassicKit;
 import me.holypite.manager.MapManager;
 import me.holypite.model.Game;
 import me.holypite.model.map.LoadedMap;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.item.ItemStack;
+import net.minestom.server.item.Material;
+import net.minestom.server.timer.TaskSchedule;
 
 public class SheepWarsGame extends Game {
 
@@ -17,8 +20,8 @@ public class SheepWarsGame extends Game {
         setRespawnDelay(5);
         setCanBreakBlocks(true); // Explosions will destroy blocks!
         
-        // Register default kit (later SheepWarsKit with wools)
-        registerKit(new ClassicKit()); 
+        // Register default kit
+        registerKit(new SheepWarsKit()); 
     }
 
     @Override
@@ -52,9 +55,32 @@ public class SheepWarsGame extends Game {
         sendMessageToAll(player.getUsername() + " left.");
     }
 
+import me.holypite.games.sheepwars.SheepRegistry;
+
+public class SheepWarsGame extends Game {
+    // ...
     @Override
     public void onGameStart() {
         sendMessageToAll("SheepWars Started! Destroy everything!");
+        
+        // Give Sheeps every 10 seconds
+        MinecraftServer.getSchedulerManager().submitTask(() -> {
+            if (getState() != me.holypite.model.GameState.IN_GAME) {
+                return TaskSchedule.stop();
+            }
+            
+            for (Player p : getPlayers()) {
+                if (isAlive(p)) {
+                    ItemStack sheepItem = SheepRegistry.getRandomSheepItem();
+                    if (sheepItem != ItemStack.AIR) {
+                        p.getInventory().addItemStack(sheepItem);
+                        p.sendMessage("You received a sheep!");
+                    }
+                }
+            }
+            
+            return TaskSchedule.seconds(10);
+        });
     }
 
     @Override

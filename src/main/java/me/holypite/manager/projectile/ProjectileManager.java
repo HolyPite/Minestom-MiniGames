@@ -23,50 +23,40 @@ import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 
-import me.holypite.games.sheepwars.sheeps.ExplosiveSheep;
-import net.minestom.server.event.player.PlayerUseItemEvent;
-import net.minestom.server.event.player.PlayerBlockInteractEvent;
-import net.minestom.server.entity.Player;
-import net.minestom.server.entity.PlayerHand;
+import me.holypite.games.sheepwars.SheepRegistry;
+import me.holypite.games.sheepwars.sheeps.SheepProjectile;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Optional;
 
 public class ProjectileManager {
-
-    private static final Tag<Long> CHARGE_SINCE_TAG = Tag.Long("bow_charge_since").defaultValue(Long.MAX_VALUE);
-    private static final Tag<Double> BOW_POWER = Tag.Double("bow_power").defaultValue(0.0);
-    
-    private final EventNode<Event> node;
-    private final ExplosionManager explosionManager;
-
-    public ProjectileManager(EventNode<Event> node, ExplosionManager explosionManager) {
-        this.node = node;
-        this.explosionManager = explosionManager;
-        registerBowLogic();
-        registerSheepLogic();
-        registerCollisionLogic();
-    }
-
+    // ...
     private void registerSheepLogic() {
         node.addListener(PlayerUseItemEvent.class, event -> {
-            if (event.getItemStack().material() == Material.RED_WOOL) {
-                launchSheep(event.getPlayer(), event.getHand());
-            }
+            checkAndLaunch(event.getPlayer(), event.getHand(), event.getItemStack());
         });
         
-        // Handle Block Click
         node.addListener(PlayerBlockInteractEvent.class, event -> {
-            if (event.getPlayer().getItemInHand(event.getHand()).material() == Material.RED_WOOL) {
-                event.setCancelled(true); // Prevent placing wool
+            ItemStack item = event.getPlayer().getItemInHand(event.getHand());
+            if (checkAndLaunch(event.getPlayer(), event.getHand(), item)) {
+                event.setCancelled(true);
                 event.setBlockingItemUse(true);
-                launchSheep(event.getPlayer(), event.getHand());
             }
         });
     }
     
-    private void launchSheep(Player player, PlayerHand hand) {
-        // Launch Explosive Sheep
-        ExplosiveSheep sheep = new ExplosiveSheep(player);
+    private boolean checkAndLaunch(Player player, PlayerHand hand, ItemStack item) {
+        Optional<SheepRegistry.SheepEntry> entry = SheepRegistry.getSheepByItem(item);
+        if (entry.isPresent()) {
+            launchSheep(player, hand, entry.get());
+            return true;
+        }
+        return false;
+    }
+    
+    private void launchSheep(Player player, PlayerHand hand, SheepRegistry.SheepEntry entry) {
+        // Launch Sheep using Factory
+        SheepProjectile sheep = entry.factory().apply(player);
         sheep.shoot(3.0); 
         player.setItemInHand(hand, player.getItemInHand(hand).withAmount(a -> a - 1));
     }
