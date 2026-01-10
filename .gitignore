@@ -1,6 +1,7 @@
 .gradle
 build/
 maps/map_test/
+gemini_docs/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/

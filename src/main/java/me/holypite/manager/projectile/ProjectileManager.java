@@ -23,6 +23,9 @@ import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 
+import me.holypite.games.sheepwars.sheeps.ExplosiveSheep;
+import net.minestom.server.event.player.PlayerUseItemEvent;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ProjectileManager {
@@ -37,7 +40,26 @@ public class ProjectileManager {
         this.node = node;
         this.explosionManager = explosionManager;
         registerBowLogic();
+        registerSheepLogic();
         registerCollisionLogic();
+    }
+
+    private void registerSheepLogic() {
+        node.addListener(PlayerUseItemEvent.class, event -> {
+            if (event.getItemStack().material() == Material.RED_WOOL) {
+                Player player = event.getPlayer();
+                
+                // Launch Explosive Sheep
+                ExplosiveSheep sheep = new ExplosiveSheep(player);
+                Pos shootPos = player.getPosition().add(0, player.getEyeHeight(), 0);
+                sheep.shoot(shootPos.asVec(), 1.5, 0); // Power 1.5
+                sheep.setInstance(player.getInstance(), shootPos);
+                
+                // Consume item
+                // player.getItemInHand(event.getHand()).consume(1); // Need correct API
+                player.setItemInHand(event.getHand(), event.getItemStack().withAmount(a -> a - 1));
+            }
+        });
     }
 
     private void registerBowLogic() {

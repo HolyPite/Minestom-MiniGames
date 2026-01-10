@@ -1,6 +1,7 @@
 package me.holypite;
 
 import me.holypite.commands.PlayCommand;
+import me.holypite.commands.DebugCommand;
 import me.holypite.manager.GameManager;
 import me.holypite.manager.HubManager;
 import me.holypite.manager.MapManager;
@@ -28,6 +29,7 @@ public class Main {
 
         // Commands
         MinecraftServer.getCommandManager().register(new PlayCommand(gameManager));
+        MinecraftServer.getCommandManager().register(new DebugCommand());
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
