@@ -1,27 +1,24 @@
 package me.holypite.games.sheepwars.sheeps;
 
-import me.holypite.games.sheepwars.sheeps.entities.aggressive.AggressiveSlime;
 import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
-import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.util.List;
 
-public class StickySheep extends SheepProjectile {
+public class BurrowerSheep extends SheepProjectile {
 
-    public StickySheep(Entity shooter) {
+    public BurrowerSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
-            meta.setColor(net.minestom.server.color.DyeColor.LIME);
-            meta.setCustomName(Component.text("Sticky Sheep", TextColor.fromHexString("#32CD32")));
+            meta.setColor(net.minestom.server.color.DyeColor.BROWN);
+            meta.setCustomName(Component.text("Burrower Sheep", TextColor.fromHexString("#8B4513")));
             meta.setCustomNameVisible(true);
         }
     }
@@ -39,20 +36,13 @@ public class StickySheep extends SheepProjectile {
         double radius = 5.0;
         List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
         
-        // 1. Transform blocks
         for (Point pos : blocks) {
             Block current = getInstance().getBlock(pos);
             if (current.isSolid()) {
-                if (TKit.chance(0.7)) {
-                    getInstance().setBlock(pos, Block.SLIME_BLOCK);
+                if (TKit.chance(0.05)) { // 5% chance
+                    getInstance().setBlock(pos, Block.TNT);
                 }
             }
-        }
-
-        // 2. Spawn Slimes
-        for (int i = 0; i < 3; i++) {
-            AggressiveSlime slime = new AggressiveSlime(TKit.chance(0.7) ? 1 : 2);
-            slime.setInstance(getInstance(), getPosition());
         }
 
         remove();

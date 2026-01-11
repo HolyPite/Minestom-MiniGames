@@ -93,6 +93,22 @@ public class TKit {
                 .filter(p -> !ignoreSpectators || p.getGameMode() != GameMode.SPECTATOR)
                 .collect(Collectors.toList());
     }
+    
+    public static Player getNearestPlayer(Instance instance, Point center, double maxDistance, boolean ignoreSpectators) {
+        Player nearest = null;
+        double minDistanceSq = maxDistance * maxDistance;
+        
+        for (Player p : instance.getPlayers()) {
+            if (ignoreSpectators && p.getGameMode() == GameMode.SPECTATOR) continue;
+            
+            double distSq = p.getPosition().distanceSquared(center);
+            if (distSq < minDistanceSq) {
+                minDistanceSq = distSq;
+                nearest = p;
+            }
+        }
+        return nearest;
+    }
 
     public static Vec getDirection(Point from, Point to) {
         return to.sub(from).asVec().normalize();
