@@ -3,6 +3,7 @@ package me.holypite;
 import me.holypite.commands.PlayCommand;
 import me.holypite.commands.DebugCommand;
 import me.holypite.commands.GiveWoolCommand;
+import me.holypite.commands.TestCommand;
 import me.holypite.manager.GameManager;
 import me.holypite.manager.HubManager;
 import me.holypite.manager.MapManager;
@@ -37,6 +38,7 @@ public class Main {
         MinecraftServer.getCommandManager().register(new PlayCommand(gameManager));
         MinecraftServer.getCommandManager().register(new DebugCommand());
         MinecraftServer.getCommandManager().register(new GiveWoolCommand());
+        MinecraftServer.getCommandManager().register(new TestCommand(gameManager));
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();

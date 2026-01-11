@@ -232,13 +232,17 @@ public abstract class Game {
         this.state = GameState.STARTING;
         sendMessageToAll("Game starting in 5 seconds...");
         
-        MinecraftServer.getSchedulerManager().buildTask(this::startGame)
+        MinecraftServer.getSchedulerManager().buildTask(() -> startGame(false))
                 .delay(TaskSchedule.seconds(5))
                 .schedule();
     }
+    
+    public void forceStart() {
+        startGame(true);
+    }
 
-    public void startGame() {
-        if (players.size() < minPlayers) {
+    public void startGame(boolean force) {
+        if (!force && players.size() < minPlayers) {
             this.state = GameState.LOBBY;
             sendMessageToAll("Not enough players to start. Countdown cancelled.");
             return;

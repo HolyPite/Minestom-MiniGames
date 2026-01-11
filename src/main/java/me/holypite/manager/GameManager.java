@@ -49,6 +49,23 @@ public class GameManager {
 
         game.addPlayer(player);
     }
+    
+    public void forceStartGame(Player player, GameType type) {
+        Game game = createGame(type);
+        
+        // Setup cleanup
+        game.setOnEndCallback(() -> {
+            new ArrayList<>(game.getPlayers()).forEach(p -> hubManager.joinHub(p));
+            removeGame(game);
+        });
+        
+        activeGames.add(game);
+        game.addPlayer(player);
+        
+        // Force start logic: We need to bypass the minPlayers check in startGame
+        // Or we can modify Game to have a "forceStart" method
+        game.forceStart();
+    }
 
     private Game createGame(GameType type) {
         switch (type) {

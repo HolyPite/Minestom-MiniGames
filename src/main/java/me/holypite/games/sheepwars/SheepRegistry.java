@@ -4,9 +4,11 @@ import me.holypite.games.sheepwars.sheeps.BlackHoleSheep;
 import me.holypite.games.sheepwars.sheeps.BoardingSheep;
 import me.holypite.games.sheepwars.sheeps.ExplosiveSheep;
 import me.holypite.games.sheepwars.sheeps.IcySheep;
+import me.holypite.games.sheepwars.sheeps.IncendiarySheep;
 import me.holypite.games.sheepwars.sheeps.MysterySheep;
 import me.holypite.games.sheepwars.sheeps.SheepProjectile;
 import me.holypite.games.sheepwars.sheeps.SpiderSheep;
+import me.holypite.games.sheepwars.sheeps.StickySheep;
 import me.holypite.games.sheepwars.sheeps.TaupeSheep;
 import me.holypite.utils.ItemBuilder;
 import net.kyori.adventure.text.Component;
@@ -85,6 +87,22 @@ public class SheepRegistry {
                         .name(Component.text("Mouton Glacial", TextColor.fromHexString("#87CEEB")))
                         .modelData("icy").build(),
                 IcySheep::new
+        );
+
+        // Sticky Sheep
+        register("sticky", "Mouton Gluant", 
+                new ItemBuilder(Material.WHITE_WOOL)
+                        .name(Component.text("Mouton Gluant", TextColor.fromHexString("#32CD32")))
+                        .modelData("sticky").build(),
+                StickySheep::new
+        );
+
+        // Incendiary Sheep
+        register("incendiary", "Mouton Incendiaire", 
+                new ItemBuilder(Material.WHITE_WOOL)
+                        .name(Component.text("Mouton Incendiaire", TextColor.fromHexString("#FF4500")))
+                        .modelData("incendiary").build(),
+                IncendiarySheep::new
         );
         
         // Add others here...
