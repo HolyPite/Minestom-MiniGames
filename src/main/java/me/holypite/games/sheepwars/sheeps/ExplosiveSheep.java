@@ -38,4 +38,9 @@ public class ExplosiveSheep extends SheepProjectile {
         getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 3.0f, null);
         remove();
     }
+
+    @Override
+    public String getId() {
+        return "explosive";
+    }
 }

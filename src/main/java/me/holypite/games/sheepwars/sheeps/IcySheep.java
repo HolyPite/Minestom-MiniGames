@@ -11,6 +11,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class IcySheep extends SheepProjectile {
 
@@ -35,40 +36,36 @@ public class IcySheep extends SheepProjectile {
 
         double radius = 5.0;
         List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+        ThreadLocalRandom rnd = ThreadLocalRandom.current();
         
-        // We need to iterate all blocks in radius, not just solids returned by getBlocksInSphere (if it filters)
-        // TKit.getBlocksInSphere currently returns SOLID blocks only? Let's check TKit.
-        // TKit implementation: if (block.getType().isSolid()) blocks.add(block);
-        // So I need a new method or modify logic here.
-        // I will implement manual loop here for full control.
-        
-        Point center = getPosition();
-        int r = (int) Math.ceil(radius);
-        
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; y <= r; y++) {
-                for (int z = -r; z <= r; z++) {
-                    Point pos = center.add(x, y, z);
-                    if (pos.distance(center) <= radius) {
-                        Block current = getInstance().getBlock(pos);
-                        
-                        if (!current.isAir()) {
-                            // Transform solid blocks
-                            if (TKit.chance(0.7)) {
-                                getInstance().setBlock(pos, TKit.chance(0.3) ? Block.POWDER_SNOW : Block.SNOW_BLOCK);
-                            }
-                        } else if (current.isAir()) {
-                            // Add snow layer on ground
-                            Block below = getInstance().getBlock(pos.sub(0, 1, 0));
-                            if (below.isSolid() && TKit.chance(0.5)) {
-                                getInstance().setBlock(pos, Block.SNOW);
-                            }
-                        }
-                    }
-                }
+        for (Point pos : blocks) {
+            Block current = getInstance().getBlock(pos);
+            
+            // 1. Solid blocks transformation
+            if (current.isSolid()) {
+                double r = rnd.nextDouble();
+                Block newBlock;
+                if (r < 0.80) newBlock = Block.SNOW_BLOCK;
+                else if (r < 0.90) newBlock = Block.ICE;
+                else if (r < 0.95) newBlock = Block.BLUE_ICE;
+                else newBlock = Block.POWDER_SNOW;
+                
+                getInstance().setBlock(pos, newBlock);
+                continue;
+            }
+            
+            // 2. Snow Layer on top
+            Block below = getInstance().getBlock(pos.sub(0, 1, 0));
+            if (below.isSolid() && rnd.nextDouble() < 0.30) {
+                getInstance().setBlock(pos, Block.SNOW);
             }
         }
 
         remove();
+    }
+
+    @Override
+    public String getId() {
+        return "icy";
     }
 }

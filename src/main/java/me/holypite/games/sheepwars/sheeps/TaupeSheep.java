@@ -50,4 +50,9 @@ public class TaupeSheep extends SheepProjectile {
             }
         }
     }
+
+    @Override
+    public String getId() {
+        return "taupe";
+    }
 }

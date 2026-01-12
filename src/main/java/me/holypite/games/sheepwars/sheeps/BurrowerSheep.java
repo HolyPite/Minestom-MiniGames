@@ -47,4 +47,9 @@ public class BurrowerSheep extends SheepProjectile {
 
         remove();
     }
+
+    @Override
+    public String getId() {
+        return "burrower";
+    }
 }

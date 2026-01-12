@@ -59,4 +59,9 @@ public class GeyserSheep extends SheepProjectile {
 
         remove();
     }
+
+    @Override
+    public String getId() {
+        return "geyser";
+    }
 }

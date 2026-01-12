@@ -65,4 +65,6 @@ public abstract class SheepProjectile extends EntityCreature {
     public abstract void onLand();
     
     protected void onFlightTick() {}
+    
+    public abstract String getId();
 }

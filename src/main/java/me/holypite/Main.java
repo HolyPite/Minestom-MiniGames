@@ -33,6 +33,7 @@ public class Main {
         MapManager mapManager = new MapManager();
         HubManager hubManager = new HubManager(mapManager);
         GameManager gameManager = new GameManager(hubManager, mapManager);
+        new me.holypite.manager.PotionManager();
 
         // Commands
         MinecraftServer.getCommandManager().register(new PlayCommand(gameManager));

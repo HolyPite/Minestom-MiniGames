@@ -63,4 +63,9 @@ public class SpiderSheep extends SheepProjectile {
 
         remove();
     }
+
+    @Override
+    public String getId() {
+        return "spider";
+    }
 }

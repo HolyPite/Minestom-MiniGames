@@ -10,6 +10,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
 import net.minestom.server.timer.TaskSchedule;
+import net.minestom.server.item.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,14 +54,18 @@ public class CloneSheep extends SheepProjectile {
     }
 
     private void cloneSheep(Entity original) {
-        // Simpler: Just spawn a visual sheep with same color and name
-        Entity clone = new Entity(original.getEntityType());
-        clone.setInstance(getInstance(), original.getPosition());
-        
-        if (original.getEntityMeta() instanceof SheepMeta originalMeta && clone.getEntityMeta() instanceof SheepMeta cloneMeta) {
-            cloneMeta.setColor(originalMeta.getColor());
-            cloneMeta.setCustomName(originalMeta.getCustomName());
-            cloneMeta.setCustomNameVisible(originalMeta.isCustomNameVisible());
+        if (original instanceof SheepProjectile sheep) {
+            String id = sheep.getId();
+            if (id.equals("clone")) return; // Don't clone clones
+            
+            ItemStack item = SheepRegistry.getSheepItemById(id);
+            Optional<SheepRegistry.SheepEntry> entry = SheepRegistry.getSheepByItem(item);
+            
+            if (entry.isPresent()) {
+                SheepProjectile clone = entry.get().factory().apply(shooter); // Owner is me? or original owner? Let's say me (shooter of clone sheep)
+                clone.setInstance(getInstance(), original.getPosition());
+                // No velocity, just spawn
+            }
         }
     }
 
@@ -73,5 +78,10 @@ public class CloneSheep extends SheepProjectile {
         // Basic list of monsters to clone
         return type == EntityType.ZOMBIE || type == EntityType.SKELETON || type == EntityType.CREEPER || 
                type == EntityType.SLIME || type == EntityType.BEE || type == EntityType.ENDERMITE || type == EntityType.SILVERFISH;
+    }
+
+    @Override
+    public String getId() {
+        return "clone";
     }
 }

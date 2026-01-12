@@ -15,7 +15,7 @@ import net.minestom.server.timer.TaskSchedule;
 public class SheepWarsGame extends Game {
 
     public SheepWarsGame(MapManager mapManager) {
-        super("SheepWars", 2, 8, mapManager);
+        super("SheepWars", 1, 8, mapManager);
         setPvpEnabled(true);
         setCanRespawn(false); // Elimination mode
         setRespawnDelay(5);

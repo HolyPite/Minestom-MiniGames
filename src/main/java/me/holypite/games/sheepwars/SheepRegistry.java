@@ -83,6 +83,78 @@ public class SheepRegistry {
         register("geyser", "Mouton Geyser", 
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Geyser", TextColor.fromHexString("#1E90FF"))).modelData("geyser").build(),
                 GeyserSheep::new);
+
+        register("storm", "Mouton Tempétueux", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Tempétueux", TextColor.fromHexString("#708090"))).modelData("storm").build(),
+                StormSheep::new);
+
+        register("earthquake", "Mouton Tremblement de Terre", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Tremblement de Terre", TextColor.fromHexString("#8B0000"))).modelData("earthquake").build(),
+                EarthquakeSheep::new);
+
+        register("greta", "Mouton Greta", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Greta", TextColor.fromHexString("#228B22"))).modelData("greta").build(),
+                GretaSheep::new);
+
+        register("shield", "Mouton Bouclier", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Bouclier", TextColor.fromHexString("#808080"))).modelData("shield").build(),
+                ShieldSheep::new);
+
+        register("invisible", "Mouton Invisible", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Invisible", NamedTextColor.WHITE)).modelData("invisible").build(),
+                InvisibleSheep::new);
+
+        register("seeker", "Mouton Chercheur", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Chercheur", TextColor.fromHexString("#8A2BE2"))).modelData("seeker").build(),
+                SeekerSheep::new);
+
+        register("heal", "Mouton Soin", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Soin", TextColor.fromHexString("#ff00ac"))).modelData("heal").build(),
+                HealSheep::new);
+
+        register("jaw", "Mouton Mâchoire", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Mâchoire", TextColor.fromHexString("#800000"))).modelData("jaw").build(),
+                JawSheep::new);
+
+        register("shuffle", "Mouton Shuffle", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Shuffle", TextColor.fromHexString("#FF69B4"))).modelData("shuffle").build(),
+                ShuffleSheep::new);
+
+        register("anvil", "Mouton Enclume", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Enclume", TextColor.fromHexString("#696969"))).modelData("anvil").build(),
+                AnvilSheep::new);
+
+        register("glutton", "Mouton Glouton", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Glouton", TextColor.fromHexString("#0d3d1b"))).modelData("glutton").build(),
+                GluttonSheep::new);
+
+        register("fragmentation", "Mouton Fragmentation", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Fragmentation", TextColor.fromHexString("#FF8C00"))).modelData("fragmentation").build(),
+                FragmentationSheep::new);
+
+        register("trapped", "Mouton Piégé", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Piégé", TextColor.fromHexString("#FFC0CB"))).modelData("trapped").build(),
+                TrappedSheep::new);
+
+        register("blast", "Mouton Déflagration", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Déflagration", TextColor.fromHexString("#FFD700"))).modelData("blast").build(),
+                BlastSheep::new);
+
+        register("thorny", "Mouton Épineux", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Épineux", TextColor.fromHexString("#008000"))).modelData("thorny").build(),
+                ThornySheep::new);
+
+        register("hedgehog", "Mouton Hérisson", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Hérisson", TextColor.fromHexString("#B8860B"))).modelData("hedgehog").build(),
+                HedgehogSheep::new);
+
+        register("radioactive", "Mouton Radioactif", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Radioactif", TextColor.fromHexString("#ADFF2F"))).modelData("radioactive").build(),
+                RadioactiveSheep::new);
+
+        register("glowing", "Mouton Glowing", 
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Glowing", TextColor.fromHexString("#FFFFE0"))).modelData("glowing").build(),
+                GlowingSheep::new);
     }
 
     private static void register(String id, String name, ItemStack item, Function<Entity, SheepProjectile> factory) {

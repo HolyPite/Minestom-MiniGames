@@ -47,4 +47,9 @@ public class MysterySheep extends SheepProjectile {
         
         remove();
     }
+
+    @Override
+    public String getId() {
+        return "mystery";
+    }
 }

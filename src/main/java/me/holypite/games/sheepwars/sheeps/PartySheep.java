@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
 import net.minestom.server.instance.block.Block;
@@ -14,6 +13,7 @@ import net.minestom.server.timer.TaskSchedule;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class PartySheep extends SheepProjectile {
@@ -29,36 +29,46 @@ public class PartySheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
-    }
+        AtomicInteger cycles = new AtomicInteger(0);
+        int maxCycles = 15; // 3 seconds approx (if tick=4)
 
-    private void activate() {
-        if (isRemoved()) return;
-
-        // 1. Random Sheeps
-        int numSheep = ThreadLocalRandom.current().nextInt(3, 8);
-        for (int i = 0; i < numSheep; i++) {
-            Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory();
-            if (factory != null) {
-                SheepProjectile s = factory.apply(shooter);
-                s.setInstance(getInstance(), getPosition().add(Math.random()-0.5, 1, Math.random()-0.5));
-                s.onLand(); // Activate them!
+        MinecraftServer.getSchedulerManager().submitTask(() -> {
+            if (isRemoved()) return TaskSchedule.stop();
+            
+            // 1. Change wool blocks around
+            double radius = 4.0;
+            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+            for (Point pos : blocks) {
+                Block block = getInstance().getBlock(pos);
+                if (!block.isAir()) {
+                    getInstance().setBlock(pos, getRandomWool());
+                }
             }
-        }
 
-        // 2. Change wool blocks around
-        double radius = 3.0;
-        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
-        for (Point pos : blocks) {
-            Block block = getInstance().getBlock(pos);
-            if (block.name().contains("wool")) {
-                getInstance().setBlock(pos, getRandomWool());
+            if (cycles.getAndIncrement() >= maxCycles) {
+                // 2. Random Sheeps Spawn
+                int numSheep = ThreadLocalRandom.current().nextInt(3, 6);
+                double step = 2 * Math.PI / numSheep;
+                
+                for (int i = 0; i < numSheep; i++) {
+                    Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory();
+                    if (factory != null) {
+                        double theta = i * step;
+                        double r = ThreadLocalRandom.current().nextBoolean() ? 2 : 3;
+                        Point spawnPos = getPosition().add(r * Math.cos(theta), 0, r * Math.sin(theta));
+                        
+                        SheepProjectile s = factory.apply(shooter);
+                        s.setInstance(getInstance(), spawnPos);
+                        s.onLand(); // Activate them!
+                    }
+                }
+                
+                remove();
+                return TaskSchedule.stop();
             }
-        }
-
-        remove();
+            
+            return TaskSchedule.tick(4);
+        });
     }
 
     private Block getRandomWool() {
@@ -67,5 +77,10 @@ public class PartySheep extends SheepProjectile {
                          Block.LIGHT_GRAY_WOOL, Block.CYAN_WOOL, Block.PURPLE_WOOL, Block.BLUE_WOOL, 
                          Block.BROWN_WOOL, Block.GREEN_WOOL, Block.RED_WOOL, Block.BLACK_WOOL};
         return wools[ThreadLocalRandom.current().nextInt(wools.length)];
+    }
+
+    @Override
+    public String getId() {
+        return "party";
     }
 }
