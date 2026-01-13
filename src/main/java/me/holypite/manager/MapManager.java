@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import me.holypite.model.map.LoadedMap;
 import me.holypite.model.map.MapConfig;
 import me.holypite.model.map.MapEntityConfig;
+import me.holypite.model.map.MapStructureConfig;
+import me.holypite.manager.StructureManager.StructureRotation;
+import me.holypite.manager.StructureManager.StructureMirror;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
@@ -28,6 +31,7 @@ public class MapManager {
 
     private static final Path MAPS_FOLDER = Path.of("maps");
     private final Gson gson = new Gson();
+    private final StructureManager structureManager = new StructureManager();
 
     public MapManager() {
         // Ensure maps folder exists
@@ -59,7 +63,41 @@ public class MapManager {
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
         
-        instance.setChunkLoader(new AnvilLoader(mapPath));
+        // Region check
+        Path regionPath = mapPath.resolve("region");
+        if (regionPath.toFile().exists()) {
+            instance.setChunkLoader(new AnvilLoader(mapPath));
+        } else {
+            // Void Generator
+            instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+        }
+        
+        // Load Structures (from config)
+        if (config != null && config.structures != null) {
+            for (MapStructureConfig struct : config.structures) {
+                if (struct.pos == null) continue;
+                
+                StructureRotation rot = StructureRotation.R0;
+                if (struct.rotation != null) {
+                    switch (struct.rotation) {
+                        case "90": rot = StructureRotation.R90; break;
+                        case "180": rot = StructureRotation.R180; break;
+                        case "270": rot = StructureRotation.R270; break;
+                    }
+                }
+                
+                StructureMirror mir = StructureMirror.NONE;
+                if (struct.mirror != null) {
+                    switch (struct.mirror.toLowerCase()) {
+                        case "x": mir = StructureMirror.X; break;
+                        case "z": mir = StructureMirror.Z; break;
+                        case "xz": mir = StructureMirror.XZ; break;
+                    }
+                }
+                
+                structureManager.placeStructure(instance, struct.pos.toPos(), struct.name, rot, mir);
+            }
+        }
         
         // Spawn Entities from Config
         if (config != null && config.entities != null) {
@@ -112,15 +150,6 @@ public class MapManager {
                 if (config.meta.containsKey("item")) {
                     String itemName = config.meta.get("item");
                     // Simple parsing for now (no count/nbt support in string yet)
-                    // If itemName is "minecraft:stick", it works
-                    // If it's json like {id:"...", Count:1}, we need more parsing or assume simple ID
-                    // The config provided has "minecraft:stick" as value for "item" key in meta map?
-                    // Wait, the config provided has nested JSON for "item"?
-                    // My converter flattened it?
-                    // The provided JSON example has "item": "minecraft:stick" (String) ? 
-                    // No, the original command had {item:{id:...,Count:1}}.
-                    // My JSON generator put "item": "minecraft:carrot" -> Simple string.
-                    // So Material.fromNamespaceId should work if I strip minecraft:
                     
                     String matName = itemName.replace("minecraft:", "").toUpperCase();
                     Material material = null;

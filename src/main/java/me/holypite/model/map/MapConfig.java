@@ -9,4 +9,5 @@ public class MapConfig {
     public List<MapSpawn> spawns; // Global spawns
     public List<TeamConfig> teams; // Teams
     public List<MapEntityConfig> entities; // Decorative entities
+    public List<MapStructureConfig> structures; // Structures to paste (if no region file)
 }
