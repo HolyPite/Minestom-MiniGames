@@ -55,6 +55,7 @@ public abstract class Game {
     private boolean canRespawn = false;
     private int respawnDelay = 3;
     private boolean canBreakBlocks = false;
+    private boolean fallDamageEnabled = true;
     protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
     // Kits
@@ -62,8 +63,12 @@ public abstract class Game {
     private Kit defaultKit;
     private final Map<Player, Kit> playerKits = new ConcurrentHashMap<>();
 
+    // Fall Damage Tracker
+    private final Map<Player, Double> fallTracker = new ConcurrentHashMap<>();
+
     public Game(String gameName, int minPlayers, int maxPlayers, me.holypite.manager.MapManager mapManager) {
         this.gameId = UUID.randomUUID();
+        // ... (existing constructor code)
         this.gameName = gameName;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
@@ -77,6 +82,11 @@ public abstract class Game {
         
         setupLobbyInstance(this.lobbyInstance);
     }
+    
+    // ... existing code ...
+
+    // In startGame:
+    // Fall Damage Logic - REMOVED from here to be placed inside method
     
     public void setOnEndCallback(Runnable onEndCallback) {
         this.onEndCallback = onEndCallback;
@@ -100,6 +110,10 @@ public abstract class Game {
     
     protected void setCanBreakBlocks(boolean canBreakBlocks) {
         this.canBreakBlocks = canBreakBlocks;
+    }
+    
+    protected void setFallDamageEnabled(boolean fallDamageEnabled) {
+        this.fallDamageEnabled = fallDamageEnabled;
     }
 
     public boolean isCanRespawn() {
@@ -300,6 +314,39 @@ public abstract class Game {
             if (!canBreakBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
                 event.setCancelled(true);
             }
+        });
+        
+        // Fall Damage Logic
+        this.gameEventNode.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
+            if (!fallDamageEnabled) return;
+            Player p = event.getPlayer();
+            if (p.getGameMode() == net.minestom.server.entity.GameMode.CREATIVE || p.getGameMode() == net.minestom.server.entity.GameMode.SPECTATOR) return;
+            
+            double currentY = event.getNewPosition().y();
+            
+            if (event.isOnGround()) {
+                if (fallTracker.containsKey(p)) {
+                    double highestY = fallTracker.get(p);
+                    double distance = highestY - currentY;
+                    
+                    if (distance > 3.0) {
+                        float damage = (float) (distance - 3.0);
+                        p.damage(me.holypite.manager.damage.DamageSources.fall(damage));
+                    }
+                }
+                // Reset tracker to current Y when grounded
+                fallTracker.put(p, currentY);
+            } else {
+                // In air, update highest Y if we went higher
+                double highestY = fallTracker.getOrDefault(p, currentY);
+                if (currentY > highestY) {
+                    fallTracker.put(p, currentY);
+                }
+            }
+        });
+        
+        this.gameEventNode.addListener(net.minestom.server.event.player.PlayerDisconnectEvent.class, event -> {
+            fallTracker.remove(event.getPlayer());
         });
         
         // Register the game node globally
