@@ -17,9 +17,12 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`GameManager`**: Handles the lifecycle of games (Lobby -> Game -> End -> Hub). Manages players joining and quitting.
 - **`HubManager`**: Manages multiple Hub instances. Handles player connection, state reset (inventory, gamemode, health), and load balancing between hubs.
 - **`MapManager`**: Loads world instances from the `maps/` directory in **read-only** mode (Anvil format). Parses `config.json` for team spawns and game rules.
-- **`PvpManager`**: Custom PvP implementation. Handles damage calculation and **custom vector-based knockback** (replacing Minestom's default).
+- **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
+- **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic.
+- **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
 - **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination.
 - **`ProjectileManager`**: Handles custom projectiles (e.g., Sheep projectiles, explosive arrows). Uses native physics for movement and custom collision logic.
+- **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.).
 
 ### Game Structure
 All mini-games extend the abstract `Game` class.
@@ -27,6 +30,16 @@ All mini-games extend the abstract `Game` class.
 - **`SheepWarsGame`**: Team-based tactical game. Players launch sheep with special abilities to destroy the enemy team.
 
 ## Key Gameplay Mechanics
+
+### Game Modes & State
+- **Hub/Lobby**: Players are forced into **Adventure Mode** (no block breaking). Empty lobbies are automatically destroyed to save resources.
+- **Game (SheepWars)**: Players are set to **Survival Mode** (can break blocks, take damage).
+
+### Structure System
+Allows saving and placing NBT structures (Schematics).
+- **Format**: Standard Minecraft NBT Structure format (palette based).
+- **Storage**: `structures/<name>.nbt`.
+- **Usage**: Used for saving arenas or specific game features without loading full worlds.
 
 ### SheepWars System
 A complex projectile system with 17 unique sheep types.
@@ -68,6 +81,8 @@ Maps are stored in `maps/<map_name>/`.
 ### In-Game Commands
 - `/play <DUEL|SHEEP_WARS>`: Join a game queue.
 - `/givewool <ID>`: Give a specific special sheep (e.g., `/givewool explosive`).
+- `/structure save <x1> <y1> <z1> <x2> <y2> <z2> <name>`: Save a structure (relative coords supported).
+- `/structure load <x> <y> <z> <name>`: Load a structure.
 - `/debug`: Give basic equipment.
 - `/instances`: Debug command to list active instances and player counts.
 
