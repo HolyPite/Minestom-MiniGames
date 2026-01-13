@@ -42,6 +42,7 @@ public class Main {
         MinecraftServer.getCommandManager().register(new GiveWoolCommand());
         MinecraftServer.getCommandManager().register(new InstancesCommand());
         MinecraftServer.getCommandManager().register(new me.holypite.commands.StructureCommand());
+        MinecraftServer.getCommandManager().register(new me.holypite.commands.GamemodeCommand());
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();

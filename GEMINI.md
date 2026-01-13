@@ -69,7 +69,10 @@ Maps are stored in `maps/<map_name>/`.
     { "name": "island", "pos": {"x": 0, "y": 64, "z": 0}, "rotation": "0", "mirror": "none" },
     { "name": "island", "pos": {"x": 50, "y": 64, "z": 0}, "rotation": "180", "mirror": "x" }
   ],
-  "teams": [...]
+  "teams": [
+    { "name": "Red", "color": "#FF0000", "spawns": [...] },
+    { "name": "Blue", "color": "#0000FF", "spawns": [...] }
+  ]
 }
 ```
 

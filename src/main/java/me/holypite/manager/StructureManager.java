@@ -123,7 +123,7 @@ public class StructureManager {
         }
 
         try {
-            CompoundBinaryTag root = BinaryTagIO.reader().read(path);
+            CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
             
             // Parse Palette
             List<Block> palette = new ArrayList<>();
