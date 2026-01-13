@@ -28,7 +28,7 @@ public class BlastSheep extends SheepProjectile {
                 if (isRemoved()) return TaskSchedule.stop();
                 
                 TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
-                    getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), 1.5f, null);
+                    getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), 0.5f, null);
                 });
                 
                 if (getAliveTicks() > 20 * 4) { // Timeout

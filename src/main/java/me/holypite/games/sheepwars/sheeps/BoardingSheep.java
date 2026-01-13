@@ -20,7 +20,7 @@ public class BoardingSheep extends SheepProjectile {
     @Override
     public void shoot(double power) {
         // Override power to 60 (insane speed)
-        super.shoot(60.0);
+        super.shoot(power);
         // Board the shooter!
         if (shooter instanceof Player player) {
             this.addPassenger(player);
