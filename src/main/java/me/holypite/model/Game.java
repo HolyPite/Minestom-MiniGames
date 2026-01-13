@@ -349,6 +349,15 @@ public abstract class Game {
             fallTracker.remove(event.getPlayer());
         });
         
+        // Handle Vehicle Fall Damage (Reset tracker while riding)
+        this.gameEventNode.addListener(net.minestom.server.event.player.PlayerTickEvent.class, event -> {
+            if (!fallDamageEnabled) return;
+            Player p = event.getPlayer();
+            if (p.getVehicle() != null) {
+                fallTracker.put(p, p.getPosition().y());
+            }
+        });
+        
         // Register the game node globally
         MinecraftServer.getGlobalEventHandler().addChild(this.gameEventNode);
         
