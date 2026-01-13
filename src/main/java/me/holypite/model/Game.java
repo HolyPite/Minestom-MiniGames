@@ -55,6 +55,7 @@ public abstract class Game {
     private boolean canRespawn = false;
     private int respawnDelay = 3;
     private boolean canBreakBlocks = false;
+    protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
     // Kits
     private final List<Kit> registeredKits = new ArrayList<>();
@@ -83,6 +84,10 @@ public abstract class Game {
     
     protected void setPvpEnabled(boolean enabled) {
         this.pvpEnabled = enabled;
+    }
+    
+    protected void setGameMode(net.minestom.server.entity.GameMode gameMode) {
+        this.gameMode = gameMode;
     }
 
     protected void setCanRespawn(boolean canRespawn) {
@@ -163,6 +168,7 @@ public abstract class Game {
 
         players.add(player);
         player.setInstance(lobbyInstance).thenAccept(ignored -> {
+            player.setGameMode(net.minestom.server.entity.GameMode.ADVENTURE);
             player.teleport(new net.minestom.server.coordinate.Pos(0, 42, 0));
             onPlayerJoin(player);
             checkStart();
@@ -180,8 +186,19 @@ public abstract class Game {
             checkWinCondition();
         }
         
-        if (players.isEmpty() && state != GameState.LOBBY) {
-            endGame(); // Security: Close game if empty
+        if (players.isEmpty()) {
+            if (state == GameState.LOBBY || state == GameState.STARTING) {
+                // Empty lobby -> Destroy immediately
+                if (lobbyInstance != null) {
+                    MinecraftServer.getInstanceManager().unregisterInstance(lobbyInstance);
+                    lobbyInstance = null; // Help GC
+                }
+                if (onEndCallback != null) {
+                    onEndCallback.run();
+                }
+            } else {
+                endGame(); // Security: Close game if empty
+            }
         }
     }
     
@@ -331,6 +348,7 @@ public abstract class Game {
                 for (Player p : players) {
                     p.heal();
                     p.setFood(20);
+                    p.setGameMode(gameMode);
                     applyKit(p);
                 }
                 
