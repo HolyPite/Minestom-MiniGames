@@ -55,17 +55,21 @@ A complex projectile system with 17 unique sheep types.
 
 ### Map System
 Maps are stored in `maps/<map_name>/`.
-- `region/*.mca` + `level.dat`: World data.
-- `config.json`: Configuration for spawns and teams.
+- **Hybrid Loading**: 
+    - If `region/` exists: Loads world data via `AnvilLoader`.
+    - If `region/` is missing: Generates a **Void world** and pastes structures defined in `config.json`.
+- `config.json`: Configuration for spawns, teams, and optional structures.
+
 ```json
 {
   "name": "Arena",
   "minPlayers": 2,
   "maxPlayers": 8,
-  "teams": [
-    { "name": "Red", "color": "#FF0000", "spawns": [...] },
-    { "name": "Blue", "color": "#0000FF", "spawns": [...] }
-  ]
+  "structures": [
+    { "name": "island", "pos": {"x": 0, "y": 64, "z": 0}, "rotation": "0", "mirror": "none" },
+    { "name": "island", "pos": {"x": 50, "y": 64, "z": 0}, "rotation": "180", "mirror": "x" }
+  ],
+  "teams": [...]
 }
 ```
 
@@ -91,3 +95,22 @@ Maps are stored in `maps/<map_name>/`.
 - **Entities**: Use `EntityCreature` for custom mobs. Avoid `AbstractProjectile` for simple physics, prefer native velocity.
 - **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
 - **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.
+
+## Available Documentation Tools
+
+### Minestom Documentation Tools
+Used to explore the Minestom framework source and documentation.
+- `list_packages`: List all available Java packages in Minestom.
+- `list_classes_in_package`: List classes and interfaces in a specific package.
+- `search_class`: Search for a class by name.
+- `search_code_content`: Search for keywords inside Minestom code.
+- `read_class_code`: Read the source code of a Minestom class.
+- `read_readme`: Read the Minestom project README.
+
+### Minecraft Documentation Tools
+Used to explore Minecraft-related source files and packets.
+- `list_folders`: List sub-folders in a given path.
+- `list_files_in_folder`: List Java files in a specific folder.
+- `search_code_scoped`: Search for keywords limited to a specific folder.
+- `read_minecraft_class`: Read the source code of a Minecraft-related class.
+- `find_packet`: Search specifically for Packet files.
