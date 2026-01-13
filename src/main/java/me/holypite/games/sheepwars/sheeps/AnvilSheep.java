@@ -61,7 +61,7 @@ public class AnvilSheep extends SheepProjectile {
                         for (Entity target : anvil.getInstance().getEntities()) {
                             if (target instanceof net.minestom.server.entity.LivingEntity living && target != anvil) {
                                 if (anvil.getBoundingBox().intersectEntity(anvil.getPosition(), target)) {
-                                    living.damage(me.holypite.manager.damage.DamageSources.generic(10.0f));
+                                    living.damage(me.holypite.manager.damage.DamageSources.generic(6.0f));
                                     anvil.remove();
                                     return TaskSchedule.stop();
                                 }
