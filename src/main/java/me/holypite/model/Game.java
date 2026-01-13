@@ -186,9 +186,10 @@ public abstract class Game {
         if (players.size() >= maxPlayers) return;
 
         players.add(player);
-        player.setInstance(lobbyInstance).thenAccept(ignored -> {
+        // Use setInstance with spawn point to ensure safe landing and atomic operation
+        player.setInstance(lobbyInstance, new net.minestom.server.coordinate.Pos(0, 42, 0)).thenAccept(ignored -> {
             player.setGameMode(net.minestom.server.entity.GameMode.ADVENTURE);
-            player.teleport(new net.minestom.server.coordinate.Pos(0, 42, 0));
+            // Teleport again just in case? Not needed if setInstance handled it.
             onPlayerJoin(player);
             checkStart();
         });
