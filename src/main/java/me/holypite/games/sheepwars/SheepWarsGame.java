@@ -24,6 +24,38 @@ public class SheepWarsGame extends Game {
         
         // Register default kit
         registerKit(new SheepWarsKit()); 
+        
+        // Wool Drop on Sheep Death (Lethal Damage Check)
+        getGameEventNode().addListener(net.minestom.server.event.entity.EntityDamageEvent.class, event -> {
+            if (event.getEntity() instanceof me.holypite.games.sheepwars.sheeps.SheepProjectile sheep) {
+                // Check if lethal
+                float currentHealth = sheep.getHealth();
+                float damageAmount = event.getDamage().getAmount();
+                
+                // If DamageManager ran first, health might already be updated. 
+                // If it runs after, we calculate.
+                // Simplest: Check if (health - damage <= 0) OR (health <= 0)
+                // Note: DamageManager calculates armor, so raw damage might be higher than actual.
+                // But DamageManager sets health directly.
+                // If health is already 0, it died.
+                
+                boolean dead = sheep.getHealth() <= 0;
+                
+                // If not already dead, check potential death (simplified, ignoring armor for now as sheeps usually don't have armor)
+                if (!dead && (currentHealth - damageAmount <= 0)) {
+                    dead = true;
+                }
+                
+                if (dead && event.getDamage().getAttacker() instanceof Player killer) {
+                    String id = sheep.getId();
+                    ItemStack wool = SheepRegistry.getSheepItemById(id);
+                    if (wool != ItemStack.AIR) {
+                        killer.getInventory().addItemStack(wool);
+                        killer.sendMessage(net.kyori.adventure.text.Component.text("You recovered a " + id + " sheep!", net.kyori.adventure.text.format.NamedTextColor.GREEN));
+                    }
+                }
+            }
+        });
     }
 
     @Override

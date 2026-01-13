@@ -77,6 +77,10 @@ public class DamageManager {
             float newHealth = victim.getHealth() - finalDamage;
             victim.setHealth(newHealth);
             
+            if (newHealth <= 0 && !(victim instanceof net.minestom.server.entity.Player)) {
+                victim.kill();
+            }
+            
             // Visuals
             victim.triggerStatus((byte) 2); // Hurt Animation (Red Tint)
             // Note: Minestom doesn't play sound automatically on setHealth/status 2.
