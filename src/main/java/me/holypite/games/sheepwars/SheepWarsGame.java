@@ -20,6 +20,7 @@ public class SheepWarsGame extends Game {
         setCanRespawn(false); // Elimination mode
         setRespawnDelay(5);
         setCanBreakBlocks(true); // Explosions will destroy blocks!
+        setCanPlaceBlocks(true);
         setGameMode(net.minestom.server.entity.GameMode.SURVIVAL);
         
         // Register default kit

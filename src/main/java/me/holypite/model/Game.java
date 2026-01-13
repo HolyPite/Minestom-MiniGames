@@ -55,6 +55,7 @@ public abstract class Game {
     private boolean canRespawn = false;
     private int respawnDelay = 3;
     private boolean canBreakBlocks = false;
+    private boolean canPlaceBlocks = false;
     private boolean fallDamageEnabled = true;
     protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
@@ -110,6 +111,10 @@ public abstract class Game {
     
     protected void setCanBreakBlocks(boolean canBreakBlocks) {
         this.canBreakBlocks = canBreakBlocks;
+    }
+    
+    protected void setCanPlaceBlocks(boolean canPlaceBlocks) {
+        this.canPlaceBlocks = canPlaceBlocks;
     }
     
     protected void setFallDamageEnabled(boolean fallDamageEnabled) {
@@ -311,7 +316,7 @@ public abstract class Game {
         });
         
         this.gameEventNode.addListener(PlayerBlockPlaceEvent.class, event -> {
-            if (!canBreakBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
+            if (!canPlaceBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
                 event.setCancelled(true);
             }
         });
