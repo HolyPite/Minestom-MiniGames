@@ -40,7 +40,7 @@ public class AggressiveSlime extends EntityCreature {
 
             // Attack
             if (getPosition().distance(target.getPosition()) < 1.5 && ticksSinceAttack > 20) {
-                target.damage(DamageType.MOB_ATTACK, 3.0f);
+                target.damage(me.holypite.manager.damage.DamageSources.mobAttack(this, 3.0f));
                 ticksSinceAttack = 0;
             }
         }

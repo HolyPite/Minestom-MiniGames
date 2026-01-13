@@ -68,7 +68,7 @@ public class CombatBee extends EntityCreature {
     }
 
     private void sting(Player player) {
-        player.damage(DamageType.STING, 2.0f); // Vanilla damage
+        player.damage(me.holypite.manager.damage.DamageSources.sting(this, 2.0f)); // Vanilla damage
         player.addEffect(new Potion(PotionEffect.POISON, (byte) 0, 10 * 20)); // 10s Poison
         
         hasStung = true;

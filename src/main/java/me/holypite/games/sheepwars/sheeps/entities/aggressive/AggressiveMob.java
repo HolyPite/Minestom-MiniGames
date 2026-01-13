@@ -43,7 +43,7 @@ public abstract class AggressiveMob extends EntityCreature {
             lookAt(target);
 
             if (getPosition().distance(target.getPosition()) < attackRadius && ticksSinceAttack > 20) {
-                target.damage(DamageType.MOB_ATTACK, damage);
+                target.damage(me.holypite.manager.damage.DamageSources.mobAttack(this, damage));
                 ticksSinceAttack = 0;
             }
         }

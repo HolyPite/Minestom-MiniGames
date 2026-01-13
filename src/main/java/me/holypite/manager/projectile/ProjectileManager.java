@@ -116,7 +116,7 @@ public class ProjectileManager {
                 damage = 9.0f;
             }
             
-            victim.damage(new Damage(DamageType.ARROW, projectile, shooter, projectile.getPosition(), damage));
+            victim.damage(me.holypite.manager.damage.DamageSources.arrow(projectile, shooter, damage));
             
             // KB Direct (impulse from arrow speed)
             Vec directKB = projectile.getVelocity().normalize().mul(8.0).withY(2.0);

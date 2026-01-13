@@ -43,7 +43,7 @@ public class AggressiveBee extends EntityCreature {
                     .filter(e -> e.getPosition().distance(getPosition()) < 1.5)
                     .findFirst()
                     .ifPresent(e -> {
-                        ((LivingEntity) e).damage(new Damage(DamageType.MOB_ATTACK, this, this, getPosition(), 4.0f));
+                        ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, 4.0f));
                         // Poison effect usually?
                         // ((LivingEntity) e).addEffect(new Potion(PotionEffect.POISON, (byte) 1, 100));
                         lastAttackTime = System.currentTimeMillis();

@@ -60,7 +60,7 @@ public class AggressiveSlime extends EntityCreature {
                     .filter(e -> e.getPosition().distance(getPosition()) < 1.5)
                     .findFirst() // Hit only one player
                     .ifPresent(e -> {
-                        ((LivingEntity) e).damage(new Damage(DamageType.MOB_ATTACK, this, this, getPosition(), 4.0f));
+                        ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, 4.0f));
                         lastAttackTime = System.currentTimeMillis();
                     });
             }

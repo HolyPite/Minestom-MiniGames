@@ -33,7 +33,7 @@ public class JawSheep extends SheepProjectile {
                  
                  MinecraftServer.getSchedulerManager().buildTask(() -> {
                      if (p.getInstance() != null && p.getPosition().distance(fangs.getPosition()) < 1.5) {
-                         p.damage(net.minestom.server.entity.damage.DamageType.MAGIC, 6);
+                         p.damage(me.holypite.manager.damage.DamageSources.magic(6.0f));
                      }
                      fangs.remove();
                  }).delay(TaskSchedule.tick(10)).schedule();

@@ -1,12 +1,9 @@
 package me.holypite.manager.explosion;
 
+import me.holypite.manager.damage.DamageSources;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.damage.Damage;
-import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.instance.Explosion;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
@@ -29,6 +26,7 @@ public class GameExplosion extends Explosion {
     protected List<Point> prepare(Instance instance) {
         List<Point> blocks = new ArrayList<>();
         float strength = getStrength();
+        Point center = new Vec(getCenterX(), getCenterY(), getCenterZ());
         
         // 1. Block Destruction Logic (Simple Sphere)
         if (breakBlocks) {
@@ -36,8 +34,8 @@ public class GameExplosion extends Explosion {
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int z = -radius; z <= radius; z++) {
-                        Point pos = new Vec(getCenterX() + x, getCenterY() + y, getCenterZ() + z);
-                        double distance = pos.distance(new Vec(getCenterX(), getCenterY(), getCenterZ()));
+                        Point pos = center.add(x, y, z);
+                        double distance = pos.distance(center);
                         
                         if (distance <= strength) {
                             Block block = instance.getBlock(pos);
@@ -54,7 +52,7 @@ public class GameExplosion extends Explosion {
         double damageRadius = strength * 2.0;
         instance.getEntities().stream()
                 .filter(e -> e instanceof LivingEntity)
-                .filter(e -> e.getPosition().distance(new Vec(getCenterX(), getCenterY(), getCenterZ())) <= damageRadius)
+                .filter(e -> e.getPosition().distance(center) <= damageRadius)
                 .forEach(e -> applyEntityDamage((LivingEntity) e));
 
         return blocks;
@@ -69,14 +67,10 @@ public class GameExplosion extends Explosion {
         float damageAmount = (float) (damageFactor * getStrength() * 7.0f); // Adjust multiplier as needed
 
         if (damageAmount > 0) {
-            entity.damage(new Damage(DamageType.EXPLOSION, null, null, null, damageAmount));
-            
-            // Knockback
-            Vec direction = entity.getPosition().sub(getCenterX(), getCenterY(), getCenterZ()).asVec().normalize();
-            double knockbackStrength = getStrength() * 2.0; // Multiplier
-            
-            Vec knockback = direction.mul(knockbackStrength).withY(knockbackStrength * 0.5);
-            entity.setVelocity(entity.getVelocity().add(knockback));
+            // Use Centralized Damage System
+            // Note: We don't have the "attacker" context here easily unless passed to GameExplosion.
+            // For now, null attacker.
+            entity.damage(DamageSources.explosion(null, null, new Vec(getCenterX(), getCenterY(), getCenterZ()), damageAmount));
         }
     }
 }

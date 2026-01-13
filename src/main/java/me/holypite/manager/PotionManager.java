@@ -90,7 +90,7 @@ public class PotionManager {
 
         if (effect == PotionEffect.INSTANT_HEALTH) {
             if (isUndead) {
-                entity.damage(DamageType.MAGIC, (float) (6 << amplifier));
+                entity.damage(me.holypite.manager.damage.DamageSources.magic((float) (6 << amplifier)));
             } else {
                 entity.setHealth(Math.min(entity.getHealth() + (float) Math.max(4 << amplifier, 0), maxHealth));
             }
@@ -98,15 +98,13 @@ public class PotionManager {
             if (isUndead) {
                  entity.setHealth(Math.min(entity.getHealth() + (float) Math.max(4 << amplifier, 0), maxHealth));
             } else {
-                entity.damage(DamageType.MAGIC, (float) (6 << amplifier));
+                entity.damage(me.holypite.manager.damage.DamageSources.magic((float) (6 << amplifier)));
             }
         } else if (effect == PotionEffect.SATURATION) {
             if (entity instanceof Player player) {
-                // Minestom doesn't expose "eat" directly with saturation amount?
-                // setFood(food + amount), setFoodSaturation(sat + amount)
                 int amount = amplifier + 1;
                 player.setFood(Math.min(player.getFood() + amount, 20));
-                player.setFoodSaturation(Math.min(player.getFoodSaturation() + amount, 20f)); // Saturation capped at food level usually, but Minestom allows float
+                player.setFoodSaturation(Math.min(player.getFoodSaturation() + amount, 20f));
             }
         }
     }
@@ -120,26 +118,13 @@ public class PotionManager {
             }
         } else if (effect == PotionEffect.POISON) {
             if (entity.getHealth() > 1.0f) {
-                entity.damage(DamageType.MAGIC, 1.0f);
+                entity.damage(me.holypite.manager.damage.DamageSources.magic(1.0f));
             }
         } else if (effect == PotionEffect.WITHER) {
-            entity.damage(DamageType.MAGIC, 1.0f);
+            entity.damage(me.holypite.manager.damage.DamageSources.wither(1.0f));
         } else if (effect == PotionEffect.HUNGER) {
             if (entity instanceof Player player) {
-                // Minestom doesn't have "exhaustion" easily accessible via API methods on Player without NBT?
-                // Actually it might be hidden. 
-                // Let's check player methods or just ignore exhaustion if not critical for MiniGames (unless it's survival).
-                // For minigames, hunger is often disabled or static.
-                // But if requested:
-                // player.setFoodSaturation(player.getFoodSaturation() - 0.005f * (amplifier + 1));
-                // Exhaustion logic is complex (saturation -> food).
-                // Let's implement a simplified version: reduce saturation, then food.
-                
-                float exhaustion = 0.005f * (amplifier + 1);
-                // Simplify: just lower saturation very slowly? 
-                // Exhaustion is usually an accumulation variable.
-                // Without access to exhaustion variable, it's hard to replicate exact vanilla behavior.
-                // We'll skip exact hunger logic for now unless demanded, to avoid bugs.
+                // Simplified hunger
             }
         }
     }
