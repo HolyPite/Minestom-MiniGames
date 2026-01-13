@@ -37,7 +37,7 @@ public class AnvilSheep extends SheepProjectile {
             List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 6);
             
             for (Point p : blocks) {
-                if (TKit.chance(0.1) && getInstance().getBlock(p).isSolid() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
+                if (TKit.chance(0.1) && !getInstance().getBlock(p).isAir() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
                     Entity anvil = new Entity(EntityType.FALLING_BLOCK);
                     FallingBlockMeta meta = (FallingBlockMeta) anvil.getEntityMeta();
                     meta.setBlock(Block.ANVIL);
@@ -52,6 +52,29 @@ public class AnvilSheep extends SheepProjectile {
                             new Vec(0, 0, 0),
                             0f, 5
                     ));
+                    
+                    // Damage and Landing Logic
+                    MinecraftServer.getSchedulerManager().submitTask(() -> {
+                        if (anvil.isRemoved()) return TaskSchedule.stop();
+                        
+                        // Check entity collision
+                        for (Entity target : anvil.getInstance().getEntities()) {
+                            if (target instanceof net.minestom.server.entity.LivingEntity living && target != anvil) {
+                                if (anvil.getBoundingBox().intersectEntity(anvil.getPosition(), target)) {
+                                    living.damage(me.holypite.manager.damage.DamageSources.generic(10.0f));
+                                    anvil.remove();
+                                    return TaskSchedule.stop();
+                                }
+                            }
+                        }
+                        
+                        if (anvil.isOnGround()) {
+                            anvil.getInstance().setBlock(anvil.getPosition(), Block.ANVIL);
+                            anvil.remove();
+                            return TaskSchedule.stop();
+                        }
+                        return TaskSchedule.tick(1);
+                    });
                 }
             }
             

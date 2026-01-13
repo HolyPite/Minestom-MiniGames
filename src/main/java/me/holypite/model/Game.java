@@ -57,6 +57,7 @@ public abstract class Game {
     private boolean canBreakBlocks = false;
     private boolean canPlaceBlocks = false;
     private boolean fallDamageEnabled = true;
+    private boolean fallingBlockDamage = true;
     protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
     // Kits
@@ -119,6 +120,14 @@ public abstract class Game {
     
     protected void setFallDamageEnabled(boolean fallDamageEnabled) {
         this.fallDamageEnabled = fallDamageEnabled;
+    }
+    
+    protected void setFallingBlockDamage(boolean fallingBlockDamage) {
+        this.fallingBlockDamage = fallingBlockDamage;
+    }
+    
+    public boolean isFallingBlockDamage() {
+        return fallingBlockDamage;
     }
 
     public boolean isCanRespawn() {
