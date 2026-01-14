@@ -1,7 +1,9 @@
 # Minestom-MiniGames Project Context
 
 ## Project Overview
-This project is a modular Minecraft mini-game server built on the **Minestom** framework (implementing Minecraft 1.21.4 server protocol). It focuses on high-performance, custom gameplay mechanics without the overhead of standard Bukkit/Spigot servers.
+This project is a modular Minecraft mini-game server built on the **Minestom** framework. It focuses on high-performance, custom gameplay mechanics.
+
+A **`TODO.MD`** file is maintained at the root to track planned improvements, bug fixes, and future features.
 
 ### Key Technologies
 - **Framework:** Minestom (1.21.4+)
