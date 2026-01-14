@@ -6,13 +6,17 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 public class StructureManager {
 
@@ -54,7 +58,6 @@ public class StructureManager {
             for (int y = 0; y < sizeY; y++) {
                 for (int z = 0; z < sizeZ; z++) {
                     Block block = instance.getBlock(minX + x, minY + y, minZ + z);
-                    
                     if (block.isAir()) continue; 
                     
                     int stateId;
@@ -66,7 +69,6 @@ public class StructureManager {
                         
                         CompoundBinaryTag.Builder blockState = CompoundBinaryTag.builder();
                         blockState.putString("Name", block.name());
-                        
                         if (!block.properties().isEmpty()) {
                             CompoundBinaryTag.Builder props = CompoundBinaryTag.builder();
                             block.properties().forEach(props::putString);
@@ -76,19 +78,13 @@ public class StructureManager {
                     }
 
                     CompoundBinaryTag.Builder blockTag = CompoundBinaryTag.builder();
-                    ListBinaryTag pos = ListBinaryTag.builder(BinaryTagTypes.INT)
+                    blockTag.put("pos", ListBinaryTag.builder(BinaryTagTypes.INT)
                             .add(IntBinaryTag.intBinaryTag(x))
                             .add(IntBinaryTag.intBinaryTag(y))
                             .add(IntBinaryTag.intBinaryTag(z))
-                            .build();
-                    
-                    blockTag.put("pos", pos);
+                            .build());
                     blockTag.putInt("state", stateId);
-                    
-                    if (block.hasNbt()) {
-                        blockTag.put("nbt", block.nbt());
-                    }
-                    
+                    if (block.hasNbt()) blockTag.put("nbt", block.nbt());
                     blocks.add(blockTag.build());
                 }
             }
@@ -106,8 +102,6 @@ public class StructureManager {
                 .build();
 
         try {
-            // BinaryTagIO.writer() defaults to GZIP if I remember correctly or handles it via extension
-            // For Vanilla compatibility, GZIP is preferred.
             BinaryTagIO.writer().write(root, STRUCTURES_DIR.resolve(name + ".nbt"));
             System.out.println("Structure saved: " + name);
         } catch (IOException e) {
@@ -126,118 +120,65 @@ public class StructureManager {
         for (StructureBlock sb : structureBlocks) {
             instance.setBlock(origin.add(sb.relativePos()), sb.block());
         }
-        
-        System.out.println("Structure placed: " + name + " (Rot: " + rotation + ", Mir: " + mirror + ")");
+        System.out.println("Structure placed: " + name);
         return true;
     }
 
     public List<StructureBlock> getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
         Path path = STRUCTURES_DIR.resolve(name + (name.endsWith(".nbt") ? "" : ".nbt"));
-        if (!path.toFile().exists()) {
-            System.err.println("[DEBUG] Structure not found: " + path.toAbsolutePath());
-            return null;
-        }
+        if (!path.toFile().exists()) return null;
 
         try {
-            System.out.println("[DEBUG] Reading structure file: " + name);
-            CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
-            System.out.println("[DEBUG] File read success. Root keys: " + root.keySet());
-            
-            List<StructureBlock> structureBlocks = new ArrayList<>();
+            // Manual check for GZIP to be ultra-safe
+            CompoundBinaryTag root;
+            try (InputStream is = new BufferedInputStream(new FileInputStream(path.toFile()))) {
+                is.mark(2);
+                int b1 = is.read();
+                int b2 = is.read();
+                is.reset();
+                
+                if (b1 == 0x1f && b2 == 0x8b) {
+                    root = BinaryTagIO.reader(Long.MAX_VALUE).read(new GZIPInputStream(is));
+                } else {
+                    root = BinaryTagIO.reader(Long.MAX_VALUE).read(is);
+                }
+            }
+
             CompoundBinaryTag data = findDataTag(root);
+            if (data == null) return null;
 
-            if (data == null) {
-                System.err.println("[DEBUG] Could not find valid data tag (blocks/palette) in " + name);
-                return null;
+            List<StructureBlock> structureBlocks = new ArrayList<>();
+            List<Block> palette = new ArrayList<>();
+            
+            for (BinaryTag tag : data.getList("palette")) {
+// ...
+            for (BinaryTag tag : data.getList("blocks")) {
+                CompoundBinaryTag ct = (CompoundBinaryTag) tag;
+                ListBinaryTag pos = ct.getList("pos");
+                Block block = palette.get(ct.getInt("state"));
+                if (ct.keySet().contains("nbt")) block = block.withNbt(ct.getCompound("nbt"));
+                
+                Point finalPos = transformPosition(pos.getInt(0), pos.getInt(1), pos.getInt(2), rotation, mirror);
+                structureBlocks.add(new StructureBlock(finalPos, block));
             }
             
-            System.out.println("[DEBUG] Found data tag. Palette size: " + data.getList("palette").size());
-            System.out.println("[DEBUG] Blocks count: " + data.getList("blocks").size());
-
-            // Parse Palette
-            List<Block> palette = new ArrayList<>();
-            for (BinaryTag tag : data.getList("palette")) {
-                if (tag instanceof CompoundBinaryTag ct) {
-                    String blockName = ct.getString("Name");
-                    Map<String, String> properties = new HashMap<>();
-                    if (ct.keySet().contains("Properties")) {
-                        CompoundBinaryTag props = ct.getCompound("Properties");
-                        for (String key : props.keySet()) {
-                            properties.put(key, props.getString(key));
-                        }
-                    }
-                    
-                    Block block = null;
-                    for (Block b : Block.values()) {
-                        if (b.name().equalsIgnoreCase(blockName) || b.key().asString().equalsIgnoreCase(blockName)) {
-                            block = b;
-                            break;
-                        }
-                    }
-                    
-                    if (block != null && !properties.isEmpty()) {
-                        block = block.withProperties(properties);
-                    }
-                    if (block == null) {
-                        System.out.println("[DEBUG] Unknown block in palette: " + blockName);
-                        block = Block.AIR;
-                    }
-                    
-                    block = transformBlockState(block, rotation, mirror);
-                    palette.add(block);
-                }
-            }
-
-            // Extract Blocks
-            ListBinaryTag blocks = data.getList("blocks");
-            for (BinaryTag tag : blocks) {
-                if (tag instanceof CompoundBinaryTag ct) {
-                    ListBinaryTag pos = ct.getList("pos");
-                    int x = pos.getInt(0);
-                    int y = pos.getInt(1);
-                    int z = pos.getInt(2);
-                    
-                    int state = ct.getInt("state");
-                    Block block = palette.get(state);
-                    
-                    if (ct.keySet().contains("nbt")) {
-                         block = block.withNbt(ct.getCompound("nbt"));
-                    }
-                    
-                    Point finalPos = transformPosition(x, y, z, rotation, mirror);
-                    structureBlocks.add(new StructureBlock(finalPos, block));
-                }
-            }
-            System.out.println("[DEBUG] Successfully parsed " + structureBlocks.size() + " blocks.");
             return structureBlocks;
 
-        } catch (IOException e) {
-            System.err.println("[DEBUG] Error reading structure " + name + ": " + e.getMessage());
-            e.printStackTrace();
+        } catch (Throwable t) {
+            System.err.println("Error loading structure " + name + ": " + t.getMessage());
             return null;
         }
     }
 
     private CompoundBinaryTag findDataTag(CompoundBinaryTag root) {
-        System.out.println("[DEBUG] Checking tag: " + root.keySet());
-        if (root.keySet().contains("blocks") && root.keySet().contains("palette")) {
-            return root;
-        }
+        if (root.keySet().contains("blocks") && root.keySet().contains("palette")) return root;
         for (String key : root.keySet()) {
             BinaryTag sub = root.get(key);
             if (sub instanceof CompoundBinaryTag ct) {
-                System.out.println("[DEBUG] Descending into sub-tag: " + key);
-                if (ct.keySet().contains("blocks") && ct.keySet().contains("palette")) {
-                    return ct;
-                }
-                for (String subKey : ct.keySet()) {
-                    BinaryTag subSub = ct.get(subKey);
-                    if (subSub instanceof CompoundBinaryTag cct) {
-                        if (cct.keySet().contains("blocks") && cct.keySet().contains("palette")) {
-                            System.out.println("[DEBUG] Found data at level 2 under " + key + " -> " + subKey);
-                            return cct;
-                        }
-                    }
+                if (ct.keySet().contains("blocks") && ct.keySet().contains("palette")) return ct;
+                for (String skey : ct.keySet()) {
+                    BinaryTag ssub = ct.get(skey);
+                    if (ssub instanceof CompoundBinaryTag cct && cct.keySet().contains("blocks") && cct.keySet().contains("palette")) return cct;
                 }
             }
         }
@@ -245,110 +186,55 @@ public class StructureManager {
     }
 
     private Point transformPosition(int x, int y, int z, StructureRotation rotation, StructureMirror mirror) {
-        // Mirror first
-        if (mirror == StructureMirror.X || mirror == StructureMirror.XZ) {
-            x = -x;
-        }
-        if (mirror == StructureMirror.Z || mirror == StructureMirror.XZ) {
-            z = -z;
-        }
-        
-        // Rotate
-        int newX = x;
-        int newZ = z;
-        
+        if (mirror == StructureMirror.X || mirror == StructureMirror.XZ) x = -x;
+        if (mirror == StructureMirror.Z || mirror == StructureMirror.XZ) z = -z;
+        int nx = x, nz = z;
         switch (rotation) {
-            case R90:
-                newX = -z;
-                newZ = x;
-                break;
-            case R180:
-                newX = -x;
-                newZ = -z;
-                break;
-            case R270:
-                newX = z;
-                newZ = -x;
-                break;
-            default:
-                break;
+            case R90 -> { nx = -z; nz = x; }
+            case R180 -> { nx = -x; nz = -z; }
+            case R270 -> { nx = z; nz = -x; }
         }
-        
-        return new Vec(newX, y, newZ);
+        return new Vec(nx, y, nz);
     }
-    
+
     private Block transformBlockState(Block block, StructureRotation rotation, StructureMirror mirror) {
-        // Apply Mirror First
-        if (mirror == StructureMirror.X || mirror == StructureMirror.XZ) {
-            block = mirrorBlock(block, true, false);
-        }
-        if (mirror == StructureMirror.Z || mirror == StructureMirror.XZ) {
-            block = mirrorBlock(block, false, true);
-        }
-        
-        // Apply Rotation
+        if (mirror == StructureMirror.X || mirror == StructureMirror.XZ) block = mirrorBlock(block, true, false);
+        if (mirror == StructureMirror.Z || mirror == StructureMirror.XZ) block = mirrorBlock(block, false, true);
         switch (rotation) {
-            case R90:
-                block = rotateBlock(block);
-                break;
-            case R180:
-                block = rotateBlock(block);
-                block = rotateBlock(block);
-                break;
-            case R270:
-                block = rotateBlock(block);
-                block = rotateBlock(block);
-                block = rotateBlock(block);
-                break;
-            default:
-                break;
+            case R90 -> block = rotateBlock(block);
+            case R180 -> { block = rotateBlock(block); block = rotateBlock(block); }
+            case R270 -> { block = rotateBlock(block); block = rotateBlock(block); block = rotateBlock(block); }
         }
         return block;
     }
-    
-    // Simple helper to rotate 90 degrees clockwise
+
     private Block rotateBlock(Block block) {
         Map<String, String> props = block.properties();
         if (props.containsKey("facing")) {
-            String facing = props.get("facing");
-            String newFacing = switch (facing) {
-                case "north" -> "east";
-                case "east" -> "south";
-                case "south" -> "west";
-                case "west" -> "north";
-                default -> facing;
+            String f = props.get("facing");
+            String nf = switch (f) {
+                case "north" -> "east"; case "east" -> "south"; case "south" -> "west"; case "west" -> "north";
+                default -> f;
             };
-            return block.withProperty("facing", newFacing);
+            return block.withProperty("facing", nf);
         }
         if (props.containsKey("axis")) {
-            String axis = props.get("axis");
-            if (axis.equals("x")) return block.withProperty("axis", "z");
-            if (axis.equals("z")) return block.withProperty("axis", "x");
+            String a = props.get("axis");
+            if (a.equals("x")) return block.withProperty("axis", "z");
+            if (a.equals("z")) return block.withProperty("axis", "x");
         }
-        // TODO: Rotation 0-15 (Signs), etc.
         return block;
     }
-    
-    private Block mirrorBlock(Block block, boolean mirrorX, boolean mirrorZ) {
-        // Mirror X: Flips X coord. West becomes East.
-        // Mirror Z: Flips Z coord. North becomes South.
+
+    private Block mirrorBlock(Block block, boolean mx, boolean mz) {
         Map<String, String> props = block.properties();
-        
         if (props.containsKey("facing")) {
-            String facing = props.get("facing");
-            String newFacing = facing;
-            
-            if (mirrorX) {
-                if (facing.equals("west")) newFacing = "east";
-                if (facing.equals("east")) newFacing = "west";
-            }
-            if (mirrorZ) {
-                if (facing.equals("north")) newFacing = "south";
-                if (facing.equals("south")) newFacing = "north";
-            }
-            return block.withProperty("facing", newFacing);
+            String f = props.get("facing");
+            String nf = f;
+            if (mx) { if (f.equals("west")) nf = "east"; else if (f.equals("east")) nf = "west"; }
+            if (mz) { if (f.equals("north")) nf = "south"; else if (f.equals("south")) nf = "north"; }
+            return block.withProperty("facing", nf);
         }
-        // Axis invariant under reflection unless rotated? Axis X mirrored X is still X aligned.
         return block;
     }
 }
