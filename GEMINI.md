@@ -111,7 +111,7 @@ Maps are stored in `maps/<map_name>/`.
     - **Feature Addition**: When adding a new feature, always attempt to compile (`./gradlew build -x test`), resolve any issues (using documentation tools if necessary), commit the changes, and finally update `GEMINI.md` to document the new functionality.
     - **Agreement First**: During the discussion or debriefing of an idea, no code modifications should be made until the user has provided general agreement on the proposed plan.
 - **Events**: Use `EventNode` for scoping events to specific games or instances.
-- **Entities**: Use `EntityCreature` for custom mobs. Avoid `AbstractProjectile` for simple physics, prefer native velocity.
+- **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
 - **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
 - **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.
 

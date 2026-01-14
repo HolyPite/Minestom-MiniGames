@@ -9,6 +9,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 - [x] **Kill Credit** : Passer l'attaquant (`shooter`) aux explosions pour que les kills par moutons soient attribués au bon joueur.
 - [x] **Void Check** : Faire mourir les moutons projetés dans le vide (`Y < voidY`) pour éviter qu'ils ne chargent des chunks à l'infini.
 - [x] **Lifetime Check** : Suppression automatique des moutons après 1 minute.
+- [x] **Mob AI Improvements** : Détection de portée basée sur les hitboxes, pathfinding optimisé et attaques sautées pour les Slimes.
 
 ### Système de Dégâts & Teams
 - [x] **Friendly Fire** : Désactiver les dégâts entre alliés pour les flèches et le corps-à-corps.
