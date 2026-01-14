@@ -1,5 +1,7 @@
 package me.holypite.model;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.instance.InstanceContainer;
@@ -21,6 +23,7 @@ import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.scoreboard.Sidebar;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +46,8 @@ public abstract class Game {
     protected MapConfig mapConfig;
     protected final Map<Player, TeamConfig> playerTeams = new ConcurrentHashMap<>();
     private final Map<String, Boolean> teamRespawnStatus = new ConcurrentHashMap<>();
+    private final Map<Player, Integer> kills = new ConcurrentHashMap<>();
+    private final Sidebar sidebar;
     
     // Managers
     private final PvpManager pvpManager = new PvpManager(this);
@@ -73,7 +78,6 @@ public abstract class Game {
 
     public Game(String gameName, int minPlayers, int maxPlayers, me.holypite.manager.MapManager mapManager) {
         this.gameId = UUID.randomUUID();
-        // ... (existing constructor code)
         this.gameName = gameName;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
@@ -81,17 +85,16 @@ public abstract class Game {
         this.players = new HashSet<>();
         this.state = GameState.LOBBY;
         
+        // Sidebar Init
+        this.sidebar = new Sidebar(Component.text("Minestom MiniGames", NamedTextColor.GOLD));
+        
         // Create the lobby instance
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         this.lobbyInstance = instanceManager.createInstanceContainer();
         
         setupLobbyInstance(this.lobbyInstance);
+        updateScoreboard();
     }
-    
-    // ... existing code ...
-
-    // In startGame:
-    // Fall Damage Logic - REMOVED from here to be placed inside method
     
     public void setOnEndCallback(Runnable onEndCallback) {
         this.onEndCallback = onEndCallback;
@@ -147,6 +150,41 @@ public abstract class Game {
 
     public void setTeamRespawnStatus(String teamName, boolean canRespawn) {
         teamRespawnStatus.put(teamName, canRespawn);
+    }
+
+    public void addKill(Player player) {
+        kills.merge(player, 1, Integer::sum);
+        player.sendMessage(Component.text("Kill! (Total: " + kills.get(player) + ")", NamedTextColor.GOLD));
+        updateScoreboard();
+    }
+
+    public int getKills(Player player) {
+        return kills.getOrDefault(player, 0);
+    }
+
+    private void updateScoreboard() {
+        // Clear all lines
+        for (Sidebar.ScoreboardLine line : sidebar.getLines()) {
+            sidebar.removeLine(line.getId());
+        }
+
+        sidebar.createLine(new Sidebar.ScoreboardLine("line_sep", Component.text("----------------", NamedTextColor.GRAY), 10));
+        sidebar.createLine(new Sidebar.ScoreboardLine("line_game", Component.text("Game: ", NamedTextColor.WHITE).append(Component.text(gameName, NamedTextColor.YELLOW)), 9));
+        sidebar.createLine(new Sidebar.ScoreboardLine("line_state", Component.text("State: ", NamedTextColor.WHITE).append(Component.text(state.name(), NamedTextColor.YELLOW)), 8));
+        sidebar.createLine(new Sidebar.ScoreboardLine("line_sep2", Component.empty(), 7));
+        sidebar.createLine(new Sidebar.ScoreboardLine("line_kills_title", Component.text("Top Kills:", NamedTextColor.GOLD), 6));
+
+        // Sort players by kills
+        List<Player> sortedPlayers = new ArrayList<>(players);
+        sortedPlayers.sort((p1, p2) -> Integer.compare(getKills(p2), getKills(p1)));
+
+        int rank = 5;
+        for (int i = 0; i < Math.min(sortedPlayers.size(), 5); i++) {
+            Player p = sortedPlayers.get(i);
+            sidebar.createLine(new Sidebar.ScoreboardLine("kill_" + i, 
+                Component.text(p.getUsername() + ": ", NamedTextColor.WHITE).append(Component.text(getKills(p), NamedTextColor.GREEN)), 
+                rank--));
+        }
     }
 
     public int getRespawnDelay() {
@@ -210,10 +248,11 @@ public abstract class Game {
         if (players.size() >= maxPlayers) return;
 
         players.add(player);
-        // Use setInstance with spawn point to ensure safe landing and atomic operation
-        player.setInstance(lobbyInstance, new net.minestom.server.coordinate.Pos(0, 42, 0)).thenAccept(ignored -> {
+        sidebar.addViewer(player);
+        updateScoreboard();
+
+        player.setInstance(lobbyInstance, new Pos(0, 42, 0)).thenAccept(ignored -> {
             player.setGameMode(net.minestom.server.entity.GameMode.ADVENTURE);
-            // Teleport again just in case? Not needed if setInstance handled it.
             onPlayerJoin(player);
             checkStart();
         });
@@ -221,27 +260,29 @@ public abstract class Game {
 
     public void removePlayer(Player player) {
         players.remove(player);
-        playerTeams.remove(player); // Remove from team
+        sidebar.removeViewer(player);
+        playerTeams.remove(player); 
         playerKits.remove(player);
-        player.getInventory().clear(); // Clear inventory on quit
+        player.getInventory().clear(); 
         onPlayerQuit(player);
         
+        updateScoreboard();
+
         if (state == GameState.IN_GAME) {
             checkWinCondition();
         }
         
         if (players.isEmpty()) {
             if (state == GameState.LOBBY || state == GameState.STARTING) {
-                // Empty lobby -> Destroy immediately
                 if (lobbyInstance != null) {
                     MinecraftServer.getInstanceManager().unregisterInstance(lobbyInstance);
-                    lobbyInstance = null; // Help GC
+                    lobbyInstance = null;
                 }
                 if (onEndCallback != null) {
                     onEndCallback.run();
                 }
             } else {
-                endGame(); // Security: Close game if empty
+                endGame(); 
             }
         }
     }
@@ -266,7 +307,6 @@ public abstract class Game {
             }
         }
         
-        // Team Check
         if (!playerTeams.isEmpty()) {
             Set<String> activeTeams = new HashSet<>();
             for (Player p : livingPlayers) {
@@ -291,6 +331,7 @@ public abstract class Game {
 
     private void startCountdown() {
         this.state = GameState.STARTING;
+        updateScoreboard();
         sendMessageToAll("Game starting in 5 seconds...");
         
         MinecraftServer.getSchedulerManager().buildTask(() -> startGame(false))
@@ -305,35 +346,30 @@ public abstract class Game {
     public void startGame(boolean force) {
         if (!force && players.size() < minPlayers) {
             this.state = GameState.LOBBY;
+            updateScoreboard();
             sendMessageToAll("Not enough players to start. Countdown cancelled.");
             return;
         }
         
-        // Initialize Game Instance
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         this.gameInstance = instanceManager.createInstanceContainer();
         setupGameInstance(this.gameInstance);
         
-        // Setup Explosion Supplier
         this.gameInstance.setExplosionSupplier(explosionManager.getSupplier(canBreakBlocks));
         
-        // Setup Scoped Event Node
         this.gameEventNode = EventNode.event("game-" + gameId, EventFilter.ALL, event -> {
             if (event instanceof InstanceEvent ie) return ie.getInstance() == gameInstance;
             if (event instanceof EntityEvent ee) return ee.getEntity().getInstance() == gameInstance;
             return false;
         });
         
-        // Setup PvP if enabled
         if (pvpEnabled) {
             this.gameEventNode.addChild(pvpManager.getEventNode());
             new ProjectileManager(this.gameEventNode, this.explosionManager);
         }
         
-        // Setup Death Management
         this.deathManager = new DeathManager(this, this.gameEventNode);
         
-        // Setup Block Protection
         this.gameEventNode.addListener(PlayerBlockBreakEvent.class, event -> {
             if (!canBreakBlocks && event.getPlayer().getGameMode() != net.minestom.server.entity.GameMode.CREATIVE) {
                 event.setCancelled(true);
@@ -346,7 +382,6 @@ public abstract class Game {
             }
         });
         
-        // Fall Damage Logic
         this.gameEventNode.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
             if (!fallDamageEnabled) return;
             Player p = event.getPlayer();
@@ -364,10 +399,8 @@ public abstract class Game {
                         p.damage(me.holypite.manager.damage.DamageSources.fall(damage));
                     }
                 }
-                // Reset tracker to current Y when grounded
                 fallTracker.put(p, currentY);
             } else {
-                // In air, update highest Y if we went higher
                 double highestY = fallTracker.getOrDefault(p, currentY);
                 if (currentY > highestY) {
                     fallTracker.put(p, currentY);
@@ -379,7 +412,6 @@ public abstract class Game {
             fallTracker.remove(event.getPlayer());
         });
         
-        // Handle Vehicle Fall Damage (Reset tracker while riding)
         this.gameEventNode.addListener(net.minestom.server.event.player.PlayerTickEvent.class, event -> {
             if (!fallDamageEnabled) return;
             Player p = event.getPlayer();
@@ -388,7 +420,6 @@ public abstract class Game {
             }
         });
 
-        // Dismount logic
         this.gameEventNode.addListener(net.minestom.server.event.player.PlayerStartSneakingEvent.class, event -> {
             if (!allowDismountSneak) return;
             Player player = event.getPlayer();
@@ -398,12 +429,11 @@ public abstract class Game {
             }
         });
         
-        // Register the game node globally
         MinecraftServer.getGlobalEventHandler().addChild(this.gameEventNode);
         
         this.state = GameState.IN_GAME;
+        updateScoreboard();
         
-        // Assign Teams if Config exists
         if (mapConfig != null && mapConfig.teams != null && !mapConfig.teams.isEmpty()) {
             List<Player> unassigned = new ArrayList<>(players);
             Collections.shuffle(unassigned);
@@ -411,7 +441,6 @@ public abstract class Game {
             int teamIndex = 0;
             for (Player p : unassigned) {
                 TeamConfig team = mapConfig.teams.get(teamIndex);
-                // Check max players per team? For now simple round robin
                 playerTeams.put(p, team);
                 p.sendMessage("You are in team: " + team.name);
                 
@@ -419,8 +448,7 @@ public abstract class Game {
             }
         }
         
-        // Teleport everyone to the game instance
-        List<java.util.concurrent.CompletableFuture<Void>> teleportFutures = new ArrayList<>();
+        List<CompletableFuture<Void>> teleportFutures = new ArrayList<>();
         
         for (Player p : players) {
             final Pos finalPos = getRespawnPos(p);
@@ -429,18 +457,15 @@ public abstract class Game {
             }));
         }
         
-        // Wait for all players to move before destroying the lobby
-        java.util.concurrent.CompletableFuture.allOf(teleportFutures.toArray(new java.util.concurrent.CompletableFuture[0]))
+        CompletableFuture.allOf(teleportFutures.toArray(new CompletableFuture[0]))
             .thenRun(() -> {
-                // Unregister Lobby Instance (cleanup)
-                if (instanceManager != null) { // Safety check though var is local
+                if (instanceManager != null) {
                    instanceManager.unregisterInstance(lobbyInstance);
                 } else {
                     MinecraftServer.getInstanceManager().unregisterInstance(lobbyInstance);
                 }
                 this.lobbyInstance = null;
                 
-                // Give Kits
                 for (Player p : players) {
                     p.heal();
                     p.setFood(20);
@@ -455,9 +480,9 @@ public abstract class Game {
 
     public void endGame() {
         this.state = GameState.ENDING;
+        updateScoreboard();
         onGameEnd();
         
-        // Unregister game events
         if (this.gameEventNode != null) {
             MinecraftServer.getGlobalEventHandler().removeChild(this.gameEventNode);
             this.gameEventNode = null;
@@ -469,7 +494,6 @@ public abstract class Game {
             if (onEndCallback != null) {
                 onEndCallback.run();
             }
-            // Clear players list as they should be moved by the callback
             players.clear();
         })
         .delay(TaskSchedule.seconds(5))
@@ -502,7 +526,7 @@ public abstract class Game {
         if (mapConfig != null && mapConfig.voidY != null) {
             return mapConfig.voidY;
         }
-        return -10.0; // Default void threshold
+        return -10.0; 
     }
     
     protected EventNode<Event> getGameEventNode() {

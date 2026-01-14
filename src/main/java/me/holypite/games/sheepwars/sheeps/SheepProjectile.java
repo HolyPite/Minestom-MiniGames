@@ -13,6 +13,7 @@ public abstract class SheepProjectile extends EntityCreature {
     protected boolean landed = false;
     protected final Entity shooter;
     protected float activationDelay = 0; // Seconds
+    protected me.holypite.manager.explosion.ExplosionManager explosionManager;
 
     public SheepProjectile(Entity shooter) {
         super(EntityType.SHEEP);
@@ -20,6 +21,10 @@ public abstract class SheepProjectile extends EntityCreature {
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setHasNoGravity(false); 
         }
+    }
+    
+    public void setExplosionManager(me.holypite.manager.explosion.ExplosionManager explosionManager) {
+        this.explosionManager = explosionManager;
     }
     
     protected void setActivationDelay(float seconds) {

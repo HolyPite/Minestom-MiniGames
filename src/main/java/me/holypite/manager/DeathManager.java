@@ -8,6 +8,7 @@ import me.holypite.model.Game;
 import me.holypite.model.GameState;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
@@ -43,6 +44,13 @@ public class DeathManager {
             float finalHealth = player.getHealth() - event.getDamage().getAmount();
             if (finalHealth <= 0) {
                 event.setCancelled(true);
+                
+                // Credit Kill
+                Entity killer = event.getDamage().getAttacker();
+                if (killer instanceof Player killerPlayer && killerPlayer != player) {
+                    game.addKill(killerPlayer);
+                }
+                
                 handleDeath(player);
             }
         });

@@ -3,6 +3,7 @@ package me.holypite.manager.explosion;
 import me.holypite.manager.damage.DamageSources;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.instance.Explosion;
 import net.minestom.server.instance.Instance;
@@ -18,11 +19,19 @@ public class GameExplosion extends Explosion {
 
     private final boolean breakBlocks;
     private final boolean fire;
+    private final Entity attacker;
+    private final Entity source;
 
-    public GameExplosion(float centerX, float centerY, float centerZ, float strength, boolean breakBlocks, boolean fire) {
+    public GameExplosion(float centerX, float centerY, float centerZ, float strength, boolean breakBlocks, boolean fire, Entity attacker, Entity source) {
         super(centerX, centerY, centerZ, strength);
         this.breakBlocks = breakBlocks;
         this.fire = fire;
+        this.attacker = attacker;
+        this.source = source;
+    }
+
+    public GameExplosion(float centerX, float centerY, float centerZ, float strength, boolean breakBlocks, boolean fire) {
+        this(centerX, centerY, centerZ, strength, breakBlocks, fire, null, null);
     }
 
     @Override
@@ -100,47 +109,30 @@ public class GameExplosion extends Explosion {
         double exposure = calculateExposure(instance, center, entity);
         double damageFactor = (1.0 - (distance / damageRadius)) * exposure;
         
-        // (factor * factor + factor) / 2.0 * 7.0 * strength + 1.0
-        // Simplified Vanilla formula approx:
         float damageAmount = (float) ((damageFactor * damageFactor + damageFactor) / 2.0 * 7.0 * getStrength() + 1.0);
 
         if (damageAmount > 1.0f) {
-            entity.damage(DamageSources.explosion(null, null, center, damageAmount));
+            entity.damage(DamageSources.explosion(attacker, source, center, damageAmount));
             
             // Apply Knockback (scaled by exposure)
             Vec direction = entity.getPosition().sub(center).asVec().normalize();
-            entity.setVelocity(entity.getVelocity().add(direction.mul(damageFactor * 20))); // 20 is arbitrary KB scale
+            entity.setVelocity(entity.getVelocity().add(direction.mul(damageFactor * 20))); 
         }
     }
     
-    /**
-     * Calculates how much of the entity is exposed to the explosion center.
-     * Raytraces from center to entity bounding box points.
-     * Simple implementation: Raytrace to eye and feet.
-     */
     private double calculateExposure(Instance instance, Point center, LivingEntity entity) {
-        // Simplified exposure: Raycast to eye position only
-        // Vanilla checks multiple points on the bounding box.
-        // Here we just check if line of sight exists to center of entity for perf.
-        
         Point entityPos = entity.getPosition().add(0, entity.getEyeHeight() / 2, 0);
         Vec direction = entityPos.sub(center).asVec();
         double distance = direction.length();
         direction = direction.normalize();
         
-        double stepSize = 0.5; // Precision
+        double stepSize = 0.5; 
         double currentDist = 0;
         
-        // Raycast from Explosion Center -> Entity
-        // If we hit a block, exposure is 0 (occluded). 
-        // This is binary exposure (0 or 1). Vanilla is gradient (0.0 to 1.0).
-        // For gradient, we need multiple rays.
-        
-        // Let's do a simple binary check for now to enable "hiding behind walls".
         Point currentPos = center;
         while (currentDist < distance) {
              Block block = instance.getBlock(currentPos);
-             if (!block.isAir() && block.registry().explosionResistance() > 0.5) { // Assuming some resistance blocks view
+             if (!block.isAir() && block.registry().explosionResistance() > 0.5) { 
                  return 0.0;
              }
              currentPos = currentPos.add(direction.mul(stepSize));

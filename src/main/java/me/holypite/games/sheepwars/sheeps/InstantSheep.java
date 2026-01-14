@@ -19,7 +19,11 @@ public class InstantSheep extends SheepProjectile {
     @Override
     public void onLand() {
         if (getInstance() != null) {
-            getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2f, null);
+            if (explosionManager != null) {
+                explosionManager.explode(getInstance(), getPosition(), 2f, true, shooter, this);
+            } else {
+                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2f, null);
+            }
         }
         remove();
     }

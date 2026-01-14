@@ -6,11 +6,12 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ### SheepWars - Système de Collision
 - [ ] **Fix Self-Collision** : Empêcher le joueur de collisionner avec son propre mouton instantanément au lancer (ajouter une "grace period" ou ignorer le tireur).
-- [ ] **Kill Credit** : Passer l'attaquant (`shooter`) aux explosions pour que les kills par moutons soient attribués au bon joueur.
+- [x] **Kill Credit** : Passer l'attaquant (`shooter`) aux explosions pour que les kills par moutons soient attribués au bon joueur.
 - [ ] **Void Check** : Faire mourir les moutons projetés dans le vide (`Y < voidY`) pour éviter qu'ils ne chargent des chunks à l'infini.
 
 ### Système de Dégâts & Teams
 - [ ] **Friendly Fire** : Désactiver les dégâts entre alliés pour les flèches et les explosions.
+- [x] **Kill Counter** : Ajouter un compteur de kills par joueur visible durant la partie (Scoreboard).
 - [ ] **Kill Messages** : Améliorer les messages de mort en indiquant l'arme/mouton utilisé (ex: "X a été pulvérisé par le Mouton Explosif de Y").
 
 ## 🟡 Priorité Moyenne (Features & Polissage)

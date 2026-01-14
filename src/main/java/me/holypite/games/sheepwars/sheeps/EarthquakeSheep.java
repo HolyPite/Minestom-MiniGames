@@ -38,7 +38,11 @@ public class EarthquakeSheep extends SheepProjectile {
 
             if (ticks.getAndAdd(20) >= maxTicks) {
                 // Final Explosion
-                getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 1.0f, null);
+                if (explosionManager != null) {
+                    explosionManager.explode(getInstance(), getPosition(), 1.0f, true, shooter, this);
+                } else {
+                    getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 1.0f, null);
+                }
                 remove();
                 return TaskSchedule.stop();
             }

@@ -74,6 +74,7 @@ public class ProjectileManager {
     private void launchSheep(Player player, PlayerHand hand, SheepRegistry.SheepEntry entry) {
         // Launch Sheep using Factory
         SheepProjectile sheep = entry.factory().apply(player);
+        sheep.setExplosionManager(explosionManager);
         sheep.shoot(3.0); 
         player.setItemInHand(hand, player.getItemInHand(hand).withAmount(a -> a - 1));
     }

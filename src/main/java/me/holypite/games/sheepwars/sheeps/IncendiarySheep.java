@@ -55,11 +55,11 @@ public class IncendiarySheep extends SheepProjectile {
                 .forEach(e -> ((LivingEntity) e).setFireTicks(100)); // 5 seconds
 
         // 3. Explosion (Visual + Fire)
-        // Note: Minestom explosion doesn't set fire by default unless implemented in GameExplosion.
-        // My GameExplosion has a 'fire' boolean field but logic isn't implemented for fire spreading yet.
-        // But since I manually set fire above, a visual explosion is enough.
-        
-        getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 2.0f, null);
+        if (explosionManager != null) {
+            explosionManager.explode(getInstance(), getPosition(), 2.0f, false, shooter, this);
+        } else {
+            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 2.0f, null);
+        }
 
         remove();
     }

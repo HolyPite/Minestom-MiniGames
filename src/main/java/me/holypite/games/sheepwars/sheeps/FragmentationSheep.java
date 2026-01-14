@@ -25,7 +25,11 @@ public class FragmentationSheep extends SheepProjectile {
     @Override
     public void onLand() {
             // Main explosion
-            getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2.5f, null);
+            if (explosionManager != null) {
+                explosionManager.explode(getInstance(), getPosition(), 2.5f, true, shooter, this);
+            } else {
+                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2.5f, null);
+            }
             
             // Spawn cluster
             int count = 8;

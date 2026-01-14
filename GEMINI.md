@@ -40,10 +40,11 @@ All mini-games extend the abstract `Game` class.
 
 ### Structure System
 Allows saving and placing NBT structures (Schematics).
-- **Format**: Standard Minecraft NBT Structure format (palette based).
-- **Storage**: `structures/<name>.nbt`.
-- **Transformation**: Supports **Rotation** (0, 90, 180, 270) and **Mirroring** (X, Z, XZ) during placement.
-- **Usage**: Used for saving arenas or specific game features without loading full worlds.
+...
+### Scoreboard System
+Each game features a dynamic **Sidebar** (Scoreboard) that displays:
+- The game name and current state (Lobby, In-Game, Ending).
+- A real-time **Kill Counter** ranking the top 5 players.
 
 ### SheepWars System
 A complex projectile system with 17 unique sheep types.
