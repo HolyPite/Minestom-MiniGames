@@ -21,10 +21,12 @@ public class HubManager {
 
     private final List<InstanceContainer> hubs = new ArrayList<>();
     private final MapManager mapManager;
+    private final ElytraCourseManager elytraCourseManager;
     private static final int MAX_PLAYERS_PER_HUB = 50;
 
     public HubManager(MapManager mapManager) {
         this.mapManager = mapManager;
+        this.elytraCourseManager = new ElytraCourseManager();
         // Create initial hub
         createNewHub();
     }
@@ -41,6 +43,11 @@ public class HubManager {
         if (loadedMap != null) {
             hub = loadedMap.getInstance();
             System.out.println("Loaded Hub map successfully.");
+            
+            // Setup Elytra Course
+            if (loadedMap.getConfig().elytraCourse != null) {
+                elytraCourseManager.setup(hub, loadedMap.getConfig().elytraCourse);
+            }
         } else {
             // Fallback
             InstanceManager instanceManager = MinecraftServer.getInstanceManager();

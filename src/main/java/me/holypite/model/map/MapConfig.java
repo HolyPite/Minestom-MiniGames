@@ -11,4 +11,5 @@ public class MapConfig {
     public List<MapEntityConfig> entities; // Decorative entities
     public List<MapStructureConfig> structures; // Structures to paste (if no region file)
     public Double voidY; // Custom void threshold
+    public ElytraCourseConfig elytraCourse; // Elytra course configuration
 }
