@@ -20,6 +20,7 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`HubManager`**: Manages multiple Hub instances. Handles player connection, state reset (inventory, gamemode, health), and load balancing between hubs.
 - **`MapManager`**: Loads world instances from the `maps/` directory in **read-only** mode (Anvil format). Parses `config.json` for team spawns and game rules.
 - **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
+- **`StructurePreviewManager`**: Manages real-time structure previews using `BlockDisplay` entities and raycasting.
 - **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic.
 - **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
 - **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
@@ -43,6 +44,9 @@ Allows saving and placing NBT structures (Schematics).
 - **Format**: Standard Minecraft NBT Structure format (palette based).
 - **Storage**: `structures/<name>.nbt`.
 - **Transformation**: Supports **Rotation** (0, 90, 180, 270) and **Mirroring** (X, Z, XZ) during placement.
+- **Preview**: Real-time **Structure Preview** using `BlockDisplay`.
+    - **Controls**: `Left-Click` to confirm placement, `Sneak` to cancel.
+    - **Limits**: Up to 500 blocks for real-time visualization.
 - **Usage**: Used for saving arenas or specific game features without loading full worlds.
 
 ### Scoreboard System
@@ -113,7 +117,9 @@ Maps are stored in `maps/<map_name>/`.
 - `/play <DUEL|SHEEP_WARS>`: Join a game queue.
 - `/givewool <ID>`: Give a specific special sheep (e.g., `/givewool explosive`).
 - `/structure save <x1> <y1> <z1> <x2> <y2> <z2> <name>`: Save a structure.
-- `/structure load <x> <y> <z> <name> [0/90/180/270] [none/x/z/xz]`: Load a structure with optional rotation and mirror.
+- `/structure load <x> <y> <z> <name> [0/90/180/270] [none/x/z/xz]`: Load a structure.
+- `/structure preview <name>`: Start real-time preview of a structure.
+- `/structure confirm/cancel`: Manual commands for active preview.
 - `/debug`: Give basic equipment.
 - `/instances`: Debug command to list active instances and player counts.
 
