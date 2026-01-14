@@ -51,7 +51,7 @@ public class DeathManager {
         node.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
             Player player = event.getPlayer();
             if (ghosts.contains(player)) return;
-            if (event.getNewPosition().y() < -10) { // Void threshold
+            if (event.getNewPosition().y() < game.getVoidY()) { // Dynamic void threshold
                 handleDeath(player);
             }
         });

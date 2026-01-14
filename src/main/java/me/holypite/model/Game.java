@@ -488,6 +488,13 @@ public abstract class Game {
     public net.minestom.server.entity.GameMode getGameMode() {
         return gameMode;
     }
+
+    public double getVoidY() {
+        if (mapConfig != null && mapConfig.voidY != null) {
+            return mapConfig.voidY;
+        }
+        return -10.0; // Default void threshold
+    }
     
     protected EventNode<Event> getGameEventNode() {
         return gameEventNode;
