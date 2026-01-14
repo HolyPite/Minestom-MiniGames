@@ -68,6 +68,7 @@ public class Main {
             } else {
                 System.out.println("Assigning hub to player " + event.getPlayer().getUsername());
                 event.setSpawningInstance(hub);
+                event.getPlayer().setGameMode(GameMode.ADVENTURE);
                 event.getPlayer().setRespawnPoint(new Pos(0.5, 64, 0.5));
             }
         });
