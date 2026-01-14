@@ -76,6 +76,8 @@ Maps are stored in `maps/<map_name>/`.
 ```json
 {
   "name": "Arena",
+  "minPlayers": 2,
+  "maxPlayers": 8,
   "voidY": -10.0,
   "settings": {
     "time": 6000,
@@ -85,9 +87,16 @@ Maps are stored in `maps/<map_name>/`.
   "rules": {
     "canFly": false,
     "allowHunger": false,
-    "fallDamage": true
+    "fallDamage": true,
+    "canBreakBlocks": false,
+    "canPlaceBlocks": false
   },
-  "teams": [...]
+  "structures": [
+    { "name": "island", "pos": {"x": 0, "y": 64, "z": 0}, "rotation": "0", "mirror": "none" }
+  ],
+  "teams": [
+    { "name": "Red", "color": "#FF0000", "spawns": [...] }
+  ]
 }
 ```
 
