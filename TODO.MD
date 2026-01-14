@@ -27,7 +27,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ### Map & Structure System
 - [ ] **Structure Preview** : Ajouter un mode "ghost" ou des particules pour visualiser où une structure va être placée avant de valider.
-- [ ] **Config.json étendu** : Permettre de définir des flags par map (ex: `canFly`, `dayTime`, `weather`).
+- [x] **Config.json étendu** : Définition de flags par map (heure, météo, bordure invisible, règles de jeu).
 
 ### BedWars (Futur)
 - [ ] **Shop System** : Créer un système de PNJ marchand avec interface d'achat (GUI).

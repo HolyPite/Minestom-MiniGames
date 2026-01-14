@@ -71,22 +71,23 @@ Maps are stored in `maps/<map_name>/`.
 - **Hybrid Loading**: 
     - If `region/` exists: Loads world data via `AnvilLoader`.
     - If `region/` is missing: Generates a **Void world** and pastes structures defined in `config.json`.
-- `config.json`: Configuration for spawns, teams, optional structures, and **void threshold** (`voidY`).
+- `config.json`: Comprehensive configuration for spawns, teams, structures, **void threshold** (`voidY`), **world settings** (time, weather, invisible border), and **game rules** (canFly, allowHunger, fallDamage).
 
 ```json
 {
   "name": "Arena",
-  "minPlayers": 2,
-  "maxPlayers": 8,
   "voidY": -10.0,
-  "structures": [
-    { "name": "island", "pos": {"x": 0, "y": 64, "z": 0}, "rotation": "0", "mirror": "none" },
-    { "name": "island", "pos": {"x": 50, "y": 64, "z": 0}, "rotation": "180", "mirror": "x" }
-  ],
-  "teams": [
-    { "name": "Red", "color": "#FF0000", "spawns": [...] },
-    { "name": "Blue", "color": "#0000FF", "spawns": [...] }
-  ]
+  "settings": {
+    "time": 6000,
+    "weather": "clear",
+    "worldBorder": 100.0
+  },
+  "rules": {
+    "canFly": false,
+    "allowHunger": false,
+    "fallDamage": true
+  },
+  "teams": [...]
 }
 ```
 
