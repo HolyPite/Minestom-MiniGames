@@ -17,7 +17,7 @@ public class SheepWarsGame extends Game {
     public SheepWarsGame(MapManager mapManager) {
         super("SheepWars", 1, 8, mapManager);
         setPvpEnabled(true);
-        setCanRespawn(false); // Elimination mode
+        setCanRespawn(true); // For debug
         setRespawnDelay(5);
         setCanBreakBlocks(true); // Explosions will destroy blocks!
         setGameMode(net.minestom.server.entity.GameMode.SURVIVAL);

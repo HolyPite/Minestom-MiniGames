@@ -484,6 +484,10 @@ public abstract class Game {
     public GameState getState() {
         return state;
     }
+
+    public net.minestom.server.entity.GameMode getGameMode() {
+        return gameMode;
+    }
     
     protected EventNode<Event> getGameEventNode() {
         return gameEventNode;

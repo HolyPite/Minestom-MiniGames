@@ -78,7 +78,7 @@ public class DeathManager {
         player.setInvisible(false);
         player.setAllowFlying(false);
         player.setFlying(false);
-        player.setGameMode(GameMode.SURVIVAL);
+        player.setGameMode(game.getGameMode());
         player.heal();
         player.setFood(20);
 
