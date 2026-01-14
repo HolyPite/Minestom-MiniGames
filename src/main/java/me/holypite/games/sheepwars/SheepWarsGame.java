@@ -135,7 +135,7 @@ public class SheepWarsGame extends Game {
 
     private void refreshActionBar(Player player, ItemStack item) {
         SheepRegistry.getSheepByItem(item).ifPresentOrElse(entry -> {
-            player.sendActionBar(entry.item().get(net.minestom.server.component.DataComponents.CUSTOM_NAME));
+            player.sendActionBar(entry.item().get(net.minestom.server.component.DataComponents.ITEM_NAME));
         }, () -> {
             // Optional: Clear or show nothing if not a sheep
         });

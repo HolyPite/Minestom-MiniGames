@@ -54,6 +54,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ### Technique
 - [x] **Structure System** : Save, Load, Rotation, Mirror et Preview en temps réel.
+- [x] **Robust NBT Loading** : Support du GZIP manuel et détection récursive des tags pour compatibilité Vanilla.
 - [x] **Config.json étendu** : Paramètres de monde et règles de jeu par map.
 - [x] **Potion Visual Sync** : Correction Glowing/Invisibilité.
 

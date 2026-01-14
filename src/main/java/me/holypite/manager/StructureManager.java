@@ -10,7 +10,6 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,7 +128,7 @@ public class StructureManager {
         if (!path.toFile().exists()) return null;
 
         try {
-            // Manual check for GZIP to be ultra-safe
+            // Manual check for GZIP
             CompoundBinaryTag root;
             try (InputStream is = new BufferedInputStream(new FileInputStream(path.toFile()))) {
                 is.mark(2);
@@ -151,7 +150,27 @@ public class StructureManager {
             List<Block> palette = new ArrayList<>();
             
             for (BinaryTag tag : data.getList("palette")) {
-// ...
+                CompoundBinaryTag ct = (CompoundBinaryTag) tag;
+                String blockName = ct.getString("Name");
+                Map<String, String> properties = new HashMap<>();
+                if (ct.keySet().contains("Properties")) {
+                    CompoundBinaryTag props = ct.getCompound("Properties");
+                    for (String key : props.keySet()) properties.put(key, props.getString(key));
+                }
+                
+                Block block = null;
+                for (Block b : Block.values()) {
+                    if (b.name().equalsIgnoreCase(blockName) || b.key().asString().equalsIgnoreCase(blockName)) {
+                        block = b;
+                        break;
+                    }
+                }
+                if (block == null) block = Block.AIR;
+                else if (!properties.isEmpty()) block = block.withProperties(properties);
+                
+                palette.add(transformBlockState(block, rotation, mirror));
+            }
+
             for (BinaryTag tag : data.getList("blocks")) {
                 CompoundBinaryTag ct = (CompoundBinaryTag) tag;
                 ListBinaryTag pos = ct.getList("pos");

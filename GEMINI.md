@@ -43,6 +43,7 @@ All mini-games extend the abstract `Game` class.
 Allows saving and placing NBT structures (Schematics).
 - **Format**: Standard Minecraft NBT Structure format (palette based).
 - **Storage**: `structures/<name>.nbt`.
+- **Loading**: Robust loader with **GZIP detection** and **recursive tag search** for Vanilla Minecraft compatibility.
 - **Transformation**: Supports **Rotation** (0, 90, 180, 270) and **Mirroring** (X, Z, XZ) during placement.
 - **Preview**: Real-time **Structure Preview** using `BlockDisplay`.
     - **Controls**: `Left-Click` to confirm placement, `Sneak` to cancel.
@@ -130,6 +131,7 @@ Maps are stored in `maps/<map_name>/`.
 - **Events**: Use `EventNode` for scoping events to specific games or instances.
 - **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
 - **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
+    - **Note**: `ItemBuilder` sets `DataComponents.ITEM_NAME` (not `CUSTOM_NAME`). When reading the item name (e.g., for UI), read `ITEM_NAME` to avoid nulls.
 - **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.
 
 ## Available Documentation Tools
