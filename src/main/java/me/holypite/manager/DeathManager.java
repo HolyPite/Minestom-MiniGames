@@ -1,5 +1,6 @@
 package me.holypite.manager;
 
+import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -12,6 +13,7 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.EntityDamageEvent;
+import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.time.Duration;
@@ -57,8 +59,9 @@ public class DeathManager {
         player.setFlying(true);
         player.getInventory().clear();
         
-        // 2. Title
+        // 2. Title & Sound
         Component mainTitle = Component.text("YOU DIED", NamedTextColor.RED);
+        player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, 1f, 0.5f));
 
         // 3. Check if can respawn
         if (game.isCanRespawn()) {
@@ -101,6 +104,7 @@ public class DeathManager {
         game.applyKit(player);
 
         player.showTitle(Title.title(Component.text("RESPAWNED", NamedTextColor.GREEN), Component.empty()));
+        player.playSound(Sound.sound(SoundEvent.ENTITY_PLAYER_LEVELUP, Sound.Source.PLAYER, 1f, 1.2f));
         player.sendMessage("Respawned!");
     }
 
