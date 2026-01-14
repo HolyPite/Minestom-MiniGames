@@ -139,27 +139,19 @@ public class StructureManager {
         }
 
         try {
-            // BinaryTagIO.reader() automatically detects GZIP (Vanilla format)
-            CompoundBinaryTag root = BinaryTagIO.reader().read(path);
+            // Restore Long.MAX_VALUE to allow large structures
+            CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
             List<StructureBlock> structureBlocks = new ArrayList<>();
             
-            // Vanilla structures often have data under a root tag (e.g. empty string or 'data')
-            // If "blocks" is not at root, try to find it
-            CompoundBinaryTag data = root;
-            if (!root.keySet().contains("blocks") && root.keySet().size() == 1) {
-                String key = root.keySet().iterator().next();
-                BinaryTag sub = root.get(key);
-                if (sub instanceof CompoundBinaryTag) {
-                    data = (CompoundBinaryTag) sub;
-                }
-            }
+            // Robust search for "blocks" and "palette"
+            CompoundBinaryTag data = findDataTag(root);
 
-            if (!data.keySet().contains("blocks") || !data.keySet().contains("palette")) {
+            if (data == null || !data.keySet().contains("blocks") || !data.keySet().contains("palette")) {
                 System.err.println("Invalid structure format: 'blocks' or 'palette' missing in " + name);
                 return null;
             }
 
-            // Parse Palette
+            // Parse Palette ... (rest of the logic remains the same)
             List<Block> palette = new ArrayList<>();
             for (BinaryTag tag : data.getList("palette")) {
                 if (tag instanceof CompoundBinaryTag ct) {
@@ -222,6 +214,31 @@ public class StructureManager {
         }
     }
     
+    private CompoundBinaryTag findDataTag(CompoundBinaryTag root) {
+        if (root.keySet().contains("blocks") && root.keySet().contains("palette")) {
+            return root;
+        }
+        // Often Vanilla puts everything inside a compound with an empty name or "data"
+        for (String key : root.keySet()) {
+            BinaryTag sub = root.get(key);
+            if (sub instanceof CompoundBinaryTag ct) {
+                if (ct.keySet().contains("blocks") && ct.keySet().contains("palette")) {
+                    return ct;
+                }
+                // Try one more level deep for safety
+                for (String subKey : ct.keySet()) {
+                    BinaryTag subSub = ct.get(subKey);
+                    if (subSub instanceof CompoundBinaryTag cct) {
+                        if (cct.keySet().contains("blocks") && cct.keySet().contains("palette")) {
+                            return cct;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private Point transformPosition(int x, int y, int z, StructureRotation rotation, StructureMirror mirror) {
         // Mirror first
         if (mirror == StructureMirror.X || mirror == StructureMirror.XZ) {
