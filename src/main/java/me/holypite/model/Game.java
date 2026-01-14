@@ -350,6 +350,29 @@ public abstract class Game {
         startGame(true);
     }
 
+    private void applyMapConfig() {
+        if (mapConfig == null) return;
+
+        // Settings
+        if (mapConfig.settings != null) {
+            if (mapConfig.settings.time != null) gameInstance.setTime(mapConfig.settings.time);
+            if (mapConfig.settings.weather != null) {
+                switch (mapConfig.settings.weather.toLowerCase()) {
+                    case "rain" -> gameInstance.setWeather(net.minestom.server.instance.Weather.RAIN);
+                    case "thunder" -> gameInstance.setWeather(net.minestom.server.instance.Weather.THUNDER);
+                    default -> gameInstance.setWeather(net.minestom.server.instance.Weather.CLEAR);
+                }
+            }
+        }
+
+        // Rules - Overwrite defaults if present
+        if (mapConfig.rules != null) {
+            if (mapConfig.rules.fallDamage != null) this.fallDamageEnabled = mapConfig.rules.fallDamage;
+            if (mapConfig.rules.canBreakBlocks != null) this.canBreakBlocks = mapConfig.rules.canBreakBlocks;
+            if (mapConfig.rules.canPlaceBlocks != null) this.canPlaceBlocks = mapConfig.rules.canPlaceBlocks;
+        }
+    }
+
     public void startGame(boolean force) {
         if (!force && players.size() < minPlayers) {
             this.state = GameState.LOBBY;
@@ -362,6 +385,9 @@ public abstract class Game {
         this.gameInstance = instanceManager.createInstanceContainer();
         setupGameInstance(this.gameInstance);
         
+        // Apply Map Config Settings & Rules
+        applyMapConfig();
+        
         this.gameInstance.setExplosionSupplier(explosionManager.getSupplier(canBreakBlocks));
         
         this.gameEventNode = EventNode.event("game-" + gameId, EventFilter.ALL, event -> {
@@ -369,6 +395,24 @@ public abstract class Game {
             if (event instanceof EntityEvent ee) return ee.getEntity().getInstance() == gameInstance;
             return false;
         });
+
+        // Virtual World Border Logic
+        if (mapConfig != null && mapConfig.settings != null && mapConfig.settings.worldBorder != null) {
+            double diameter = mapConfig.settings.worldBorder;
+            double radius = diameter / 2.0;
+            
+            // Hide native stripes by setting it very large
+            this.gameInstance.setWorldBorder(this.gameInstance.getWorldBorder().withDiameter(1000000));
+
+            this.gameEventNode.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
+                Pos to = event.getNewPosition();
+                if (Math.abs(to.x()) > radius || Math.abs(to.z()) > radius) {
+                    // Block movement by canceling or resetting to old pos
+                    event.setNewPosition(event.getPlayer().getPosition());
+                    event.getPlayer().sendMessage(Component.text("You reached the map border!", NamedTextColor.RED));
+                }
+            });
+        }
         
         // Setup PvP if enabled
         if (pvpEnabled) {
@@ -479,6 +523,7 @@ public abstract class Game {
                     p.heal();
                     p.setFood(20);
                     p.setGameMode(gameMode);
+                    applyRules(p);
                     applyKit(p);
                 }
                 
@@ -536,6 +581,18 @@ public abstract class Game {
             return mapConfig.voidY;
         }
         return -10.0; 
+    }
+
+    private void applyRules(Player player) {
+        if (mapConfig == null || mapConfig.rules == null) return;
+
+        if (mapConfig.rules.canFly != null) {
+            player.setAllowFlying(mapConfig.rules.canFly);
+        }
+        
+        if (mapConfig.rules.allowHunger != null && !mapConfig.rules.allowHunger) {
+            player.setFood(20);
+        }
     }
     
     protected EventNode<Event> getGameEventNode() {
