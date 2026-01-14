@@ -20,7 +20,7 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
 - **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic.
 - **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
-- **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination.
+- **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination. Includes **Titles** (YOU DIED), **Sounds**, and automatic **Void Protection**.
 - **`ProjectileManager`**: Handles custom projectiles (e.g., Sheep projectiles, explosive arrows). Uses native physics for movement and custom collision logic.
 - **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.).
 
@@ -34,17 +34,21 @@ All mini-games extend the abstract `Game` class.
 ### Game Modes & State
 - **Hub/Lobby**: Players are forced into **Adventure Mode** (no block breaking). Empty lobbies are automatically destroyed to save resources.
 - **Game (SheepWars)**: Players are set to **Survival Mode** (can break blocks, take damage).
+- **Dismount**: Players can exit vehicles/mounts (like the Boarding Sheep) by **sneaking**, if allowed by the game rules (`allowDismountSneak`).
 
 ### Structure System
 Allows saving and placing NBT structures (Schematics).
 - **Format**: Standard Minecraft NBT Structure format (palette based).
 - **Storage**: `structures/<name>.nbt`.
+- **Transformation**: Supports **Rotation** (0, 90, 180, 270) and **Mirroring** (X, Z, XZ) during placement.
 - **Usage**: Used for saving arenas or specific game features without loading full worlds.
 
 ### SheepWars System
 A complex projectile system with 17 unique sheep types.
 - **Registry**: `SheepRegistry` maps custom items (White Wool + CustomModelData) to Sheep factories.
 - **Physics**: Sheep are launched as `EntityCreature` with applied velocity (native physics).
+- **Activation**: Generalized **activation delay** (`activationDelay`) handled by the base class.
+- **Spawning Rules**: Problematic sheeps (Party, Clone, Glutton) are blacklisted from being spawned by the **Party Sheep**.
 - **Abilities**:
     - **Explosive**: Explodes after 3s.
     - **Boarding**: Carries the shooter.
@@ -58,13 +62,14 @@ Maps are stored in `maps/<map_name>/`.
 - **Hybrid Loading**: 
     - If `region/` exists: Loads world data via `AnvilLoader`.
     - If `region/` is missing: Generates a **Void world** and pastes structures defined in `config.json`.
-- `config.json`: Configuration for spawns, teams, and optional structures.
+- `config.json`: Configuration for spawns, teams, optional structures, and **void threshold** (`voidY`).
 
 ```json
 {
   "name": "Arena",
   "minPlayers": 2,
   "maxPlayers": 8,
+  "voidY": -10.0,
   "structures": [
     { "name": "island", "pos": {"x": 0, "y": 64, "z": 0}, "rotation": "0", "mirror": "none" },
     { "name": "island", "pos": {"x": 50, "y": 64, "z": 0}, "rotation": "180", "mirror": "x" }
@@ -88,8 +93,8 @@ Maps are stored in `maps/<map_name>/`.
 ### In-Game Commands
 - `/play <DUEL|SHEEP_WARS>`: Join a game queue.
 - `/givewool <ID>`: Give a specific special sheep (e.g., `/givewool explosive`).
-- `/structure save <x1> <y1> <z1> <x2> <y2> <z2> <name>`: Save a structure (relative coords supported).
-- `/structure load <x> <y> <z> <name>`: Load a structure.
+- `/structure save <x1> <y1> <z1> <x2> <y2> <z2> <name>`: Save a structure.
+- `/structure load <x> <y> <z> <name> [0/90/180/270] [none/x/z/xz]`: Load a structure with optional rotation and mirror.
 - `/debug`: Give basic equipment.
 - `/instances`: Debug command to list active instances and player counts.
 
