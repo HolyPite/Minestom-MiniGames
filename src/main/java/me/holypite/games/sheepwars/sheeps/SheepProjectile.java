@@ -14,6 +14,7 @@ public abstract class SheepProjectile extends EntityCreature {
     protected final Entity shooter;
     protected float activationDelay = 0; // Seconds
     protected me.holypite.manager.explosion.ExplosionManager explosionManager;
+    protected me.holypite.model.Game game;
 
     public SheepProjectile(Entity shooter) {
         super(EntityType.SHEEP);
@@ -23,10 +24,14 @@ public abstract class SheepProjectile extends EntityCreature {
         }
     }
     
+    public void setGame(me.holypite.model.Game game) {
+        this.game = game;
+    }
+
     public void setExplosionManager(me.holypite.manager.explosion.ExplosionManager explosionManager) {
         this.explosionManager = explosionManager;
     }
-    
+
     protected void setActivationDelay(float seconds) {
         this.activationDelay = seconds;
     }
@@ -40,10 +45,6 @@ public abstract class SheepProjectile extends EntityCreature {
         
         // Velocity
         Vec direction = shooter.getPosition().direction();
-        this.setVelocity(direction.mul(power * 20)); // Minestom velocity is approx blocks/sec ? Let's try raw power first.
-        // Actually Minestom/Minecraft velocity is often in blocks/tick for packets, but setVelocity takes server units.
-        // Standard launch power is usually around 1.0 - 3.0.
-        // If we multiply by 20, it might be huge. Let's try power * 1.5 first (similar to snowball).
         this.setVelocity(direction.mul(power * 25)); 
     }
 
@@ -51,14 +52,22 @@ public abstract class SheepProjectile extends EntityCreature {
     public void update(long time) {
         super.update(time);
         
+        // Lifetime Check (1 minute = 1200 ticks)
+        if (getAliveTicks() > 1200) {
+            remove();
+            return;
+        }
+
+        // Void Check
+        if (game != null && getPosition().y() < game.getVoidY()) {
+            remove();
+            return;
+        }
+
         // Flight Hook
         if (!landed) {
             onFlightTick();
         }
-        
-        // Check Landing
-        // isOnGround() detects floor.
-        // Collided with wall? Velocity drops to 0.
         
         if (!landed) {
             if (isOnGround() || (getVelocity().length() < 0.1 && getAliveTicks() > 5)) { // Grace period for launch
@@ -66,7 +75,6 @@ public abstract class SheepProjectile extends EntityCreature {
                 setVelocity(Vec.ZERO);
                 
                 if (activationDelay > 0) {
-                     // Schedule land
                      net.minestom.server.MinecraftServer.getSchedulerManager().buildTask(this::onLand)
                         .delay(net.minestom.server.timer.TaskSchedule.millis((long)(activationDelay * 1000)))
                         .schedule();

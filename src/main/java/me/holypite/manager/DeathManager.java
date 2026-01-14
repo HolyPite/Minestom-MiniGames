@@ -49,6 +49,9 @@ public class DeathManager {
                 Entity killer = event.getDamage().getAttacker();
                 if (killer instanceof Player killerPlayer && killerPlayer != player) {
                     game.addKill(killerPlayer);
+                    game.sendMessageToAll(player.getUsername() + " was eliminated by " + killerPlayer.getUsername());
+                } else {
+                    game.sendMessageToAll(player.getUsername() + " died.");
                 }
                 
                 handleDeath(player);

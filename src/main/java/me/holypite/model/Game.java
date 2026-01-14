@@ -162,6 +162,13 @@ public abstract class Game {
         return kills.getOrDefault(player, 0);
     }
 
+    public boolean isSameTeam(Entity a, Entity b) {
+        if (!(a instanceof Player p1) || !(b instanceof Player p2)) return false;
+        TeamConfig t1 = playerTeams.get(p1);
+        TeamConfig t2 = playerTeams.get(p2);
+        return t1 != null && t1.equals(t2);
+    }
+
     private void updateScoreboard() {
         // Clear all lines
         for (Sidebar.ScoreboardLine line : sidebar.getLines()) {
@@ -363,9 +370,11 @@ public abstract class Game {
             return false;
         });
         
+        // Setup PvP if enabled
         if (pvpEnabled) {
             this.gameEventNode.addChild(pvpManager.getEventNode());
-            new ProjectileManager(this.gameEventNode, this.explosionManager);
+            this.projectileManager = new ProjectileManager(this.gameEventNode, this.explosionManager);
+            this.projectileManager.setGame(this);
         }
         
         this.deathManager = new DeathManager(this, this.gameEventNode);

@@ -24,6 +24,9 @@ public class PvpManager {
             if (!(event.getTarget() instanceof LivingEntity victim)) return;
             
             if (!game.isAlive(attacker)) return;
+            
+            // Friendly Fire Check (Melee)
+            if (game.isSameTeam(attacker, victim)) return;
 
             // Attack Logic
             handleAttack(attacker, victim);

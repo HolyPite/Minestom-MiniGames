@@ -2,7 +2,6 @@ package me.holypite.manager.projectile;
 
 import me.holypite.games.sheepwars.SheepRegistry;
 import me.holypite.games.sheepwars.sheeps.SheepProjectile;
-import me.holypite.games.sheepwars.sheeps.ExplosiveSheep;
 import me.holypite.manager.explosion.ExplosionManager;
 import me.holypite.manager.projectile.entities.ArrowProjectile;
 import net.kyori.adventure.sound.Sound;
@@ -13,8 +12,6 @@ import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.entity.PlayerHand;
-import net.minestom.server.entity.damage.Damage;
-import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.event.Event;
 import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEvent;
@@ -37,6 +34,7 @@ public class ProjectileManager {
     
     private final EventNode<Event> node;
     private final ExplosionManager explosionManager;
+    private me.holypite.model.Game game;
 
     public ProjectileManager(EventNode<Event> node, ExplosionManager explosionManager) {
         this.node = node;
@@ -44,6 +42,10 @@ public class ProjectileManager {
         registerBowLogic();
         registerSheepLogic();
         registerCollisionLogic();
+    }
+
+    public void setGame(me.holypite.model.Game game) {
+        this.game = game;
     }
 
     private void registerSheepLogic() {
@@ -75,6 +77,7 @@ public class ProjectileManager {
         // Launch Sheep using Factory
         SheepProjectile sheep = entry.factory().apply(player);
         sheep.setExplosionManager(explosionManager);
+        if (game != null) sheep.setGame(game);
         sheep.shoot(3.0); 
         player.setItemInHand(hand, player.getItemInHand(hand).withAmount(a -> a - 1));
     }
@@ -110,7 +113,19 @@ public class ProjectileManager {
             if (!(event.getTarget() instanceof LivingEntity victim)) return;
             if (!(event.getEntity() instanceof AbstractProjectile projectile)) return;
             
-            Entity shooter = ((AbstractProjectile) event.getEntity()).shooter;
+            Entity shooter = projectile.shooter;
+            
+            // Self-Collision Fix (Grace period of 10 ticks)
+            if (victim == shooter && projectile.getAliveTicks() < 10) {
+                event.setCancelled(true);
+                return;
+            }
+
+            // Friendly Fire Check (Bow)
+            if (game != null && game.isSameTeam(shooter, victim)) {
+                event.setCancelled(true);
+                return;
+            }
             
             float damage = 6.0f;
             if (projectile instanceof ArrowProjectile arrow && arrow.isCritical()) {
