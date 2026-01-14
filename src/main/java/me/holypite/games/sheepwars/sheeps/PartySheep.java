@@ -53,9 +53,10 @@ public class PartySheep extends SheepProjectile {
                 
                 // Blacklist problematic sheeps for Party Sheep
                 List<String> blacklist = List.of("mystery", "party", "clone", "glutton");
+                long elapsed = game != null ? game.getElapsedSeconds() : 0;
                 
                 for (int i = 0; i < numSheep; i++) {
-                    Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(blacklist);
+                    Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(elapsed, blacklist);
                     if (factory != null) {
                         double theta = i * step;
                         double r = ThreadLocalRandom.current().nextBoolean() ? 2 : 3;

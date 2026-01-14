@@ -37,6 +37,7 @@ public abstract class Game {
     private InstanceContainer gameInstance;
     private final Set<Player> players;
     private GameState state;
+    private long startTime = 0;
     private final int minPlayers;
     private final int maxPlayers;
     
@@ -485,6 +486,7 @@ public abstract class Game {
         MinecraftServer.getGlobalEventHandler().addChild(this.gameEventNode);
         
         this.state = GameState.IN_GAME;
+        this.startTime = System.currentTimeMillis();
         updateScoreboard();
         
         if (mapConfig != null && mapConfig.teams != null && !mapConfig.teams.isEmpty()) {
@@ -570,6 +572,11 @@ public abstract class Game {
     
     public GameState getState() {
         return state;
+    }
+
+    public long getElapsedSeconds() {
+        if (state != GameState.IN_GAME && state != GameState.ENDING) return 0;
+        return (System.currentTimeMillis() - startTime) / 1000;
     }
 
     public net.minestom.server.entity.GameMode getGameMode() {

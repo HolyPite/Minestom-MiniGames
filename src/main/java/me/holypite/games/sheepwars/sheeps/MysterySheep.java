@@ -36,9 +36,14 @@ public class MysterySheep extends SheepProjectile {
     @Override
     public void onLand() {
         // Transform into random sheep
-        Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory();
+        long elapsed = game != null ? game.getElapsedSeconds() : 0;
+        Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(elapsed, java.util.List.of("mystery"));
+        
         if (factory != null) {
             SheepProjectile randomSheep = factory.apply(shooter);
+            randomSheep.setExplosionManager(explosionManager);
+            if (game != null) randomSheep.setGame(game);
+            
             randomSheep.setInstance(getInstance(), getPosition());
             
             // Trigger landing logic immediately

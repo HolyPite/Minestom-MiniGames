@@ -116,7 +116,7 @@ public class SheepWarsGame extends Game {
             
             for (Player p : getPlayers()) {
                 if (isAlive(p)) {
-                    ItemStack sheepItem = SheepRegistry.getRandomSheepItem();
+                    ItemStack sheepItem = SheepRegistry.getRandomSheepItem(getElapsedSeconds());
                     if (sheepItem != ItemStack.AIR) {
                         p.getInventory().addItemStack(sheepItem);
                         p.sendMessage("You received a sheep!");
