@@ -1,6 +1,7 @@
 package me.holypite.manager;
 
 import me.holypite.manager.damage.DamageSources;
+import me.holypite.model.Game;
 import net.minestom.server.entity.LivingEntity;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.Event;
@@ -11,14 +12,18 @@ import net.minestom.server.item.Material;
 public class PvpManager {
 
     private final EventNode<Event> pvpNode;
+    private final Game game;
 
-    public PvpManager() {
+    public PvpManager(Game game) {
+        this.game = game;
         this.pvpNode = EventNode.all("pvp-node");
         
         // Attack Management
         pvpNode.addListener(EntityAttackEvent.class, event -> {
             if (!(event.getEntity() instanceof Player attacker)) return;
             if (!(event.getTarget() instanceof LivingEntity victim)) return;
+            
+            if (!game.isAlive(attacker)) return;
 
             // Attack Logic
             handleAttack(attacker, victim);

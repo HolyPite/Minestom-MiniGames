@@ -46,10 +46,33 @@ public class DeathManager {
                 handleDeath(player);
             }
         });
+
+        // Void Death handling
+        node.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
+            Player player = event.getPlayer();
+            if (ghosts.contains(player)) return;
+            if (event.getNewPosition().y() < -10) { // Void threshold
+                handleDeath(player);
+            }
+        });
+
+        // Prevent ghosts from picking up items
+        node.addListener(net.minestom.server.event.item.PickupItemEvent.class, event -> {
+            if (event.getLivingEntity() instanceof Player player && ghosts.contains(player)) {
+                event.setCancelled(true);
+            }
+        });
+
+        // Cleanup on disconnect
+        node.addListener(net.minestom.server.event.player.PlayerDisconnectEvent.class, event -> {
+            ghosts.remove(event.getPlayer());
+        });
     }
 
     public void handleDeath(Player player) {
-        if (game.getState() != GameState.IN_GAME) return;
+        // Allow death handling during IN_GAME and ENDING (for simultaneous deaths)
+        if (game.getState() == GameState.LOBBY || game.getState() == GameState.STARTING) return;
+        if (ghosts.contains(player)) return;
 
         // 1. Become Ghost
         ghosts.add(player);

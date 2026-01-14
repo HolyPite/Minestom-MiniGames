@@ -44,7 +44,7 @@ public abstract class Game {
     protected final Map<Player, TeamConfig> playerTeams = new ConcurrentHashMap<>();
     
     // Managers
-    private final PvpManager pvpManager = new PvpManager();
+    private final PvpManager pvpManager = new PvpManager(this);
     protected final me.holypite.manager.MapManager mapManager; 
     protected final ExplosionManager explosionManager = new ExplosionManager();
     private boolean pvpEnabled = false;
