@@ -10,6 +10,7 @@ public class BoardingSheep extends SheepProjectile {
 
     public BoardingSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BLUE); // Blue/Cyan like wool manager
             meta.setCustomName(Component.text("Boarding Sheep", NamedTextColor.BLUE));
