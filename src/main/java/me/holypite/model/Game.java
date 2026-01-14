@@ -20,6 +20,7 @@ import net.minestom.server.event.player.PlayerBlockPlaceEvent;
 import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.event.trait.InstanceEvent;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +59,7 @@ public abstract class Game {
     private boolean canPlaceBlocks = false;
     private boolean fallDamageEnabled = true;
     private boolean fallingBlockDamage = true;
+    private boolean allowDismountSneak = true;
     protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
     // Kits
@@ -124,6 +126,10 @@ public abstract class Game {
     
     protected void setFallingBlockDamage(boolean fallingBlockDamage) {
         this.fallingBlockDamage = fallingBlockDamage;
+    }
+    
+    protected void setAllowDismountSneak(boolean allowDismountSneak) {
+        this.allowDismountSneak = allowDismountSneak;
     }
     
     public boolean isFallingBlockDamage() {
@@ -370,6 +376,16 @@ public abstract class Game {
             Player p = event.getPlayer();
             if (p.getVehicle() != null) {
                 fallTracker.put(p, p.getPosition().y());
+            }
+        });
+
+        // Dismount logic
+        this.gameEventNode.addListener(net.minestom.server.event.player.PlayerStartSneakingEvent.class, event -> {
+            if (!allowDismountSneak) return;
+            Player player = event.getPlayer();
+            Entity vehicle = player.getVehicle();
+            if (vehicle != null) {
+                vehicle.removePassenger(player);
             }
         });
         
