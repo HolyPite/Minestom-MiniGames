@@ -60,6 +60,18 @@ public class SheepWarsGame extends Game {
 
     @Override
     public void onGameStart() {
+        // ActionBar Logic
+        getGameEventNode().addListener(net.minestom.server.event.player.PlayerChangeHeldSlotEvent.class, event -> {
+            refreshActionBar(event.getPlayer(), event.getPlayer().getInventory().getItemStack(event.getSlot()));
+        });
+
+        getGameEventNode().addListener(net.minestom.server.event.player.PlayerUseItemEvent.class, event -> {
+            // Short delay to let amount update
+            MinecraftServer.getSchedulerManager().buildTask(() -> {
+                refreshActionBar(event.getPlayer(), event.getPlayer().getItemInHand(event.getHand()));
+            }).delay(net.minestom.server.timer.TaskSchedule.tick(1)).schedule();
+        });
+
         // Wool Drop on Sheep Death (Lethal Damage Check)
         getGameEventNode().addListener(net.minestom.server.event.entity.EntityDamageEvent.class, event -> {
             if (event.getEntity() instanceof me.holypite.games.sheepwars.sheeps.SheepProjectile sheep) {
@@ -119,5 +131,13 @@ public class SheepWarsGame extends Game {
     @Override
     public void onGameEnd() {
         sendMessageToAll("SheepWars Ended!");
+    }
+
+    private void refreshActionBar(Player player, ItemStack item) {
+        SheepRegistry.getSheepByItem(item).ifPresentOrElse(entry -> {
+            player.sendActionBar(entry.item().get(net.minestom.server.component.DataComponents.CUSTOM_NAME));
+        }, () -> {
+            // Optional: Clear or show nothing if not a sheep
+        });
     }
 }

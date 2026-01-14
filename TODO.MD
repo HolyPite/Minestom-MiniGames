@@ -23,7 +23,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ### SheepWars - Feedback Visuel
 - [x] **Wool Recovery** : Ajouter un son (`ENTITY_EXPERIENCE_ORB_PICKUP`) et des particules lors de la récupération d'un mouton tué.
-- [ ] **Action Bar** : Afficher le nom du mouton tenu en main dans l'ActionBar avec sa couleur associée.
+- [x] **Action Bar** : Afficher le nom du mouton tenu en main dans l'ActionBar avec sa couleur associée.
 
 ### Map & Structure System
 - [ ] **Structure Preview** : Ajouter un mode "ghost" ou des particules pour visualiser où une structure va être placée avant de valider.

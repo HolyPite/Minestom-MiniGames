@@ -52,9 +52,10 @@ Each game features a dynamic **Sidebar** (Scoreboard) that displays:
 
 ### SheepWars System
 A complex projectile system with 17 unique sheep types.
-- **Registry**: `SheepRegistry` maps custom items (White Wool + CustomModelData) to Sheep factories.
-- **Physics**: Sheep are launched as `EntityCreature` with applied velocity (native physics).
-- **Rules**: Automatic **Void Check** and **Lifetime Check** (1 min) for all projectiles.
+- **Registry**: `SheepRegistry` maps custom items to Sheep factories.
+- **Physics**: Sheep are launched as `EntityCreature` with applied velocity.
+- **Rules**: Automatic **Void Check** and **Lifetime Check** (1 min).
+- **UI**: Real-time **Action Bar** showing the held sheep's name and color.
 - **Activation**: Generalized **activation delay** handled by the base class.
 - **Spawning Rules**: Problematic sheeps (Party, Clone, Glutton) are blacklisted from being spawned by the **Party Sheep**.
 - **Abilities**:
