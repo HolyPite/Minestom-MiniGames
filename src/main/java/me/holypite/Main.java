@@ -33,6 +33,7 @@ public class Main {
         MapManager mapManager = new MapManager();
         HubManager hubManager = new HubManager(mapManager);
         GameManager gameManager = new GameManager(hubManager, mapManager);
+        me.holypite.manager.StructurePreviewManager previewManager = new me.holypite.manager.StructurePreviewManager(new me.holypite.manager.StructureManager());
         new me.holypite.manager.PotionManager();
         new me.holypite.manager.damage.DamageManager();
 
@@ -41,11 +42,24 @@ public class Main {
         MinecraftServer.getCommandManager().register(new DebugCommand());
         MinecraftServer.getCommandManager().register(new GiveWoolCommand());
         MinecraftServer.getCommandManager().register(new InstancesCommand());
-        MinecraftServer.getCommandManager().register(new me.holypite.commands.StructureCommand());
+        MinecraftServer.getCommandManager().register(new me.holypite.commands.StructureCommand(previewManager));
         MinecraftServer.getCommandManager().register(new me.holypite.commands.GamemodeCommand());
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
+
+        // Structure Preview Interaction
+        globalEventHandler.addListener(net.minestom.server.event.player.PlayerHandAnimationEvent.class, event -> {
+            if (previewManager.hasPreview(event.getPlayer())) {
+                previewManager.confirmPreview(event.getPlayer());
+            }
+        });
+
+        globalEventHandler.addListener(net.minestom.server.event.player.PlayerStartSneakingEvent.class, event -> {
+            if (previewManager.hasPreview(event.getPlayer())) {
+                previewManager.cancelPreview(event.getPlayer());
+            }
+        });
 
         // Hub Protection
         globalEventHandler.addListener(PlayerBlockBreakEvent.class, event -> {
