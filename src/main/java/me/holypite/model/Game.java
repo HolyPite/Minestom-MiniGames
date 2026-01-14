@@ -42,6 +42,7 @@ public abstract class Game {
     private Runnable onEndCallback;
     protected MapConfig mapConfig;
     protected final Map<Player, TeamConfig> playerTeams = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> teamRespawnStatus = new ConcurrentHashMap<>();
     
     // Managers
     private final PvpManager pvpManager = new PvpManager(this);
@@ -136,8 +137,16 @@ public abstract class Game {
         return fallingBlockDamage;
     }
 
-    public boolean isCanRespawn() {
+    public boolean isCanRespawn(Player player) {
+        TeamConfig team = playerTeams.get(player);
+        if (team != null && teamRespawnStatus.containsKey(team.name)) {
+            return teamRespawnStatus.get(team.name);
+        }
         return canRespawn;
+    }
+
+    public void setTeamRespawnStatus(String teamName, boolean canRespawn) {
+        teamRespawnStatus.put(teamName, canRespawn);
     }
 
     public int getRespawnDelay() {

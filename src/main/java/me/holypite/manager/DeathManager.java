@@ -87,7 +87,7 @@ public class DeathManager {
         player.playSound(Sound.sound(SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, Sound.Source.PLAYER, 1f, 0.5f));
 
         // 3. Check if can respawn
-        if (game.isCanRespawn()) {
+        if (game.isCanRespawn(player)) {
             Component subTitle = Component.text("Respawning in " + game.getRespawnDelay() + " seconds...", NamedTextColor.GRAY);
             player.showTitle(Title.title(mainTitle, subTitle, Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(game.getRespawnDelay()), Duration.ofMillis(500))));
             
