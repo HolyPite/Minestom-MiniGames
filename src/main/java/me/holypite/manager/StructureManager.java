@@ -26,6 +26,8 @@ public class StructureManager {
         NONE, X, Z, XZ
     }
 
+    public record StructureBlock(Point relativePos, Block block) {}
+
     public StructureManager() {
         if (!STRUCTURES_DIR.toFile().exists()) {
             STRUCTURES_DIR.toFile().mkdirs();
@@ -116,14 +118,26 @@ public class StructureManager {
     }
 
     public void placeStructure(Instance instance, Point origin, String name, StructureRotation rotation, StructureMirror mirror) {
-        Path path = STRUCTURES_DIR.resolve(name + ".nbt");
+        List<StructureBlock> structureBlocks = getStructureBlocks(name, rotation, mirror);
+        if (structureBlocks == null) return;
+
+        for (StructureBlock sb : structureBlocks) {
+            instance.setBlock(origin.add(sb.relativePos()), sb.block());
+        }
+        
+        System.out.println("Structure placed: " + name + " (Rot: " + rotation + ", Mir: " + mirror + ")");
+    }
+
+    public List<StructureBlock> getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
+        Path path = STRUCTURES_DIR.resolve(name + (name.endsWith(".nbt") ? "" : ".nbt"));
         if (!path.toFile().exists()) {
-            System.err.println("Structure not found: " + name);
-            return;
+            System.err.println("Structure not found: " + path.toAbsolutePath());
+            return null;
         }
 
         try {
             CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
+            List<StructureBlock> structureBlocks = new ArrayList<>();
             
             // Parse Palette
             List<Block> palette = new ArrayList<>();
@@ -158,7 +172,7 @@ public class StructureManager {
                 }
             }
 
-            // Place Blocks
+            // Extract Blocks
             ListBinaryTag blocks = root.getList("blocks");
             for (BinaryTag tag : blocks) {
                 if (tag instanceof CompoundBinaryTag ct) {
@@ -175,16 +189,15 @@ public class StructureManager {
                     }
                     
                     // Transform Position
-                    Point finalPos = transformPosition(x, y, z, rotation, mirror).add(origin);
-
-                    instance.setBlock(finalPos, block);
+                    Point finalPos = transformPosition(x, y, z, rotation, mirror);
+                    structureBlocks.add(new StructureBlock(finalPos, block));
                 }
             }
-            
-            System.out.println("Structure placed: " + name + " (Rot: " + rotation + ", Mir: " + mirror + ")");
+            return structureBlocks;
 
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
     
