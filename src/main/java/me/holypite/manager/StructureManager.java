@@ -106,6 +106,8 @@ public class StructureManager {
                 .build();
 
         try {
+            // BinaryTagIO.writer() defaults to GZIP if I remember correctly or handles it via extension
+            // For Vanilla compatibility, GZIP is preferred.
             BinaryTagIO.writer().write(root, STRUCTURES_DIR.resolve(name + ".nbt"));
             System.out.println("Structure saved: " + name);
         } catch (IOException e) {
@@ -114,18 +116,19 @@ public class StructureManager {
     }
 
     public void placeStructure(Instance instance, Point origin, String name) {
-        placeStructure(instance, origin, name, StructureRotation.R0, StructureMirror.NONE);
+        placeStructureWithResult(instance, origin, name, StructureRotation.R0, StructureMirror.NONE);
     }
 
-    public void placeStructure(Instance instance, Point origin, String name, StructureRotation rotation, StructureMirror mirror) {
+    public boolean placeStructureWithResult(Instance instance, Point origin, String name, StructureRotation rotation, StructureMirror mirror) {
         List<StructureBlock> structureBlocks = getStructureBlocks(name, rotation, mirror);
-        if (structureBlocks == null) return;
+        if (structureBlocks == null) return false;
 
         for (StructureBlock sb : structureBlocks) {
             instance.setBlock(origin.add(sb.relativePos()), sb.block());
         }
         
         System.out.println("Structure placed: " + name + " (Rot: " + rotation + ", Mir: " + mirror + ")");
+        return true;
     }
 
     public List<StructureBlock> getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
@@ -136,12 +139,29 @@ public class StructureManager {
         }
 
         try {
-            CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
+            // BinaryTagIO.reader() automatically detects GZIP (Vanilla format)
+            CompoundBinaryTag root = BinaryTagIO.reader().read(path);
             List<StructureBlock> structureBlocks = new ArrayList<>();
             
+            // Vanilla structures often have data under a root tag (e.g. empty string or 'data')
+            // If "blocks" is not at root, try to find it
+            CompoundBinaryTag data = root;
+            if (!root.keySet().contains("blocks") && root.keySet().size() == 1) {
+                String key = root.keySet().iterator().next();
+                BinaryTag sub = root.get(key);
+                if (sub instanceof CompoundBinaryTag) {
+                    data = (CompoundBinaryTag) sub;
+                }
+            }
+
+            if (!data.keySet().contains("blocks") || !data.keySet().contains("palette")) {
+                System.err.println("Invalid structure format: 'blocks' or 'palette' missing in " + name);
+                return null;
+            }
+
             // Parse Palette
             List<Block> palette = new ArrayList<>();
-            for (BinaryTag tag : root.getList("palette")) {
+            for (BinaryTag tag : data.getList("palette")) {
                 if (tag instanceof CompoundBinaryTag ct) {
                     String blockName = ct.getString("Name");
                     Map<String, String> properties = new HashMap<>();
@@ -173,7 +193,7 @@ public class StructureManager {
             }
 
             // Extract Blocks
-            ListBinaryTag blocks = root.getList("blocks");
+            ListBinaryTag blocks = data.getList("blocks");
             for (BinaryTag tag : blocks) {
                 if (tag instanceof CompoundBinaryTag ct) {
                     ListBinaryTag pos = ct.getList("pos");
@@ -196,6 +216,7 @@ public class StructureManager {
             return structureBlocks;
 
         } catch (IOException e) {
+            System.err.println("Error reading structure " + name + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }

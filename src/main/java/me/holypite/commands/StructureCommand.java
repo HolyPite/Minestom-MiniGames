@@ -4,6 +4,8 @@ import me.holypite.manager.StructureManager;
 import me.holypite.manager.StructureManager.StructureMirror;
 import me.holypite.manager.StructureManager.StructureRotation;
 import me.holypite.manager.StructurePreviewManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.command.builder.Command;
 import net.minestom.server.command.builder.arguments.ArgumentType;
 import net.minestom.server.coordinate.Point;
@@ -50,8 +52,12 @@ public class StructureCommand extends Command {
             StructureRotation rotation = getRotation(rotStr);
             StructureMirror mirror = getMirror(mirStr);
 
-            structureManager.placeStructure(player.getInstance(), p1, name, rotation, mirror);
-            player.sendMessage("Structure '" + name + "' loaded.");
+            boolean success = structureManager.placeStructureWithResult(player.getInstance(), p1, name, rotation, mirror);
+            if (success) {
+                player.sendMessage(Component.text("Structure '" + name + "' loaded.", NamedTextColor.GREEN));
+            } else {
+                player.sendMessage(Component.text("Failed to load structure '" + name + "'. Check console.", NamedTextColor.RED));
+            }
         }, ArgumentType.Literal("load"), pos1Arg, nameArg, rotationArg, mirrorArg);
 
         // Syntax: /structure preview <name>

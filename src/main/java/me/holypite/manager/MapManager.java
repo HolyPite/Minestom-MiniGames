@@ -95,7 +95,7 @@ public class MapManager {
                     }
                 }
                 
-                structureManager.placeStructure(instance, struct.pos.toPos(), struct.name, rot, mir);
+                structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
         }
         
