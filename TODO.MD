@@ -4,41 +4,58 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ## 🔴 Priorité Haute (Bugs & Core Gameplay)
 
-### SheepWars - Système de Collision
-- [x] **Fix Self-Collision** : Empêcher le joueur de collisionner avec son propre mouton instantanément au lancer (ajouter une "grace period" ou ignorer le tireur).
-- [x] **Kill Credit** : Passer l'attaquant (`shooter`) aux explosions pour que les kills par moutons soient attribués au bon joueur.
-- [x] **Void Check** : Faire mourir les moutons projetés dans le vide (`Y < voidY`) pour éviter qu'ils ne chargent des chunks à l'infini.
-- [x] **Lifetime Check** : Suppression automatique des moutons après 1 minute.
-- [x] **Mob AI Improvements** : Détection de portée basée sur les hitboxes, pathfinding optimisé et attaques sautées pour les Slimes.
+### SheepWars - Améliorations
+- [ ] **Sheep Cooldowns** : Ajouter un cooldown par type de mouton pour éviter le spam (ex: 20s pour Black Hole).
+- [ ] **Sheep Balancing** : Ajuster les rayons d'explosion et les dégâts des moutons les plus puissants.
+- [ ] **Better Registry** : Migrer les IDs de moutons vers un `Enum` pour une meilleure sécurité du code.
+- [x] **Dynamic Probabilities** : Système de poids évolutif (Time-Scaled) pour l'obtention des moutons durant la partie.
 
-### Système de Dégâts & Teams
-- [x] **Friendly Fire** : Désactiver les dégâts entre alliés pour les flèches et le corps-à-corps.
-- [x] **Kill Counter** : Ajouter un compteur de kills par joueur visible durant la partie (Scoreboard).
-- [x] **Kill Messages** : Améliorer les messages de mort (broadcast indiquant l'attaquant).
-
-### Potions
-- [x] **Visual Effects Fix** : Correction des effets de Glowing et Invisibilité qui n'étaient pas synchronisés avec les métadonnées de l'entité.
+### Architecture & Stabilité
+- [ ] **Memory Leak Audit** : Vérifier que les `Sidebar` et `EventNode` sont bien supprimés lors de la destruction d'une instance.
+- [ ] **Async Structure Loading** : Charger les gros fichiers NBT de manière asynchrone pour ne pas figer le serveur lors d'un `/structure load`.
 
 ## 🟡 Priorité Moyenne (Features & Polissage)
 
-### SheepWars - Feedback Visuel
-- [x] **Wool Recovery** : Ajouter un son (`ENTITY_EXPERIENCE_ORB_PICKUP`) et des particules lors de la récupération d'un mouton tué.
-- [x] **Action Bar** : Afficher le nom du mouton tenu en main dans l'ActionBar avec sa couleur associée.
+### Système de Jeu
+- [ ] **Kit Selector GUI** : Créer une interface d'inventaire pour choisir son kit au Lobby.
+- [ ] **Team Chat** : Implémenter un canal de discussion réservé à l'équipe.
+- [ ] **Spectator Compass** : Un item pour les spectateurs permettant de se téléporter rapidement aux joueurs encore en vie.
 
 ### Map & Structure System
-- [ ] **Structure Preview** : Ajouter un mode "ghost" ou des particules pour visualiser où une structure va être placée avant de valider.
-- [x] **Config.json étendu** : Définition de flags par map (heure, météo, bordure invisible, règles de jeu).
+- [ ] **Wireframe Preview** : Pour les structures > 500 blocs, n'afficher que les coins et les contours via des particules.
+- [ ] **Map Voting** : Système de vote au Lobby si plusieurs maps sont disponibles pour un mode.
 
-### BedWars (Futur)
-- [ ] **Shop System** : Créer un système de PNJ marchand avec interface d'achat (GUI).
-- [ ] **Generator System** : Implémenter les générateurs de ressources (Fer, Or, Diamant, Emeraude) avec timers configurables.
+## 🟢 Priorité Basse (Optimisation & Cosmétique)
 
-## 🟢 Priorité Basse (Optimisation & Refactoring)
+### Visuals
+- [ ] **Custom Win Titles** : Titre personnalisé avec animation de feux d'artifice à la victoire.
+- [ ] **Kill Streaks** : Annonces dans le chat lors de séries de kills (Triple Kill, Dominating, etc.).
 
-### Architecture
-- [ ] **SheepRegistry Enum** : Remplacer les IDs en String par un Enum pour éviter les typos et faciliter les switchs.
-- [ ] **Batch Block Placing** : Utiliser `AbsoluteBlockBatch` pour le placement des grosses structures afin d'optimiser les performances.
-- [ ] **Localization** : Passer les messages (fr/en) dans un fichier de configuration pour faciliter la traduction.
+### Optimisations
+- [ ] **TKit Refactoring** : Utiliser des itérateurs de blocs optimisés pour les sphères et rayons.
+- [ ] **Localization** : Système de traduction pour les messages et noms d'items.
 
 ---
-*Dernière mise à jour : 13 Janvier 2026*
+
+## ✅ Tâches Terminées
+
+### Core & Dégâts
+- [x] **Kill Credit** : Attribution des kills au lanceur du mouton.
+- [x] **Kill Counter & Scoreboard** : Affichage des statistiques en temps réel.
+- [x] **Friendly Fire Protection** : Blocage des dégâts CàC/Arc entre alliés.
+- [x] **Improved Death System** : Mode spectre, titres, sons et gestion du vide.
+
+### Moutons & IA
+- [x] **Mob AI 2.0** : Hitbox-aware reach, pathfinding optimisé et leap attacks.
+- [x] **GretaSheep** : Croissance animée basée sur des structures NBT et probabilités de taille.
+- [x] **CloneSheep** : Spawn aléatoire dans la zone d'effet.
+- [x] **Activation Delay** : Généralisation du délai d'activation des moutons.
+- [x] **Self-Collision Fix** : Période de grâce au lancer.
+
+### Technique
+- [x] **Structure System** : Save, Load, Rotation, Mirror et Preview en temps réel.
+- [x] **Config.json étendu** : Paramètres de monde et règles de jeu par map.
+- [x] **Potion Visual Sync** : Correction Glowing/Invisibilité.
+
+---
+*Dernière mise à jour : 14 Janvier 2026*
