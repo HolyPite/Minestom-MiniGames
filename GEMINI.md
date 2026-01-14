@@ -22,8 +22,8 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
 - **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic.
 - **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
-- **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination. Includes **Titles** (YOU DIED), **Sounds**, and automatic **Void Protection**.
-- **`ProjectileManager`**: Handles custom projectiles (e.g., Sheep projectiles, explosive arrows). Uses native physics for movement and custom collision logic.
+- **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
+- **`ProjectileManager`**: Handles custom projectiles. Supports **Friendly Fire** protection (Melee/Bow) and **Self-Collision** grace periods.
 - **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.).
 
 ### Game Structure
@@ -54,7 +54,8 @@ Each game features a dynamic **Sidebar** (Scoreboard) that displays:
 A complex projectile system with 17 unique sheep types.
 - **Registry**: `SheepRegistry` maps custom items (White Wool + CustomModelData) to Sheep factories.
 - **Physics**: Sheep are launched as `EntityCreature` with applied velocity (native physics).
-- **Activation**: Generalized **activation delay** (`activationDelay`) handled by the base class.
+- **Rules**: Automatic **Void Check** and **Lifetime Check** (1 min) for all projectiles.
+- **Activation**: Generalized **activation delay** handled by the base class.
 - **Spawning Rules**: Problematic sheeps (Party, Clone, Glutton) are blacklisted from being spawned by the **Party Sheep**.
 - **Abilities**:
     - **Explosive**: Explodes after 3s.
