@@ -15,6 +15,9 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 - [x] **Kill Counter** : Ajouter un compteur de kills par joueur visible durant la partie (Scoreboard).
 - [x] **Kill Messages** : Améliorer les messages de mort (broadcast indiquant l'attaquant).
 
+### Potions
+- [x] **Visual Effects Fix** : Correction des effets de Glowing et Invisibilité qui n'étaient pas synchronisés avec les métadonnées de l'entité.
+
 ## 🟡 Priorité Moyenne (Features & Polissage)
 
 ### SheepWars - Feedback Visuel

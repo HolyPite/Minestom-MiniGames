@@ -8,6 +8,8 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.entity.EntityTickEvent;
+import net.minestom.server.event.entity.EntityPotionAddEvent;
+import net.minestom.server.event.entity.EntityPotionRemoveEvent;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 import net.minestom.server.potion.TimedPotion;
@@ -29,6 +31,30 @@ public class PotionManager {
     public PotionManager() {
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
         globalEventHandler.addListener(EntityTickEvent.class, this::onEntityTick);
+        globalEventHandler.addListener(EntityPotionAddEvent.class, this::onPotionAdd);
+        globalEventHandler.addListener(EntityPotionRemoveEvent.class, this::onPotionRemove);
+    }
+
+    private void onPotionAdd(EntityPotionAddEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        PotionEffect effect = event.getPotion().effect();
+
+        if (effect == PotionEffect.GLOWING) {
+            entity.setGlowing(true);
+        } else if (effect == PotionEffect.INVISIBILITY) {
+            entity.setInvisible(true);
+        }
+    }
+
+    private void onPotionRemove(EntityPotionRemoveEvent event) {
+        if (!(event.getEntity() instanceof LivingEntity entity)) return;
+        PotionEffect effect = event.getPotion().effect();
+
+        if (effect == PotionEffect.GLOWING) {
+            entity.setGlowing(false);
+        } else if (effect == PotionEffect.INVISIBILITY) {
+            entity.setInvisible(false);
+        }
     }
 
     private void onEntityTick(EntityTickEvent event) {
