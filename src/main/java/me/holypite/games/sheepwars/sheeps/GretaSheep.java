@@ -1,7 +1,6 @@
 package me.holypite.games.sheepwars.sheeps;
 
 import me.holypite.manager.StructureManager;
-import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
@@ -16,7 +15,6 @@ import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.TaskSchedule;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -43,19 +41,25 @@ public class GretaSheep extends SheepProjectile {
         Instance instance = getInstance();
         Point origin = getPosition();
 
-        // 1. Find a random tree in structures/trees/
-        File treesDir = new File("structures/trees");
-        File[] files = treesDir.listFiles((dir, name) -> name.endsWith(".nbt"));
+        // 1. Determine size category based on probabilities: 73/22/4.5/0.5
+        String category = rollCategory();
+        File categoryDir = new File("structures/trees/" + category);
+        File[] files = categoryDir.listFiles((dir, name) -> name.endsWith(".nbt"));
         
+        // Fallback search if category is empty
         if (files == null || files.length == 0) {
-            // Fallback if no structures found
+            files = findAnyAvailableTree();
+        }
+
+        if (files == null || files.length == 0) {
             spawnSmallBush(instance, origin);
             remove();
             return;
         }
 
         File selectedTree = files[ThreadLocalRandom.current().nextInt(files.length)];
-        String treeName = "trees/" + selectedTree.getName().replace(".nbt", "");
+        // Get path relative to "structures/" for StructureManager
+        String treeName = "trees/" + selectedTree.getParentFile().getName() + "/" + selectedTree.getName().replace(".nbt", "");
 
         // 2. Load blocks
         List<StructureManager.StructureBlock> blocks = structureManager.getStructureBlocks(
@@ -69,13 +73,13 @@ public class GretaSheep extends SheepProjectile {
             return;
         }
 
-        // 3. Sort by height (Y) then by distance from trunk (XZ) for natural growth
+        // 3. Sort for natural growth (Bottom up)
         blocks.sort(Comparator.comparingInt((StructureManager.StructureBlock b) -> b.relativePos().blockY())
                 .thenComparingDouble(b -> b.relativePos().distanceSquared(new Vec(0, b.relativePos().y(), 0))));
 
         // 4. Animated Placement
         AtomicInteger index = new AtomicInteger(0);
-        int blocksPerTick = 2;
+        int blocksPerTick = category.equals("giant") ? 5 : (category.equals("big") ? 3 : 2);
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (instance == null || isRemoved()) return TaskSchedule.stop();
@@ -91,7 +95,6 @@ public class GretaSheep extends SheepProjectile {
                 Point target = origin.add(sb.relativePos());
                 instance.setBlock(target, sb.block());
 
-                // Visual effect on placement
                 if (curr % 5 == 0) {
                     instance.sendGroupedPacket(new ParticlePacket(
                             Particle.HAPPY_VILLAGER,
@@ -106,8 +109,25 @@ public class GretaSheep extends SheepProjectile {
         });
     }
 
+    private String rollCategory() {
+        double roll = ThreadLocalRandom.current().nextDouble() * 100;
+        if (roll < 73.0) return "small";
+        if (roll < 95.0) return "mid"; // 73 + 22
+        if (roll < 99.5) return "big"; // 95 + 4.5
+        return "giant"; // remaining 0.5
+    }
+
+    private File[] findAnyAvailableTree() {
+        String[] categories = {"small", "mid", "big", "giant"};
+        for (String cat : categories) {
+            File dir = new File("structures/trees/" + cat);
+            File[] files = dir.listFiles((d, name) -> name.endsWith(".nbt"));
+            if (files != null && files.length > 0) return files;
+        }
+        return null;
+    }
+
     private void spawnSmallBush(Instance instance, Point pos) {
-        // Simple procedural fallback
         for (int i = 0; i < 3; i++) {
             instance.setBlock(pos.add(0, i, 0), net.minestom.server.instance.block.Block.OAK_LOG);
         }
