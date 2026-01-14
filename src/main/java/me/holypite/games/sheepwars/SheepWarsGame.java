@@ -79,6 +79,16 @@ public class SheepWarsGame extends Game {
                     if (wool != ItemStack.AIR) {
                         killer.getInventory().addItemStack(wool);
                         killer.sendMessage(net.kyori.adventure.text.Component.text("You recovered a " + id + " sheep!", net.kyori.adventure.text.format.NamedTextColor.GREEN));
+                        
+                        // Feedback: Sound & Particles
+                        killer.playSound(net.kyori.adventure.sound.Sound.sound(net.minestom.server.sound.SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP, net.kyori.adventure.sound.Sound.Source.PLAYER, 1f, 1.5f));
+                        
+                        killer.getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
+                                net.minestom.server.particle.Particle.HAPPY_VILLAGER,
+                                sheep.getPosition().add(0, 0.5, 0),
+                                new net.minestom.server.coordinate.Vec(0.2, 0.2, 0.2),
+                                0.05f, 15
+                        ));
                     }
                 }
             }

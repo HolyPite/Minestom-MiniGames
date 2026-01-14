@@ -22,7 +22,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 ## 🟡 Priorité Moyenne (Features & Polissage)
 
 ### SheepWars - Feedback Visuel
-- [ ] **Wool Recovery** : Ajouter un son (`ENTITY_EXPERIENCE_ORB_PICKUP`) et des particules lors de la récupération d'un mouton tué.
+- [x] **Wool Recovery** : Ajouter un son (`ENTITY_EXPERIENCE_ORB_PICKUP`) et des particules lors de la récupération d'un mouton tué.
 - [ ] **Action Bar** : Afficher le nom du mouton tenu en main dans l'ActionBar avec sa couleur associée.
 
 ### Map & Structure System
