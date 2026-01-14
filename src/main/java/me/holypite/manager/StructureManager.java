@@ -134,24 +134,27 @@ public class StructureManager {
     public List<StructureBlock> getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
         Path path = STRUCTURES_DIR.resolve(name + (name.endsWith(".nbt") ? "" : ".nbt"));
         if (!path.toFile().exists()) {
-            System.err.println("Structure not found: " + path.toAbsolutePath());
+            System.err.println("[DEBUG] Structure not found: " + path.toAbsolutePath());
             return null;
         }
 
         try {
-            // Restore Long.MAX_VALUE to allow large structures
+            System.out.println("[DEBUG] Reading structure file: " + name);
             CompoundBinaryTag root = BinaryTagIO.reader(Long.MAX_VALUE).read(path);
-            List<StructureBlock> structureBlocks = new ArrayList<>();
+            System.out.println("[DEBUG] File read success. Root keys: " + root.keySet());
             
-            // Robust search for "blocks" and "palette"
+            List<StructureBlock> structureBlocks = new ArrayList<>();
             CompoundBinaryTag data = findDataTag(root);
 
-            if (data == null || !data.keySet().contains("blocks") || !data.keySet().contains("palette")) {
-                System.err.println("Invalid structure format: 'blocks' or 'palette' missing in " + name);
+            if (data == null) {
+                System.err.println("[DEBUG] Could not find valid data tag (blocks/palette) in " + name);
                 return null;
             }
+            
+            System.out.println("[DEBUG] Found data tag. Palette size: " + data.getList("palette").size());
+            System.out.println("[DEBUG] Blocks count: " + data.getList("blocks").size());
 
-            // Parse Palette ... (rest of the logic remains the same)
+            // Parse Palette
             List<Block> palette = new ArrayList<>();
             for (BinaryTag tag : data.getList("palette")) {
                 if (tag instanceof CompoundBinaryTag ct) {
@@ -175,11 +178,12 @@ public class StructureManager {
                     if (block != null && !properties.isEmpty()) {
                         block = block.withProperties(properties);
                     }
-                    if (block == null) block = Block.AIR;
+                    if (block == null) {
+                        System.out.println("[DEBUG] Unknown block in palette: " + blockName);
+                        block = Block.AIR;
+                    }
                     
-                    // Apply Transform to Palette Block (State)
                     block = transformBlockState(block, rotation, mirror);
-                    
                     palette.add(block);
                 }
             }
@@ -200,36 +204,37 @@ public class StructureManager {
                          block = block.withNbt(ct.getCompound("nbt"));
                     }
                     
-                    // Transform Position
                     Point finalPos = transformPosition(x, y, z, rotation, mirror);
                     structureBlocks.add(new StructureBlock(finalPos, block));
                 }
             }
+            System.out.println("[DEBUG] Successfully parsed " + structureBlocks.size() + " blocks.");
             return structureBlocks;
 
         } catch (IOException e) {
-            System.err.println("Error reading structure " + name + ": " + e.getMessage());
+            System.err.println("[DEBUG] Error reading structure " + name + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
-    
+
     private CompoundBinaryTag findDataTag(CompoundBinaryTag root) {
+        System.out.println("[DEBUG] Checking tag: " + root.keySet());
         if (root.keySet().contains("blocks") && root.keySet().contains("palette")) {
             return root;
         }
-        // Often Vanilla puts everything inside a compound with an empty name or "data"
         for (String key : root.keySet()) {
             BinaryTag sub = root.get(key);
             if (sub instanceof CompoundBinaryTag ct) {
+                System.out.println("[DEBUG] Descending into sub-tag: " + key);
                 if (ct.keySet().contains("blocks") && ct.keySet().contains("palette")) {
                     return ct;
                 }
-                // Try one more level deep for safety
                 for (String subKey : ct.keySet()) {
                     BinaryTag subSub = ct.get(subKey);
                     if (subSub instanceof CompoundBinaryTag cct) {
                         if (cct.keySet().contains("blocks") && cct.keySet().contains("palette")) {
+                            System.out.println("[DEBUG] Found data at level 2 under " + key + " -> " + subKey);
                             return cct;
                         }
                     }
