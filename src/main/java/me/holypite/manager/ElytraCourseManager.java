@@ -188,7 +188,14 @@ public class ElytraCourseManager {
         
         // Remove gear
         player.getInventory().setEquipment(EquipmentSlot.CHESTPLATE, (byte)0, ItemStack.AIR);
-        player.getInventory().setItemStack(player.getHeldSlot(), ItemStack.AIR);
+        
+        // Remove all rockets from inventory
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
+            ItemStack stack = player.getInventory().getItemStack(i);
+            if (stack.material() == Material.FIREWORK_ROCKET) {
+                player.getInventory().setItemStack(i, ItemStack.AIR);
+            }
+        }
         
         // Save score
         addScore(player.getUsername(), time, session.getRocketsUsed());
