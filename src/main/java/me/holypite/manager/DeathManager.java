@@ -1,5 +1,8 @@
 package me.holypite.manager;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import me.holypite.model.Game;
 import me.holypite.model.GameState;
 import net.minestom.server.MinecraftServer;
@@ -11,6 +14,7 @@ import net.minestom.server.event.EventNode;
 import net.minestom.server.event.entity.EntityDamageEvent;
 import net.minestom.server.timer.TaskSchedule;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,15 +57,22 @@ public class DeathManager {
         player.setFlying(true);
         player.getInventory().clear();
         
-        player.sendMessage("You died!");
+        // 2. Title
+        Component mainTitle = Component.text("YOU DIED", NamedTextColor.RED);
 
-        // 2. Check if can respawn
+        // 3. Check if can respawn
         if (game.isCanRespawn()) {
-            player.sendMessage("Respawning in " + game.getRespawnDelay() + " seconds...");
+            Component subTitle = Component.text("Respawning in " + game.getRespawnDelay() + " seconds...", NamedTextColor.GRAY);
+            player.showTitle(Title.title(mainTitle, subTitle, Title.Times.times(Duration.ofMillis(100), Duration.ofSeconds(game.getRespawnDelay()), Duration.ofMillis(500))));
+            
+            player.sendMessage("You died! Respawning in " + game.getRespawnDelay() + " seconds...");
             MinecraftServer.getSchedulerManager().buildTask(() -> respawn(player))
                     .delay(TaskSchedule.seconds(game.getRespawnDelay()))
                     .schedule();
         } else {
+            Component subTitle = Component.text("Eliminated!", NamedTextColor.GRAY);
+            player.showTitle(Title.title(mainTitle, subTitle));
+            
             player.sendMessage("You are out! Waiting for game end...");
             // Custom logic: Call a method in Game to notify an elimination
             game.onPlayerEliminated(player);
@@ -89,6 +100,7 @@ public class DeathManager {
         // Give kit again
         game.applyKit(player);
 
+        player.showTitle(Title.title(Component.text("RESPAWNED", NamedTextColor.GREEN), Component.empty()));
         player.sendMessage("Respawned!");
     }
 
