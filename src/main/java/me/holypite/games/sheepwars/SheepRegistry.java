@@ -182,7 +182,13 @@ public class SheepRegistry {
     }
     
     public static Function<Entity, SheepProjectile> getRandomSheepFactory() {
-        List<SheepEntry> validSheeps = SHEEPS.stream().filter(e -> !e.id.equals("mystery")).toList();
+        return getRandomSheepFactory(List.of("mystery"));
+    }
+
+    public static Function<Entity, SheepProjectile> getRandomSheepFactory(List<String> blacklist) {
+        List<SheepEntry> validSheeps = SHEEPS.stream()
+                .filter(e -> blacklist.stream().noneMatch(b -> e.id.equalsIgnoreCase(b)))
+                .toList();
         if (validSheeps.isEmpty()) return null;
         return validSheeps.get(ThreadLocalRandom.current().nextInt(validSheeps.size())).factory;
     }

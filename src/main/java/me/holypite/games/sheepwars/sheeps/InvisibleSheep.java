@@ -18,6 +18,7 @@ public class InvisibleSheep extends SheepProjectile {
 
     public InvisibleSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.WHITE);
             meta.setCustomName(Component.text("Mouton Invisible", NamedTextColor.WHITE));
@@ -27,7 +28,6 @@ public class InvisibleSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-         MinecraftServer.getSchedulerManager().buildTask(() -> {
              TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
                  p.addEffect(new Potion(PotionEffect.INVISIBILITY, (byte)0, 200));
              });
@@ -40,7 +40,6 @@ public class InvisibleSheep extends SheepProjectile {
              ));
              
              remove();
-         }).delay(TaskSchedule.seconds(1)).schedule();
     }
 
     @Override

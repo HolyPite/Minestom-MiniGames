@@ -18,6 +18,7 @@ public class StormSheep extends SheepProjectile {
 
     public StormSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.GRAY); // Or CYAN/LIGHT_BLUE mix
             meta.setCustomName(Component.text("Storm Sheep", TextColor.fromHexString("#708090")));
@@ -27,9 +28,7 @@ public class StormSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

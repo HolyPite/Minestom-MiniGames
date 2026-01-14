@@ -20,6 +20,7 @@ public class PartySheep extends SheepProjectile {
 
     public PartySheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(0);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.MAGENTA);
             meta.setCustomName(Component.text("Party Sheep!!!", TextColor.fromHexString("#FF00FF")));
@@ -40,7 +41,7 @@ public class PartySheep extends SheepProjectile {
             List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
             for (Point pos : blocks) {
                 Block block = getInstance().getBlock(pos);
-                if (!block.isAir()) {
+                if (block.isSolid() && getInstance().getBlock(pos.add(0, 1, 0)).isAir()) {
                     getInstance().setBlock(pos, getRandomWool());
                 }
             }
@@ -50,8 +51,11 @@ public class PartySheep extends SheepProjectile {
                 int numSheep = ThreadLocalRandom.current().nextInt(3, 6);
                 double step = 2 * Math.PI / numSheep;
                 
+                // Blacklist problematic sheeps for Party Sheep
+                List<String> blacklist = List.of("mystery", "party", "clone", "glutton");
+                
                 for (int i = 0; i < numSheep; i++) {
-                    Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory();
+                    Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(blacklist);
                     if (factory != null) {
                         double theta = i * step;
                         double r = ThreadLocalRandom.current().nextBoolean() ? 2 : 3;

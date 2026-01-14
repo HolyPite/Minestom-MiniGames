@@ -19,6 +19,7 @@ public class CloneSheep extends SheepProjectile {
 
     public CloneSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.CYAN);
             meta.setCustomName(Component.text("Clone Sheep", TextColor.fromHexString("#40E0D0")));
@@ -28,9 +29,7 @@ public class CloneSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

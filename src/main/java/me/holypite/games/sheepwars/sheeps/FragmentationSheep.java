@@ -14,6 +14,7 @@ public class FragmentationSheep extends SheepProjectile {
 
     public FragmentationSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.ORANGE);
             meta.setCustomName(Component.text("Mouton Fragmentation", TextColor.color(0xFF8C00)));
@@ -23,7 +24,6 @@ public class FragmentationSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
             // Main explosion
             getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2.5f, null);
             
@@ -40,7 +40,6 @@ public class FragmentationSheep extends SheepProjectile {
             }
             
             remove();
-        }).delay(TaskSchedule.seconds(1)).schedule();
     }
 
     @Override

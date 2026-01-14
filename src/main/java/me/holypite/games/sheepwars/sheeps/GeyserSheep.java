@@ -17,6 +17,7 @@ public class GeyserSheep extends SheepProjectile {
 
     public GeyserSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.LIGHT_BLUE);
             meta.setCustomName(Component.text("Geyser Sheep", TextColor.fromHexString("#1E90FF")));
@@ -26,9 +27,7 @@ public class GeyserSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

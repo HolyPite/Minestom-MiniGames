@@ -12,6 +12,7 @@ public abstract class SheepProjectile extends EntityCreature {
 
     protected boolean landed = false;
     protected final Entity shooter;
+    protected float activationDelay = 0; // Seconds
 
     public SheepProjectile(Entity shooter) {
         super(EntityType.SHEEP);
@@ -19,6 +20,10 @@ public abstract class SheepProjectile extends EntityCreature {
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setHasNoGravity(false); 
         }
+    }
+    
+    protected void setActivationDelay(float seconds) {
+        this.activationDelay = seconds;
     }
     
     public void shoot(double power) {
@@ -53,11 +58,16 @@ public abstract class SheepProjectile extends EntityCreature {
         if (!landed) {
             if (isOnGround() || (getVelocity().length() < 0.1 && getAliveTicks() > 5)) { // Grace period for launch
                 landed = true;
-                onLand();
-                // We don't remove, we just trigger land logic. 
-                // Subclasses can remove themselves or start countdown.
-                // Stop movement
                 setVelocity(Vec.ZERO);
+                
+                if (activationDelay > 0) {
+                     // Schedule land
+                     net.minestom.server.MinecraftServer.getSchedulerManager().buildTask(this::onLand)
+                        .delay(net.minestom.server.timer.TaskSchedule.millis((long)(activationDelay * 1000)))
+                        .schedule();
+                } else {
+                    onLand();
+                }
             }
         }
     }

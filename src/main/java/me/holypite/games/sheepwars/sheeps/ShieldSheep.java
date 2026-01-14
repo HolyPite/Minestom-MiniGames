@@ -17,6 +17,7 @@ public class ShieldSheep extends SheepProjectile {
 
     public ShieldSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(0); // I suspect it should start instantly and REMOVE after 5s.
          if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GRAY);
             meta.setCustomName(Component.text("Mouton Bouclier", TextColor.color(0x808080)));

@@ -18,6 +18,7 @@ public class HoneySheep extends SheepProjectile {
 
     public HoneySheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.ORANGE);
             meta.setCustomName(Component.text("Honey Sheep", TextColor.fromHexString("#FFD700")));
@@ -27,9 +28,7 @@ public class HoneySheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

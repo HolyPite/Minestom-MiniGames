@@ -20,6 +20,7 @@ public class ThornySheep extends SheepProjectile {
 
     public ThornySheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GREEN);
             meta.setCustomName(Component.text("Mouton Épineux", TextColor.color(0x008000)));
@@ -29,7 +30,6 @@ public class ThornySheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
             if (getInstance() == null) return;
             
             List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 5);
@@ -47,7 +47,6 @@ public class ThornySheep extends SheepProjectile {
             ));
             
             remove();
-        }).delay(TaskSchedule.seconds(1)).schedule();
     }
 
     @Override

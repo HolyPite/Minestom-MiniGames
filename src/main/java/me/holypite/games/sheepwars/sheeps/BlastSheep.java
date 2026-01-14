@@ -13,6 +13,7 @@ public class BlastSheep extends SheepProjectile {
 
     public BlastSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.ORANGE);
             meta.setCustomName(Component.text("Mouton Déflagration", TextColor.color(0xFFD700)));
@@ -22,8 +23,6 @@ public class BlastSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            
             MinecraftServer.getSchedulerManager().submitTask(() -> {
                 if (isRemoved()) return TaskSchedule.stop();
                 
@@ -41,8 +40,6 @@ public class BlastSheep extends SheepProjectile {
             
             // Auto remove after bursts (approx 3 * 20 = 60 ticks)
             MinecraftServer.getSchedulerManager().buildTask(this::remove).delay(TaskSchedule.tick(80)).schedule();
-            
-        }).delay(TaskSchedule.seconds(1)).schedule();
     }
 
     @Override

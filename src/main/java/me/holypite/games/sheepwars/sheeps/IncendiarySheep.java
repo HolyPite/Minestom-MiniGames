@@ -17,6 +17,7 @@ public class IncendiarySheep extends SheepProjectile {
 
     public IncendiarySheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.ORANGE);
             meta.setCustomName(Component.text("Incendiary Sheep", TextColor.fromHexString("#FF4500")));
@@ -26,9 +27,7 @@ public class IncendiarySheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

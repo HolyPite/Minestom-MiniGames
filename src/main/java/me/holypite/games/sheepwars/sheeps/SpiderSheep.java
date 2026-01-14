@@ -20,6 +20,7 @@ public class SpiderSheep extends SheepProjectile {
 
     public SpiderSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.GREEN);
             meta.setCustomName(Component.text("Spider Sheep", TextColor.fromHexString("#556B2F")));
@@ -29,9 +30,7 @@ public class SpiderSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

@@ -18,6 +18,7 @@ public class ParasiteSheep extends SheepProjectile {
 
     public ParasiteSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.PURPLE);
             meta.setCustomName(Component.text("Parasite Sheep", TextColor.fromHexString("#4B0082")));
@@ -27,9 +28,7 @@ public class ParasiteSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

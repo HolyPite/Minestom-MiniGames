@@ -37,7 +37,7 @@ public class HedgehogSheep extends SheepProjectile {
                  TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
                      EntityProjectile arrow = new EntityProjectile(shooter, EntityType.ARROW);
                      arrow.setInstance(getInstance(), getPosition().add(0, 1, 0));
-                     Vec direction = p.getPosition().sub(getPosition()).asVec().normalize().mul(20); // Speed
+                     Vec direction = p.getPosition().sub(getPosition()).asVec().normalize().mul(40); // Speed
                      arrow.setVelocity(direction);
                  });
             }

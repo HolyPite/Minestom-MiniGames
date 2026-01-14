@@ -19,6 +19,7 @@ public class RadioactiveSheep extends SheepProjectile {
 
     public RadioactiveSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.LIME);
             meta.setCustomName(Component.text("Mouton Radioactif", TextColor.color(0xADFF2F)));
@@ -28,7 +29,6 @@ public class RadioactiveSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
             Entity cloud = new Entity(EntityType.AREA_EFFECT_CLOUD);
             AreaEffectCloudMeta meta = (AreaEffectCloudMeta) cloud.getEntityMeta();
             meta.setRadius(3f);
@@ -62,7 +62,6 @@ public class RadioactiveSheep extends SheepProjectile {
             ));
             
             remove();
-        }).delay(TaskSchedule.seconds(1)).schedule();
     }
 
     @Override

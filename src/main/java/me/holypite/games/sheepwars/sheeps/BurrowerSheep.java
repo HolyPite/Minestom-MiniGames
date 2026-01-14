@@ -16,6 +16,7 @@ public class BurrowerSheep extends SheepProjectile {
 
     public BurrowerSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BROWN);
             meta.setCustomName(Component.text("Burrower Sheep", TextColor.fromHexString("#8B4513")));
@@ -25,9 +26,7 @@ public class BurrowerSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {

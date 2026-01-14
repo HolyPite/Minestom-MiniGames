@@ -22,6 +22,7 @@ public class ShuffleSheep extends SheepProjectile {
 
     public ShuffleSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(2);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.PINK); 
             meta.setCustomName(Component.text("Mouton Shuffle", TextColor.color(0xFF69B4)));
@@ -31,7 +32,6 @@ public class ShuffleSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
             if (getInstance() == null) return;
             
             Instance instance = getInstance();
@@ -59,7 +59,6 @@ public class ShuffleSheep extends SheepProjectile {
             }
             
             remove();
-        }).delay(TaskSchedule.seconds(2)).schedule();
     }
 
     @Override

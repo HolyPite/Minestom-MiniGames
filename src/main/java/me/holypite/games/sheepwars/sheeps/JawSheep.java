@@ -17,6 +17,7 @@ public class JawSheep extends SheepProjectile {
 
     public JawSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(2);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.BROWN);
             meta.setCustomName(Component.text("Mouton Mâchoire", TextColor.color(0x800000)));
@@ -26,7 +27,6 @@ public class JawSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
             TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
                  Entity fangs = new Entity(EntityType.EVOKER_FANGS);
                  fangs.setInstance(getInstance(), p.getPosition());
@@ -47,7 +47,6 @@ public class JawSheep extends SheepProjectile {
             ));
             
             remove();
-        }).delay(TaskSchedule.seconds(2)).schedule();
     }
 
     @Override

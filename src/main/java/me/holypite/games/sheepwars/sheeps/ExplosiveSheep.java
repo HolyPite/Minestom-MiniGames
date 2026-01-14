@@ -12,6 +12,7 @@ public class ExplosiveSheep extends SheepProjectile {
 
     public ExplosiveSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.RED);
             meta.setCustomName(Component.text("Explosive Sheep", NamedTextColor.RED));
@@ -21,10 +22,7 @@ public class ExplosiveSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        // Start Countdown
-        MinecraftServer.getSchedulerManager().buildTask(this::explode)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        explode();
     }
 
     private void explode() {

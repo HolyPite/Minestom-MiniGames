@@ -22,6 +22,7 @@ public class AnvilSheep extends SheepProjectile {
 
     public AnvilSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(1);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GRAY);
             meta.setCustomName(Component.text("Mouton Enclume", TextColor.color(0x696969)));
@@ -31,12 +32,11 @@ public class AnvilSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(() -> {
-            if (getInstance() == null) return;
+        if (getInstance() == null) return;
             
-            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 6);
+        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 6);
             
-            for (Point p : blocks) {
+        for (Point p : blocks) {
                 if (TKit.chance(0.1) && !getInstance().getBlock(p).isAir() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
                     Entity anvil = new Entity(EntityType.FALLING_BLOCK);
                     FallingBlockMeta meta = (FallingBlockMeta) anvil.getEntityMeta();
@@ -78,8 +78,7 @@ public class AnvilSheep extends SheepProjectile {
                 }
             }
             
-            remove();
-        }).delay(TaskSchedule.seconds(1)).schedule();
+        remove();
     }
 
     @Override

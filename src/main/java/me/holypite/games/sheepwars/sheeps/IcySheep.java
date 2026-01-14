@@ -17,6 +17,7 @@ public class IcySheep extends SheepProjectile {
 
     public IcySheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.CYAN);
             meta.setCustomName(Component.text("Icy Sheep", TextColor.fromHexString("#87CEEB")));
@@ -26,9 +27,7 @@ public class IcySheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        MinecraftServer.getSchedulerManager().buildTask(this::activate)
-                .delay(TaskSchedule.seconds(3))
-                .schedule();
+        activate();
     }
 
     private void activate() {
