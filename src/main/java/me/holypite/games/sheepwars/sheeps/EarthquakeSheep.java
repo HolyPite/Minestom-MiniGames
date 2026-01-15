@@ -56,7 +56,7 @@ public class EarthquakeSheep extends SheepProjectile {
             for (Player p : players) {
                 Vec randomDir = new Vec(
                         ThreadLocalRandom.current().nextDouble(-0.5, 0.5),
-                        0.8,
+                        0.9,
                         ThreadLocalRandom.current().nextDouble(-0.5, 0.5)
                 );
                 p.setVelocity(randomDir.mul(20)); // Adjust power
@@ -65,7 +65,7 @@ public class EarthquakeSheep extends SheepProjectile {
             // 2. Break Blocks
             List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
             for (Point pos : blocks) {
-                if (TKit.chance(0.2)) {
+                if (TKit.chance(0.1)) {
                     getInstance().setBlock(pos, Block.AIR);
                 }
             }

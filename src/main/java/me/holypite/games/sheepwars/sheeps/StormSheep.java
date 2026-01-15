@@ -34,7 +34,7 @@ public class StormSheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 10.0;
+        double radius = 6.0;
         List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), radius, true);
         
         for (Player p : players) {

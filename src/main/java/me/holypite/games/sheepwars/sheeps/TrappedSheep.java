@@ -24,7 +24,7 @@ public class TrappedSheep extends SheepProjectile {
     public void onLand() {
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
-            if (getAliveTicks() > 20 * 15) { // 15 seconds
+            if (getAliveTicks() > 20 * 10) { // 15 seconds
                 remove();
                 return TaskSchedule.stop();
             }

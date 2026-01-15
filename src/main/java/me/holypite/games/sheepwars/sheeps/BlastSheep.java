@@ -28,9 +28,9 @@ public class BlastSheep extends SheepProjectile {
                 
                 TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
                     if (explosionManager != null) {
-                        explosionManager.explode(getInstance(), p.getPosition(), 0.5f, false, shooter, this);
+                        explosionManager.explode(getInstance(), p.getPosition(), 0.4f, true, shooter, this);
                     } else {
-                        getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), 0.5f, null);
+                        getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), 0.4f, null);
                     }
                 });
                 

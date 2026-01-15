@@ -34,7 +34,7 @@ public class IncendiarySheep extends SheepProjectile {
         // 1. Explosion (Visual + Fire) - Smaller than 3.0
         float power = 2.0f;
         if (explosionManager != null) {
-            explosionManager.explode(getInstance(), getPosition(), power, false, shooter, this);
+            explosionManager.explode(getInstance(), getPosition(), power, true, shooter, this);
         } else {
             getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), power, null);
         }

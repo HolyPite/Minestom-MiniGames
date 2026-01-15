@@ -36,9 +36,9 @@ public class ShieldSheep extends SheepProjectile {
             }
             
             // Push entities
-             TKit.getEntitiesInRadius(getInstance(), getPosition(), 4).forEach(e -> {
+             TKit.getEntitiesInRadius(getInstance(), getPosition(), 5).forEach(e -> {
                  if (e != this && !(e instanceof Player)) {
-                     Vec dir = e.getPosition().sub(getPosition()).asVec().normalize().mul(1.5);
+                     Vec dir = e.getPosition().sub(getPosition()).asVec().normalize().mul(2.5);
                      dir = dir.withY(0.5); // Add some lift
                      e.setVelocity(dir.mul(20)); // Minestom velocity scale
                  }
@@ -49,7 +49,7 @@ public class ShieldSheep extends SheepProjectile {
                 TKit.spawnParticles(getInstance(), Particle.SONIC_BOOM, getPosition().add(0, 1, 0), 0, 0, 0, 0f, 1);
              }
 
-             return TaskSchedule.tick(2);
+             return TaskSchedule.tick(1);
         });
         
         // Remove after 5 seconds
