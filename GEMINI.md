@@ -79,6 +79,7 @@ A complex projectile system with 17 unique sheep types.
     - **Explosive**: Explodes after 3s.
     - **Fragmentation**: Explodes and spawns 4-10 random colored baby sheep with randomized trajectories.
     - **Boarding**: Carries the shooter.
+    - **Seeker**: Homing sheep that targets and chases the nearest enemy player to explode on contact.
     - **Taupe**: Digs tunnels while flying.
     - **Black Hole**: Attracts entities.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17 total).
