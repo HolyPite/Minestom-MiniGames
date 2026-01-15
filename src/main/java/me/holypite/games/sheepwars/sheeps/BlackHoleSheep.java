@@ -71,12 +71,7 @@ public class BlackHoleSheep extends SheepProjectile {
                     });
 
             // Particles
-            getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
-                    Particle.PORTAL,
-                    getPosition().add(0, 0.5, 0),
-                    new Vec(0.5, 0.5, 0.5),
-                    0.5f, 10
-            ));
+            TKit.spawnParticles(getInstance(), Particle.PORTAL, getPosition().add(0, 0.5, 0), 0.5f, 0.5f, 0.5f, 0.5f, 10);
 
             return TaskSchedule.tick(1);
         });

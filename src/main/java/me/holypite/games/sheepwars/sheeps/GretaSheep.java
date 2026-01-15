@@ -1,6 +1,7 @@
 package me.holypite.games.sheepwars.sheeps;
 
 import me.holypite.manager.StructureManager;
+import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.MinecraftServer;
@@ -96,12 +97,7 @@ public class GretaSheep extends SheepProjectile {
                 instance.setBlock(target, sb.block());
 
                 if (curr % 5 == 0) {
-                    instance.sendGroupedPacket(new ParticlePacket(
-                            Particle.HAPPY_VILLAGER,
-                            target.add(0.5, 0.5, 0.5),
-                            new Vec(0.2, 0.2, 0.2),
-                            0.05f, 1
-                    ));
+                    TKit.spawnParticles(instance, Particle.HAPPY_VILLAGER, target.add(0.5, 0.5, 0.5), 0.2f, 0.2f, 0.2f, 0.05f, 1);
                 }
             }
 

@@ -91,12 +91,7 @@ public class CloneSheep extends SheepProjectile {
 
     private void playCloneEffect(Point pos) {
         if (getInstance() == null) return;
-        getInstance().sendGroupedPacket(new ParticlePacket(
-                Particle.PORTAL,
-                pos.add(0, 0.5, 0),
-                new Vec(0.2, 0.2, 0.2),
-                0.1f, 30
-        ));
+        TKit.spawnParticles(getInstance(), Particle.PORTAL, pos.add(0, 0.5, 0), 0.2f, 0.2f, 0.2f, 0.1f, 30);
     }
 
     private boolean isMonster(EntityType type) {

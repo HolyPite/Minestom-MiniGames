@@ -48,12 +48,7 @@ public class GluttonSheep extends SheepProjectile {
                      // For simplicity, use generic particle or check how to pass block state.
                      // Particle.BLOCK needs block state.
                      // Let's use POOF for now to avoid complex packet construction if TKit doesn't help.
-                     getInstance().sendGroupedPacket(new ParticlePacket(
-                             Particle.POOF,
-                             p.add(0.5, 0.5, 0.5),
-                             new Vec(0, 0, 0),
-                             0f, 3
-                     ));
+                     TKit.spawnParticles(getInstance(), Particle.POOF, p.add(0.5, 0.5, 0.5), 0, 0, 0, 0f, 3);
                  }
             });
             

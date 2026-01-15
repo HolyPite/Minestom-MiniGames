@@ -46,12 +46,7 @@ public class AnvilSheep extends SheepProjectile {
                     anvil.setInstance(getInstance(), p.add(0.5, 10, 0.5));
                     
                     // Add particles at spawn
-                    getInstance().sendGroupedPacket(new ParticlePacket(
-                            Particle.CLOUD,
-                            anvil.getPosition(),
-                            new Vec(0, 0, 0),
-                            0f, 5
-                    ));
+                    TKit.spawnParticles(getInstance(), Particle.CLOUD, anvil.getPosition(), 0, 0, 0, 0f, 5);
                     
                     // Damage and Landing Logic
                     MinecraftServer.getSchedulerManager().submitTask(() -> {

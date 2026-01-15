@@ -1,5 +1,16 @@
 # Minestom-MiniGames Project Context
 
+## Development Conventions
+- **Workflow Rules**:
+    - **Feature Addition**: When adding a new feature, always attempt to compile (`./gradlew build -x test`), resolve any issues (using documentation tools if necessary), update `GEMINI.md` to document the new functionality, and finally commit the changes.
+    - **Agreement First**: During the discussion or debriefing of an idea, no code modifications should be made until the user has provided general agreement on the proposed plan.
+    - **Status Reports**: All debriefing messages and status reports must be written in **French**.
+- **Events**: Use `EventNode` for scoping events to specific games or instances.
+- **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
+- **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
+    - **Note**: `ItemBuilder` sets `DataComponents.ITEM_NAME` (not `CUSTOM_NAME`). When reading the item name (e.g., for UI), read `ITEM_NAME` to avoid nulls.
+- **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.
+
 ## Project Overview
 This project is a modular Minecraft mini-game server built on the **Minestom** framework. It focuses on high-performance, custom gameplay mechanics.
 
@@ -69,7 +80,12 @@ A complex projectile system with 17 unique sheep types.
     - **Taupe**: Digs tunnels while flying.
     - **Black Hole**: Attracts entities.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17 total).
-- **Utils**: `TKit` (ported from Bukkit) provides spatial queries (`getBlocksInSphere`, `getEntitiesInRadius`).
+- **Utils**: `TKit` (me.holypite.utils) is a central utility class providing:
+    - **Spatial Queries**: `getBlocksInSphere`, `getBlocksInCube`, `getEntitiesInRadius`, `getLivingEntitiesInRadius`.
+    - **Visuals & Audio**: `spawnParticles` (simplified packet handling), `playSound`, `sendStyledMessage`, `createGradientText`.
+    - **Combat & World**: `spawnFakeEffectCloud` (customizable particle/potion clouds), `getBlockUnder`/`Above`.
+    - **Inventory**: `giveItems` (with overflow protection), `dropItemsInCircle`.
+    - **Misc**: `formatTime`, `chance`, `getRandomDyeColor`.
 
 ### Map System
 Maps are stored in `maps/<map_name>/`.
@@ -123,16 +139,6 @@ Maps are stored in `maps/<map_name>/`.
 - `/structure confirm/cancel`: Manual commands for active preview.
 - `/debug`: Give basic equipment.
 - `/instances`: Debug command to list active instances and player counts.
-
-## Development Conventions
-- **Workflow Rules**:
-    - **Feature Addition**: When adding a new feature, always attempt to compile (`./gradlew build -x test`), resolve any issues (using documentation tools if necessary), commit the changes, and finally update `GEMINI.md` to document the new functionality.
-    - **Agreement First**: During the discussion or debriefing of an idea, no code modifications should be made until the user has provided general agreement on the proposed plan.
-- **Events**: Use `EventNode` for scoping events to specific games or instances.
-- **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
-- **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
-    - **Note**: `ItemBuilder` sets `DataComponents.ITEM_NAME` (not `CUSTOM_NAME`). When reading the item name (e.g., for UI), read `ITEM_NAME` to avoid nulls.
-- **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.
 
 ## Available Documentation Tools
 

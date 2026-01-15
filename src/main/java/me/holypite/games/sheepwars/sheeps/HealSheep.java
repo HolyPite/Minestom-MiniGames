@@ -40,12 +40,7 @@ public class HealSheep extends SheepProjectile {
                      p.addEffect(new Potion(PotionEffect.INSTANT_HEALTH, (byte)0, 1));
                  });
                  
-                 getInstance().sendGroupedPacket(new ParticlePacket(
-                         Particle.HEART,
-                         getPosition().add(0, 1, 0),
-                         new Vec(1, 1, 1),
-                         0f, 5
-                 ));
+                 TKit.spawnParticles(getInstance(), Particle.HEART, getPosition().add(0, 1, 0), 1, 1, 1, 0f, 5);
              }
 
              return TaskSchedule.tick(1);

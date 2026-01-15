@@ -29,39 +29,20 @@ public class RadioactiveSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-            Entity cloud = new Entity(EntityType.AREA_EFFECT_CLOUD);
-            AreaEffectCloudMeta meta = (AreaEffectCloudMeta) cloud.getEntityMeta();
-            meta.setRadius(3f);
-            meta.setColor(0x00FF00); // Green
-            
-            cloud.setInstance(getInstance(), getPosition());
-            
-            // Manual effect ticker
-            MinecraftServer.getSchedulerManager().submitTask(() -> {
-                if (cloud.isRemoved()) return TaskSchedule.stop();
-                
-                cloud.getInstance().getEntities().stream()
-                    .filter(e -> e.getPosition().distanceSquared(cloud.getPosition()) < 3*3)
-                    .forEach(e -> {
-                        if (e instanceof net.minestom.server.entity.LivingEntity living) {
-                            living.addEffect(new Potion(PotionEffect.WITHER, (byte)1, 100));
-                        }
-                    });
-                    
-                return TaskSchedule.tick(10);
-            });
-            
-            // Remove cloud after 10s
-            MinecraftServer.getSchedulerManager().buildTask(cloud::remove).delay(TaskSchedule.seconds(10)).schedule();
-            
-            getInstance().sendGroupedPacket(new ParticlePacket(
-                    Particle.WITCH,
-                    getPosition(),
-                    new Vec(0.5, 0.5, 0.5),
-                    0f, 50
-            ));
-            
-            remove();
+        if (getInstance() == null) return;
+        
+        me.holypite.utils.TKit.spawnFakeEffectCloud(
+            getInstance(),
+            getPosition(),
+            3.0f,
+            20 * 10, // 10 seconds
+            Particle.WITCH,
+            new PotionEffect[]{PotionEffect.WITHER},
+            new short[]{100},
+            new byte[]{1}
+        );
+        
+        remove();
     }
 
     @Override

@@ -49,12 +49,7 @@ public class ShuffleSheep extends SheepProjectile {
                     Point randomSpot = safeSpots.get(ThreadLocalRandom.current().nextInt(safeSpots.size()));
                     p.teleport(new Pos(randomSpot.x() + 0.5, randomSpot.y() + 1, randomSpot.z() + 0.5));
                     
-                    instance.sendGroupedPacket(new ParticlePacket(
-                            Particle.PORTAL,
-                            p.getPosition(),
-                            new Vec(0.5, 1, 0.5),
-                            0f, 50
-                    ));
+                    TKit.spawnParticles(instance, Particle.PORTAL, p.getPosition(), 0.5f, 1, 0.5f, 0f, 50);
                 });
             }
             

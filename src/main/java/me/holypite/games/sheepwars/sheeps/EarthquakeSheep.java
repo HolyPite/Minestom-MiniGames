@@ -70,17 +70,9 @@ public class EarthquakeSheep extends SheepProjectile {
             }
 
             // 3. Particles
-            net.minestom.server.particle.Particle blockParticle = ((net.minestom.server.particle.Particle.Block) net.minestom.server.particle.Particle.BLOCK).withBlock(Block.DIRT);
+            net.minestom.server.particle.Particle blockParticle = net.minestom.server.particle.Particle.BLOCK.withBlock(Block.DIRT);
             
-            getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
-                    blockParticle,
-                    false, // overrideLimiter
-                    false, // longDistance
-                    getPosition().x(), getPosition().y(), getPosition().z(),
-                    (float) radius/2, 0.5f, (float) radius/2,
-                    0.1f, // maxSpeed
-                    100 // particleCount
-            ));
+            TKit.spawnParticles(getInstance(), blockParticle, getPosition(), (float) radius/2, 0.5f, (float) radius/2, 0.1f, 100);
 
             return TaskSchedule.seconds(1);
         });

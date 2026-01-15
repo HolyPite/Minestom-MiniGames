@@ -45,12 +45,7 @@ public class ShieldSheep extends SheepProjectile {
              });
              
              // Particles
-             getInstance().sendGroupedPacket(new ParticlePacket(
-                     Particle.SONIC_BOOM,
-                     getPosition().add(0, 1, 0),
-                     new Vec(0, 0, 0),
-                     0f, 1
-             ));
+             TKit.spawnParticles(getInstance(), Particle.SONIC_BOOM, getPosition().add(0, 1, 0), 0, 0, 0, 0f, 1);
 
              return TaskSchedule.tick(10);
         });

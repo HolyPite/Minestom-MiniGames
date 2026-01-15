@@ -32,12 +32,7 @@ public class GlowingSheep extends SheepProjectile {
                  p.addEffect(new Potion(PotionEffect.GLOWING, (byte)0, 200));
             });
             
-            getInstance().sendGroupedPacket(new ParticlePacket(
-                    Particle.END_ROD,
-                    getPosition(),
-                    new Vec(0.5, 0.5, 0.5),
-                    0f, 50
-            ));
+            TKit.spawnParticles(getInstance(), Particle.END_ROD, getPosition(), 0.5f, 0.5f, 0.5f, 0f, 50);
             
             remove();
     }

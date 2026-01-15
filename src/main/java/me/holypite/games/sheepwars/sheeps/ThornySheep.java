@@ -39,12 +39,7 @@ public class ThornySheep extends SheepProjectile {
                 }
             }
             
-            getInstance().sendGroupedPacket(new ParticlePacket(
-                    Particle.COMPOSTER,
-                    getPosition(),
-                    new Vec(1, 1, 1),
-                    0f, 30
-            ));
+            TKit.spawnParticles(getInstance(), Particle.COMPOSTER, getPosition(), 1, 1, 1, 0f, 30);
             
             remove();
     }

@@ -24,12 +24,7 @@ public class MysterySheep extends SheepProjectile {
     protected void onFlightTick() {
         // Particles
         if (getAliveTicks() % 5 == 0) {
-            getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
-                    Particle.ENCHANT,
-                    getPosition().add(0, 0.5, 0),
-                    new net.minestom.server.coordinate.Vec(0.5, 0.5, 0.5),
-                    0.1f, 5
-            ));
+            me.holypite.utils.TKit.spawnParticles(getInstance(), Particle.ENCHANT, getPosition().add(0, 0.5, 0), 0.5f, 0.5f, 0.5f, 0.1f, 5);
         }
     }
 

@@ -50,12 +50,7 @@ public class StormSheep extends SheepProjectile {
         }
 
         // Visual Cloud
-        getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
-                Particle.CLOUD,
-                getPosition().add(0, 1, 0),
-                new Vec(1, 0.5, 1),
-                0.1f, 50
-        ));
+        TKit.spawnParticles(getInstance(), Particle.CLOUD, getPosition().add(0, 1, 0), 1, 0.5f, 1, 0.1f, 50);
 
         remove();
     }

@@ -41,12 +41,7 @@ public class GeyserSheep extends SheepProjectile {
             p.setVelocity(new Vec(0, 50, 0)); // Strong upward velocity
             
             // Particles
-            getInstance().sendGroupedPacket(new net.minestom.server.network.packet.server.play.ParticlePacket(
-                    Particle.SPLASH,
-                    p.getPosition(),
-                    new Vec(0.5, 0.5, 0.5),
-                    0.1f, 50
-            ));
+            TKit.spawnParticles(getInstance(), Particle.SPLASH, p.getPosition(), 0.5f, 0.5f, 0.5f, 0.1f, 50);
 
             // Project Down after 1s
             MinecraftServer.getSchedulerManager().buildTask(() -> {
