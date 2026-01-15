@@ -44,8 +44,10 @@ public class ShieldSheep extends SheepProjectile {
                  }
              });
              
-             // Particles
-             TKit.spawnParticles(getInstance(), Particle.SONIC_BOOM, getPosition().add(0, 1, 0), 0, 0, 0, 0f, 1);
+             // Particles - Only every 10 ticks
+             if (getAliveTicks() % 10 == 0) {
+                TKit.spawnParticles(getInstance(), Particle.SONIC_BOOM, getPosition().add(0, 1, 0), 0, 0, 0, 0f, 1);
+             }
 
              return TaskSchedule.tick(2);
         });
