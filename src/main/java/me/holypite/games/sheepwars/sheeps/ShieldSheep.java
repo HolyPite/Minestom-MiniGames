@@ -47,7 +47,7 @@ public class ShieldSheep extends SheepProjectile {
              // Particles
              TKit.spawnParticles(getInstance(), Particle.SONIC_BOOM, getPosition().add(0, 1, 0), 0, 0, 0, 0f, 1);
 
-             return TaskSchedule.tick(10);
+             return TaskSchedule.tick(1);
         });
         
         // Remove after 5 seconds

@@ -87,6 +87,10 @@ public class SheepRegistry {
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Enfouisseur", TextColor.fromHexString("#8B4513"))).modelData("burrower").build(),
                 BurrowerSheep::new);
 
+        register("taupe", "Mouton Taupe", 4.0, 6.0,
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Taupe", TextColor.fromHexString("#8B4513"))).modelData("taupe").build(),
+                TaupeSheep::new);
+
         register("parasite", "Mouton Parasite", 3.0, 5.0,
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Parasite", TextColor.fromHexString("#4B0082"))).modelData("parasite").build(),
                 ParasiteSheep::new);

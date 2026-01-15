@@ -80,9 +80,12 @@ A complex projectile system with 17 unique sheep types.
     - **Fragmentation**: Explodes and spawns 4-10 random colored baby sheep with randomized trajectories.
     - **Boarding**: Carries the shooter.
     - **Seeker**: Homing sheep that targets and chases the nearest enemy player to explode on contact.
-    - **Taupe**: Digs tunnels while flying.
+    - **Taupe**: Registered and functional. Digs tunnels while flying and destroys blocks around it.
+    - **Jaw**: Spawns evoker fangs at nearby player positions with bite animations and sounds.
+    - **Incendiary**: Small explosion followed by 30% chance of setting nearby blocks on fire.
     - **Black Hole**: Attracts entities.
-    - **Heal, Ice, Fire, Lightning, Earthquake...** (17 total).
+    - **Heal, Ice, Fire, Lightning, Earthquake...** (17+ total).
+    - **Note**: `InstantSheep` is a sub-product used by Fragmentation and is blacklisted from random spawns.
 - **Utils**: `TKit` (me.holypite.utils) is a central utility class providing:
     - **Spatial Queries**: `getBlocksInSphere`, `getBlocksInCube`, `getEntitiesInRadius`, `getLivingEntitiesInRadius`.
     - **Visuals & Audio**: `spawnParticles` (simplified packet handling), `playSound`, `sendStyledMessage`, `createGradientText`.

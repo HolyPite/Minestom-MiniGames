@@ -41,7 +41,7 @@ public class IcySheep extends SheepProjectile {
             Block current = getInstance().getBlock(pos);
             
             // 1. Solid blocks transformation
-            if (current.isSolid()) {
+            if (!current.isLiquid() && !current.isAir()) {
                 double r = rnd.nextDouble();
                 Block newBlock;
                 if (r < 0.80) newBlock = Block.SNOW_BLOCK;

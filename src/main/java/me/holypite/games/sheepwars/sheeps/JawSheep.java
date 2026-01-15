@@ -6,12 +6,12 @@ import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
-import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.color.DyeColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.sound.Sound;
 
 public class JawSheep extends SheepProjectile {
 
@@ -27,26 +27,38 @@ public class JawSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-            TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
-                 Entity fangs = new Entity(EntityType.EVOKER_FANGS);
-                 fangs.setInstance(getInstance(), p.getPosition());
-                 
-                 MinecraftServer.getSchedulerManager().buildTask(() -> {
-                     if (p.getInstance() != null && p.getPosition().distance(fangs.getPosition()) < 1.5) {
-                         p.damage(me.holypite.manager.damage.DamageSources.magic(6.0f));
-                     }
-                     fangs.remove();
-                 }).delay(TaskSchedule.tick(10)).schedule();
-            });
+        if (getInstance() == null) return;
+
+        TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
+            // Create Fangs
+            Entity fangs = new Entity(EntityType.EVOKER_FANGS);
             
-            getInstance().sendGroupedPacket(new ParticlePacket(
-                    Particle.LARGE_SMOKE,
-                    getPosition(),
-                    new Vec(0.5, 0.5, 0.5),
-                    0f, 20
-            ));
+            // Set rotation to face the player or just default
+            // Evoker fangs usually spawn slightly in front or at player feet
+            fangs.setInstance(getInstance(), p.getPosition());
             
-            remove();
+            // Trigger Bite Animation (Status 4 in Minecraft Protocol)
+            // This is essential for visibility and the "bite" look
+            fangs.triggerStatus((byte) 4);
+            
+            // Play Sound
+            TKit.playSound(getInstance(), p.getPosition(), "entity.evoker_fangs.attack", Sound.Source.HOSTILE, 1f, 1f);
+
+            // Apply Damage after animation warmup (approx 10 ticks / 0.5s)
+            MinecraftServer.getSchedulerManager().buildTask(() -> {
+                if (!p.isRemoved() && p.getInstance() != null) {
+                    if (p.getPosition().distanceSquared(fangs.getPosition()) < 2*2) {
+                        p.damage(me.holypite.manager.damage.DamageSources.magic(6.0f));
+                    }
+                }
+                fangs.remove();
+            }).delay(TaskSchedule.tick(10)).schedule();
+        });
+
+        // Visual cloud at sheep location
+        TKit.spawnParticles(getInstance(), Particle.LARGE_SMOKE, getPosition(), 0.5f, 0.5f, 0.5f, 0.05f, 20);
+        
+        remove();
     }
 
     @Override
