@@ -31,10 +31,10 @@ public class RadioactiveSheep extends SheepProjectile {
     public void onLand() {
         if (getInstance() == null) return;
         
-        me.holypite.utils.TKit.spawnFakeEffectCloud(
+        me.holypite.utils.TKit.spawnFakeEffectCloud3D(
             getInstance(),
             getPosition(),
-            3.0f,
+            new Vec(3.0, 2.0, 3.0), // 3D Ellipsoid
             20 * 10, // 10 seconds
             Particle.WITCH,
             new PotionEffect[]{PotionEffect.WITHER},

@@ -233,7 +233,7 @@ public class TKit {
         }
     }
 
-    public static void spawnFakeEffectCloud(Instance inst,
+    public static void spawnFakeEffectCloud2D(Instance inst,
                                             Point center,
                                             float radius,
                                             int lifetimeTicks,
@@ -245,8 +245,7 @@ public class TKit {
         /* Repeated task every 2 ticks (~0.1s) */
         Task t = inst.scheduler().buildTask(() -> {
 
-            // 1) Visual: Circle of particles
-            // Utilizing existing spawnParticles
+            // 1) Visual: Circle of particles (Flat)
             spawnParticles(inst, particle, center, radius / 2, 0.2f, radius / 2, 0, (int) (20 * radius * radius));
 
             // 2) Application: Effects
@@ -262,6 +261,57 @@ public class TKit {
                 .buildTask(t::cancel)
                 .delay(TaskSchedule.tick(lifetimeTicks))
                 .schedule();
+    }
+
+    public static void spawnFakeEffectCloud3D(Instance inst,
+                                              Point center,
+                                              Vec radii,
+                                              int lifetimeTicks,
+                                              Particle particle,
+                                              PotionEffect[] types,
+                                              short[] dur,
+                                              byte[] amp) {
+
+        Task t = inst.scheduler().buildTask(() -> {
+
+            // 1) Visual: Ellipsoid of particles
+            // Offsets in X/Y/Z act as a gaussian spread for particles
+            spawnParticles(inst, particle, center, (float) radii.x() / 2f, (float) radii.y() / 2f, (float) radii.z() / 2f, 0, (int) (10 * (radii.x() + radii.y() + radii.z())));
+
+            // 2) Application: Effects inside Ellipsoid
+            getLivingEntitiesInEllipsoid(inst, center, radii).forEach((le) -> {
+                applyEffects(le, types, dur, amp);
+            });
+
+        }).repeat(TaskSchedule.tick(2))
+                .schedule();
+
+        inst.scheduler()
+                .buildTask(t::cancel)
+                .delay(TaskSchedule.tick(lifetimeTicks))
+                .schedule();
+    }
+
+    public static List<LivingEntity> getLivingEntitiesInEllipsoid(Instance instance, Point center, Vec radii) {
+        if (instance == null) return new ArrayList<>();
+        // Pre-calculate max radius for fast spherical check
+        double maxR = Math.max(radii.x(), Math.max(radii.y(), radii.z()));
+        double maxRSq = maxR * maxR;
+
+        return instance.getEntities().stream()
+                .filter(e -> e instanceof LivingEntity)
+                .map(e -> (LivingEntity) e)
+                // 1. Fast Bounding Sphere Check
+                .filter(e -> e.getPosition().distanceSquared(center) <= maxRSq)
+                // 2. Precise Ellipsoid Check: (x/rx)^2 + (y/ry)^2 + (z/rz)^2 <= 1
+                .filter(e -> {
+                    Point p = e.getPosition();
+                    double dx = (p.x() - center.x()) / radii.x();
+                    double dy = (p.y() - center.y()) / radii.y();
+                    double dz = (p.z() - center.z()) / radii.z();
+                    return (dx * dx + dy * dy + dz * dz) <= 1.0;
+                })
+                .collect(Collectors.toList());
     }
 
     private static void applyEffects(LivingEntity le, PotionEffect[] types, short[] dur, byte[] amp) {

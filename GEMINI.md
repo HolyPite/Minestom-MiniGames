@@ -83,9 +83,9 @@ A complex projectile system with 17 unique sheep types.
 - **Utils**: `TKit` (me.holypite.utils) is a central utility class providing:
     - **Spatial Queries**: `getBlocksInSphere`, `getBlocksInCube`, `getEntitiesInRadius`, `getLivingEntitiesInRadius`.
     - **Visuals & Audio**: `spawnParticles` (simplified packet handling), `playSound`, `sendStyledMessage`, `createGradientText`.
-    - **Combat & World**: `spawnFakeEffectCloud` (customizable particle/potion clouds), `getBlockUnder`/`Above`.
+    - **Combat & World**: `spawnFakeEffectCloud2D` (flat disc), `spawnFakeEffectCloud3D` (ellipsoid volume), `getBlockUnder`/`Above`.
     - **Inventory**: `giveItems` (with overflow protection), `dropItemsInCircle`.
-    - **Misc**: `formatTime`, `chance`, `getRandomDyeColor`.
+    - **Misc**: `getLivingEntitiesInEllipsoid` (3D check), `formatTime`, `chance`, `getRandomDyeColor`.
 
 ### Map System
 Maps are stored in `maps/<map_name>/`.
