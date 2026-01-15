@@ -136,6 +136,9 @@ public class PotionManager {
     }
 
     private void applyPeriodicEffect(LivingEntity entity, PotionEffect effect, int amplifier) {
+        // Skip damage for spectators
+        if (entity instanceof Player p && p.getGameMode() == net.minestom.server.entity.GameMode.SPECTATOR) return;
+
         float maxHealth = (float) entity.getAttribute(Attribute.MAX_HEALTH).getValue();
 
         if (effect == PotionEffect.REGENERATION) {

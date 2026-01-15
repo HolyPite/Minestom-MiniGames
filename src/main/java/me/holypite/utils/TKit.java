@@ -198,6 +198,7 @@ public class TKit {
         return instance.getEntities().stream()
                 .filter(e -> e instanceof LivingEntity)
                 .map(e -> (LivingEntity) e)
+                .filter(e -> !(e instanceof Player p) || p.getGameMode() != GameMode.SPECTATOR)
                 .filter(e -> e.getPosition().distanceSquared(center) <= radiusSq)
                 .collect(Collectors.toList());
     }
@@ -301,6 +302,7 @@ public class TKit {
         return instance.getEntities().stream()
                 .filter(e -> e instanceof LivingEntity)
                 .map(e -> (LivingEntity) e)
+                .filter(e -> !(e instanceof Player p) || p.getGameMode() != GameMode.SPECTATOR)
                 // 1. Fast Bounding Sphere Check
                 .filter(e -> e.getPosition().distanceSquared(center) <= maxRSq)
                 // 2. Precise Ellipsoid Check: (x/rx)^2 + (y/ry)^2 + (z/rz)^2 <= 1

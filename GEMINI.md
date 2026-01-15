@@ -35,9 +35,9 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`StructurePreviewManager`**: Manages real-time structure previews using `BlockDisplay` entities and raycasting.
 - **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic. **Intercepts fatal damage** to players, preventing the vanilla death screen (health reset) and firing `CustomDeathEvent`.
 - **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
-- **`DeathManager`**: Listens to `CustomDeathEvent` (fired by `DamageManager`) to handle player elimination smoothly. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
+- **`DeathManager`**: Listens to `CustomDeathEvent` (fired by `DamageManager`) to handle player elimination smoothly. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight), **clears all potion effects**, and manages respawn timers. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
 - **`ProjectileManager`**: Handles custom projectiles. Supports **Friendly Fire** protection (Melee/Bow) and **Self-Collision** grace periods.
-- **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.). Includes **Visual Sync** for effects like **Glowing** and **Invisibility** via entity metadata.
+- **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.). Includes **Visual Sync** for effects like **Glowing** and **Invisibility** via entity metadata. **Safety**: Periodic damage automatically skips players in Spectator mode.
 
 ### Game Structure
 All mini-games extend the abstract `Game` class.

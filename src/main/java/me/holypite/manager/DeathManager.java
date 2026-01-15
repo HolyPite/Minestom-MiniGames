@@ -87,6 +87,7 @@ public class DeathManager {
         player.setAllowFlying(true);
         player.setFlying(true);
         player.getInventory().clear();
+        player.clearEffects();
         
         // 2. Title & Sound
         Component mainTitle = Component.text("YOU DIED", NamedTextColor.RED);
