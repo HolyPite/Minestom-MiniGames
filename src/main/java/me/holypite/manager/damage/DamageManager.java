@@ -13,6 +13,9 @@ import net.minestom.server.event.entity.EntityDamageEvent;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import me.holypite.event.CustomDeathEvent;
+import net.minestom.server.entity.Player;
+
 public class DamageManager {
 
     private final Map<LivingEntity, Long> lastDamageTime = new ConcurrentHashMap<>();
@@ -25,9 +28,6 @@ public class DamageManager {
 
     private void onEntityDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof LivingEntity victim)) return;
-        
-        // Prevent recursive loop if we were to call damage() again (we won't)
-        // But if we used setHealth, it doesn't trigger EntityDamageEvent.
         
         Damage damage = event.getDamage();
         String typeName = damage.getType().name();
@@ -57,35 +57,34 @@ public class DamageManager {
         }
 
         // Apply Damage Manually and Cancel Event to override Minestom behavior
-        // (Since we can't easily modify the Damage object in the event)
         event.setCancelled(true);
         
         if (amount > 0) {
             float finalDamage = amount;
             
-            // Debug Message
-            net.kyori.adventure.text.Component debugMsg = net.kyori.adventure.text.Component.text()
-                .append(net.kyori.adventure.text.Component.text("Damage: " + typeName + " | "))
-                .append(net.kyori.adventure.text.Component.text("Raw: " + event.getDamage().getAmount() + " | "))
-                .append(net.kyori.adventure.text.Component.text("Final: " + finalDamage + " | "))
-                .append(net.kyori.adventure.text.Component.text("Victim: " + (victim instanceof net.minestom.server.entity.Player p ? p.getUsername() : victim.getEntityType().name()) + " | "))
-                .append(net.kyori.adventure.text.Component.text("Attacker: " + (damage.getAttacker() instanceof net.minestom.server.entity.Player p ? p.getUsername() : (damage.getAttacker() != null ? damage.getAttacker().getEntityType().name() : "None"))))
-                .build();
-            MinecraftServer.getConnectionManager().getOnlinePlayers().forEach(p -> p.sendMessage(debugMsg));
-            
-            // Apply Health
-            float newHealth = victim.getHealth() - finalDamage;
+            // Check for Fatal Damage on Player
+            float currentHealth = victim.getHealth();
+            if (victim instanceof Player player && (currentHealth - finalDamage) <= 0) {
+                // Prevent death screen by NOT applying damage (or healing)
+                // Fire custom death event
+                CustomDeathEvent deathEvent = new CustomDeathEvent(player, damage.getAttacker(), typeName);
+                MinecraftServer.getGlobalEventHandler().call(deathEvent);
+                
+                // Ensure player stays alive client-side until Ghost Mode takes over
+                player.setHealth((float) player.getAttributeValue(Attribute.MAX_HEALTH)); 
+                return;
+            }
+
+            // Apply Health for non-fatal or non-player
+            float newHealth = currentHealth - finalDamage;
             victim.setHealth(newHealth);
             
-            if (newHealth <= 0 && !(victim instanceof net.minestom.server.entity.Player)) {
+            if (newHealth <= 0 && !(victim instanceof Player)) {
                 victim.kill();
             }
             
             // Visuals
             victim.triggerStatus((byte) 2); // Hurt Animation (Red Tint)
-            // Note: Minestom doesn't play sound automatically on setHealth/status 2.
-            // We should play generic hurt sound.
-            // victim.getInstance().playSound(Sound.sound(SoundEvent.ENTITY_GENERIC_HURT, ...), victim.getPosition());
             
             // Knockback
             applyKnockback(victim, damage, finalDamage);

@@ -32,9 +32,9 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`MapManager`**: Loads world instances from the `maps/` directory in **read-only** mode (Anvil format). Parses `config.json` for team spawns and game rules.
 - **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
 - **`StructurePreviewManager`**: Manages real-time structure previews using `BlockDisplay` entities and raycasting.
-- **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic.
+- **`DamageManager`**: Centralizes damage handling (`DamageSources`). Standardizes damage types (Mob Attack, PvP, Magic, Explosion) and knockback logic. **Intercepts fatal damage** to players, preventing the vanilla death screen (health reset) and firing `CustomDeathEvent`.
 - **`PvpManager`**: Manages PvP specific events (invulnerability frames, attack cooldowns) via `DamageManager`.
-- **`DeathManager`**: Handles player death without the native red screen. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers or elimination. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
+- **`DeathManager`**: Listens to `CustomDeathEvent` (fired by `DamageManager`) to handle player elimination smoothly. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight) and manages respawn timers. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
 - **`ProjectileManager`**: Handles custom projectiles. Supports **Friendly Fire** protection (Melee/Bow) and **Self-Collision** grace periods.
 - **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.). Includes **Visual Sync** for effects like **Glowing** and **Invisibility** via entity metadata.
 

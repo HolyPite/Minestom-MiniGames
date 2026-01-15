@@ -21,6 +21,8 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+import me.holypite.event.CustomDeathEvent;
+
 public class DeathManager {
 
     private final Game game;
@@ -34,29 +36,22 @@ public class DeathManager {
     }
 
     private void registerListeners() {
-        node.addListener(EntityDamageEvent.class, event -> {
-            if (!(event.getEntity() instanceof Player player)) return;
-            if (ghosts.contains(player)) {
-                event.setCancelled(true);
-                return;
-            }
+        node.addListener(CustomDeathEvent.class, event -> {
+            Player player = event.getPlayer();
+            if (ghosts.contains(player)) return;
 
-            float finalHealth = player.getHealth() - event.getDamage().getAmount();
-            if (finalHealth <= 0) {
-                event.setCancelled(true);
-                
-                // Credit Kill
-                Entity killer = event.getDamage().getAttacker();
-                if (killer instanceof Player killerPlayer && killerPlayer != player) {
-                    game.addKill(killerPlayer);
-                    game.sendMessageToAll(player.getUsername() + " was eliminated by " + killerPlayer.getUsername());
-                } else {
-                    game.sendMessageToAll(player.getUsername() + " died.");
-                }
-                
-                handleDeath(player);
+            // Credit Kill
+            Entity killer = event.getKiller();
+            if (killer instanceof Player killerPlayer && killerPlayer != player) {
+                game.addKill(killerPlayer);
+                game.sendMessageToAll(player.getUsername() + " was eliminated by " + killerPlayer.getUsername());
+            } else {
+                game.sendMessageToAll(player.getUsername() + " died (" + event.getDamageType() + ").");
             }
+            
+            handleDeath(player);
         });
+
 
         // Void Death handling
         node.addListener(net.minestom.server.event.player.PlayerMoveEvent.class, event -> {
