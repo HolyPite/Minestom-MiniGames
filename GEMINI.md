@@ -74,9 +74,10 @@ A complex projectile system with 17 unique sheep types.
 - **Rules**: Automatic **Void Check** and **Lifetime Check** (1 min).
 - **UI**: Real-time **Action Bar** showing the held sheep's name and color.
 - **Activation**: Generalized **activation delay** handled by the base class.
-- **Spawning Rules**: Problematic sheeps (Party, Clone, Glutton) are blacklisted from being spawned by the **Party Sheep**.
+- **Spawning Rules**: Problematic sheeps (Party, Clone, Glutton, Instant) are blacklisted from being spawned by the **Party Sheep** or **Mystery Sheep**.
 - **Abilities**:
     - **Explosive**: Explodes after 3s.
+    - **Fragmentation**: Explodes and spawns 4-10 random colored baby sheep with randomized trajectories.
     - **Boarding**: Carries the shooter.
     - **Taupe**: Digs tunnels while flying.
     - **Black Hole**: Attracts entities.

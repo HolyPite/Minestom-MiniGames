@@ -32,7 +32,7 @@ public class MysterySheep extends SheepProjectile {
     public void onLand() {
         // Transform into random sheep
         long elapsed = game != null ? game.getElapsedSeconds() : 0;
-        Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(elapsed, java.util.List.of("mystery"));
+        Function<Entity, SheepProjectile> factory = SheepRegistry.getRandomSheepFactory(elapsed, java.util.List.of("mystery", "instant"));
         
         if (factory != null) {
             SheepProjectile randomSheep = factory.apply(shooter);

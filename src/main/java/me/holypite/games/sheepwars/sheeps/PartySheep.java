@@ -52,7 +52,7 @@ public class PartySheep extends SheepProjectile {
                 double step = 2 * Math.PI / numSheep;
                 
                 // Blacklist problematic sheeps for Party Sheep
-                List<String> blacklist = List.of("mystery", "party", "clone", "glutton");
+                List<String> blacklist = List.of("mystery", "party", "clone", "glutton", "instant");
                 long elapsed = game != null ? game.getElapsedSeconds() : 0;
                 
                 for (int i = 0; i < numSheep; i++) {

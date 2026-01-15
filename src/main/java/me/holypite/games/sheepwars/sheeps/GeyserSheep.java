@@ -38,7 +38,7 @@ public class GeyserSheep extends SheepProjectile {
         
         for (Player p : players) {
             // Project Up
-            p.setVelocity(new Vec(0, 50, 0)); // Strong upward velocity
+            p.setVelocity(new Vec(0, 25, 0)); // Strong upward velocity
             
             // Particles
             TKit.spawnParticles(getInstance(), Particle.SPLASH, p.getPosition(), 0.5f, 0.5f, 0.5f, 0.1f, 50);
@@ -46,7 +46,7 @@ public class GeyserSheep extends SheepProjectile {
             // Project Down after 1s
             MinecraftServer.getSchedulerManager().buildTask(() -> {
                 if (!p.isRemoved()) {
-                    p.setVelocity(p.getVelocity().add(0, -100, 0)); // Slam down
+                    p.setVelocity(p.getVelocity().add(0, -50, 0)); // Slam down
                 }
             }).delay(TaskSchedule.seconds(1)).schedule();
         }

@@ -1,14 +1,14 @@
 package me.holypite.games.sheepwars.sheeps;
 
 import me.holypite.utils.TKit;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
-import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.color.DyeColor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FragmentationSheep extends SheepProjectile {
 
@@ -32,15 +32,30 @@ public class FragmentationSheep extends SheepProjectile {
             }
             
             // Spawn cluster
-            int count = 8;
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int count = random.nextInt(4, 11); // 4 to 10
+            
             for (int i = 0; i < count; i++) {
-                double angle = i * (2 * Math.PI / count);
+                double baseAngle = i * (2 * Math.PI / count);
+                // Add random offset to angle (-15 to +15 degrees approx)
+                double angle = baseAngle + (random.nextDouble() - 0.5) * (Math.PI / 6);
+                
                 double x = Math.cos(angle);
                 double z = Math.sin(angle);
                 
                 InstantSheep baby = new InstantSheep(shooter);
+                if (baby.getEntityMeta() instanceof SheepMeta babyMeta) {
+                    babyMeta.setColor(TKit.getRandomDyeColor());
+                }
+                
                 baby.setInstance(getInstance(), getPosition().add(0, 1, 0));
-                baby.setVelocity(new Vec(x, 0.5, z).normalize().mul(15));
+                
+                // Randomize power (10 to 20)
+                double power = random.nextDouble(10, 21);
+                // Randomize vertical lift slightly
+                double yLift = random.nextDouble(0.3, 0.8);
+                
+                baby.setVelocity(new Vec(x, yLift, z).normalize().mul(power));
             }
             
             remove();
