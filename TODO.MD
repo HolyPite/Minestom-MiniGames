@@ -40,6 +40,7 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 ## ✅ Tâches Terminées
 
 ### Core & Dégâts
+- [x] **Water Clutch Fix** : Réinitialisation des dégâts de chute dans l'eau.
 - [x] **Kill Credit** : Attribution des kills au lanceur du mouton.
 - [x] **Kill Counter & Scoreboard** : Affichage des statistiques en temps réel.
 - [x] **Friendly Fire Protection** : Blocage des dégâts CàC/Arc entre alliés.
@@ -59,4 +60,4 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 - [x] **Potion Visual Sync** : Correction Glowing/Invisibilité.
 
 ---
-*Dernière mise à jour : 14 Janvier 2026*
+*Dernière mise à jour : 15 Janvier 2026*

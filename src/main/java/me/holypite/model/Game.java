@@ -442,6 +442,12 @@ public abstract class Game {
             if (p.getGameMode() == net.minestom.server.entity.GameMode.CREATIVE || p.getGameMode() == net.minestom.server.entity.GameMode.SPECTATOR) return;
             
             double currentY = event.getNewPosition().y();
+
+            // Water check (reset fall distance)
+            if (p.getInstance().getBlock(event.getNewPosition()).isLiquid()) {
+                fallTracker.put(p, currentY);
+                return;
+            }
             
             if (event.isOnGround()) {
                 if (fallTracker.containsKey(p)) {

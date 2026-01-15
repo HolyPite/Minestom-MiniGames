@@ -50,6 +50,7 @@ All mini-games extend the abstract `Game` class.
 - **Hub/Lobby**: Players are forced into **Adventure Mode** (no block breaking). Empty lobbies are automatically destroyed to save resources.
 - **Game (SheepWars)**: Players are set to **Survival Mode** (can break blocks, take damage).
 - **Dismount**: Players can exit vehicles/mounts (like the Boarding Sheep) by **sneaking**, if allowed by the game rules (`allowDismountSneak`).
+- **Fall Damage**: Damage is calculated based on fall distance. **Entering water resets the fall distance**, allowing "water clutching".
 
 ### Structure System
 Allows saving and placing NBT structures (Schematics).
