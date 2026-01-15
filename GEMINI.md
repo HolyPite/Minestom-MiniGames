@@ -7,6 +7,7 @@
     - **Status Reports**: All debriefing messages and status reports must be written in **French**.
 - **Events**: Use `EventNode` for scoping events to specific games or instances.
 - **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
+    - **Custom Mobs**: `AggressiveBee` (poison, sting once), `AggressiveSlime` (calmed jump), `AggressiveLarva` (Silverfish/Endermite with AI).
 - **Items**: Use `ItemBuilder` (in `me.holypite.utils`) to handle Minestom 1.21.4+ `CustomModelData` (complex component format).
     - **Note**: `ItemBuilder` sets `DataComponents.ITEM_NAME` (not `CUSTOM_NAME`). When reading the item name (e.g., for UI), read `ITEM_NAME` to avoid nulls.
 - **Thread Safety**: Maps and Lists in Managers should be thread-safe (`ConcurrentHashMap`, `CopyOnWriteArrayList`) where appropriate.

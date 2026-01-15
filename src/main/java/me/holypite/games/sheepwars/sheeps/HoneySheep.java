@@ -1,18 +1,13 @@
 package me.holypite.games.sheepwars.sheeps;
 
-import me.holypite.games.sheepwars.sheeps.entities. aggressive.CombatBee;
+import me.holypite.entity.AggressiveBee;
 import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.timer.TaskSchedule;
-
-import java.util.List;
 
 public class HoneySheep extends SheepProjectile {
 
@@ -46,7 +41,7 @@ public class HoneySheep extends SheepProjectile {
 
         // 2. Spawn Bees
         for (int i = 0; i < 2; i++) {
-            CombatBee bee = new CombatBee();
+            AggressiveBee bee = new AggressiveBee();
             bee.setInstance(getInstance(), getPosition().add(0, 1, 0));
         }
 

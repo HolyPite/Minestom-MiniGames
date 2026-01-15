@@ -6,6 +6,7 @@ import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityCreature;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
+import net.minestom.server.entity.attribute.Attribute;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class SheepProjectile extends EntityCreature {
@@ -19,6 +20,11 @@ public abstract class SheepProjectile extends EntityCreature {
     public SheepProjectile(Entity shooter) {
         super(EntityType.SHEEP);
         this.shooter = shooter;
+        
+        // Set Max Health to 4 hearts (8 HP) and update current health
+        getAttribute(Attribute.MAX_HEALTH).setBaseValue(8f);
+        setHealth(8f);
+
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setHasNoGravity(false); 
         }

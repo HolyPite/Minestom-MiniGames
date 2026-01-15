@@ -1,17 +1,13 @@
 package me.holypite.games.sheepwars.sheeps;
 
-import me.holypite.games.sheepwars.sheeps.entities.aggressive.AggressiveSlime;
+import me.holypite.entity.AggressiveSlime;
 import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
-import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.instance.block.Block;
-import net.minestom.server.timer.TaskSchedule;
 
 import java.util.List;
 

@@ -21,6 +21,7 @@ public class EarthquakeSheep extends SheepProjectile {
 
     public EarthquakeSheep(Entity shooter) {
         super(shooter);
+        setActivationDelay(3);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.RED); // Dark Red
             meta.setCustomName(Component.text("Earthquake Sheep", TextColor.fromHexString("#8B0000")));

@@ -76,7 +76,7 @@ public class AggressiveSlime extends EntityCreature {
                 
                 // Jump towards target
                 Vec direction = target.getPosition().sub(getPosition()).asVec().normalize();
-                setVelocity(direction.mul(5).withY(7)); 
+                setVelocity(direction.mul(0.8).withY(0.6)); 
             } else {
                 // Random jump
                 if (ThreadLocalRandom.current().nextDouble() < 0.3) {
@@ -87,7 +87,7 @@ public class AggressiveSlime extends EntityCreature {
                     float yaw = (float) Math.toDegrees(Math.atan2(-randomDir.x(), randomDir.z()));
                     setView(yaw, 0);
                     
-                    setVelocity(randomDir.mul(3).withY(7));
+                    setVelocity(randomDir.mul(0.5).withY(0.6));
                 }
             }
         }

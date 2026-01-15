@@ -1,16 +1,18 @@
 package me.holypite.games.sheepwars.sheeps;
 
+import me.holypite.entity.AggressiveBee;
+import me.holypite.entity.AggressiveLarva;
+import me.holypite.entity.AggressiveSlime;
 import me.holypite.games.sheepwars.SheepRegistry;
 import me.holypite.utils.TKit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.minestom.server.coordinate.Point;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
+import net.minestom.server.entity.metadata.other.SlimeMeta;
 import net.minestom.server.item.ItemStack;
-import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 
 import java.util.List;
@@ -84,7 +86,25 @@ public class CloneSheep extends SheepProjectile {
     }
 
     private void cloneEntity(Entity original, Point spawnPos) {
-        Entity clone = new Entity(original.getEntityType());
+        Entity clone;
+        
+        if (original.getEntityType() == EntityType.BEE) {
+            clone = new AggressiveBee();
+        } else if (original.getEntityType() == EntityType.SLIME) {
+            int size = 1;
+            if (original instanceof AggressiveSlime slime && slime.getEntityMeta() instanceof SlimeMeta meta) {
+                size = meta.getSize();
+            } else if (original.getEntityMeta() instanceof SlimeMeta meta) {
+                size = meta.getSize();
+            }
+            clone = new AggressiveSlime(size);
+        } else if (original.getEntityType() == EntityType.SILVERFISH || original.getEntityType() == EntityType.ENDERMITE) {
+            clone = new AggressiveLarva(original.getEntityType());
+        } else {
+            // Fallback for vanilla mobs or unknown types
+            clone = new Entity(original.getEntityType());
+        }
+        
         clone.setInstance(getInstance(), spawnPos);
         playCloneEffect(spawnPos);
     }
