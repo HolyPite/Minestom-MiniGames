@@ -28,7 +28,6 @@ public class GluttonSheep extends SheepProjectile {
     public void shoot(double power) {
         super.shoot(power);
         setNoGravity(true);
-        setVelocity(shooter.getPosition().direction().mul(power));
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
