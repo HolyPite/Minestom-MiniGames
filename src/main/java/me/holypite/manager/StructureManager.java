@@ -30,6 +30,7 @@ public class StructureManager {
     }
 
     public record StructureBlock(Point relativePos, Block block) {}
+    public record StructureData(List<StructureBlock> blocks, Point minPoint, Point maxPoint) {}
 
     public StructureManager() {
         if (!STRUCTURES_DIR.toFile().exists()) {
@@ -113,17 +114,21 @@ public class StructureManager {
     }
 
     public boolean placeStructureWithResult(Instance instance, Point origin, String name, StructureRotation rotation, StructureMirror mirror) {
-        List<StructureBlock> structureBlocks = getStructureBlocks(name, rotation, mirror);
-        if (structureBlocks == null) return false;
+        StructureData data = getStructureBlocks(name, rotation, mirror, true);
+        if (data == null) return false;
 
-        for (StructureBlock sb : structureBlocks) {
+        for (StructureBlock sb : data.blocks()) {
             instance.setBlock(origin.add(sb.relativePos()), sb.block());
         }
         System.out.println("Structure placed: " + name);
         return true;
     }
 
-    public List<StructureBlock> getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
+    public StructureData getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror) {
+        return getStructureBlocks(name, rotation, mirror, true);
+    }
+
+    public StructureData getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror, boolean includeAir) {
         Path path = STRUCTURES_DIR.resolve(name + (name.endsWith(".nbt") ? "" : ".nbt"));
         if (!path.toFile().exists()) return null;
 
@@ -171,17 +176,35 @@ public class StructureManager {
                 palette.add(transformBlockState(block, rotation, mirror));
             }
 
+            int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+            int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+
             for (BinaryTag tag : data.getList("blocks")) {
                 CompoundBinaryTag ct = (CompoundBinaryTag) tag;
                 ListBinaryTag pos = ct.getList("pos");
                 Block block = palette.get(ct.getInt("state"));
+                
+                if (!includeAir && block.isAir()) continue;
+
                 if (ct.keySet().contains("nbt")) block = block.withNbt(ct.getCompound("nbt"));
                 
                 Point finalPos = transformPosition(pos.getInt(0), pos.getInt(1), pos.getInt(2), rotation, mirror);
                 structureBlocks.add(new StructureBlock(finalPos, block));
+
+                if (finalPos.blockX() < minX) minX = finalPos.blockX();
+                if (finalPos.blockY() < minY) minY = finalPos.blockY();
+                if (finalPos.blockZ() < minZ) minZ = finalPos.blockZ();
+                if (finalPos.blockX() > maxX) maxX = finalPos.blockX();
+                if (finalPos.blockY() > maxY) maxY = finalPos.blockY();
+                if (finalPos.blockZ() > maxZ) maxZ = finalPos.blockZ();
             }
             
-            return structureBlocks;
+            // Handle empty structure case (e.g. only air blocks filtered out)
+            if (structureBlocks.isEmpty()) {
+                 return new StructureData(structureBlocks, Vec.ZERO, Vec.ZERO);
+            }
+            
+            return new StructureData(structureBlocks, new Vec(minX, minY, minZ), new Vec(maxX, maxY, maxZ));
 
         } catch (Throwable t) {
             System.err.println("Error loading structure " + name + ": " + t.getMessage());

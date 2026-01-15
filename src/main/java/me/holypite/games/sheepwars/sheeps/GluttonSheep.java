@@ -27,6 +27,8 @@ public class GluttonSheep extends SheepProjectile {
     @Override
     public void shoot(double power) {
         super.shoot(power);
+        // Make it slow
+        setVelocity(getVelocity().normalize().mul(2));
         setNoGravity(true);
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
@@ -38,7 +40,7 @@ public class GluttonSheep extends SheepProjectile {
             
             // Eat blocks
             TKit.getBlocksInSphere(getPosition(), 2.5).forEach(p -> {
-                 if (getInstance().getBlock(p).isSolid()) {
+                 if (!getInstance().getBlock(p).isAir()) {
                      getInstance().setBlock(p, Block.AIR);
                      
                      // Minestom doesn't support BLOCK particle data easily in this packet wrapper without data arg?
@@ -50,6 +52,8 @@ public class GluttonSheep extends SheepProjectile {
                      TKit.spawnParticles(getInstance(), Particle.POOF, p.add(0.5, 0.5, 0.5), 0, 0, 0, 0f, 3);
                  }
             });
+
+            setVelocity(getVelocity().normalize().mul(2));
             
             return TaskSchedule.tick(1);
         });

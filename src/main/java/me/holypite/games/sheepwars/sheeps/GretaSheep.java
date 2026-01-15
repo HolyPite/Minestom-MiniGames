@@ -62,25 +62,38 @@ public class GretaSheep extends SheepProjectile {
         // Get path relative to "structures/" for StructureManager
         String treeName = "trees/" + selectedTree.getParentFile().getName() + "/" + selectedTree.getName().replace(".nbt", "");
 
-        // 2. Load blocks
-        List<StructureManager.StructureBlock> blocks = structureManager.getStructureBlocks(
+        // 2. Load blocks with random rotation and mirroring
+        StructureManager.StructureRotation rotation = StructureManager.StructureRotation.values()[ThreadLocalRandom.current().nextInt(4)];
+        StructureManager.StructureMirror mirror = StructureManager.StructureMirror.values()[ThreadLocalRandom.current().nextInt(4)];
+        
+        StructureManager.StructureData structureData = structureManager.getStructureBlocks(
                 treeName, 
-                StructureManager.StructureRotation.values()[ThreadLocalRandom.current().nextInt(4)], 
-                StructureManager.StructureMirror.NONE
+                rotation, 
+                mirror,
+                false // Exclude Air
         );
 
-        if (blocks == null || blocks.isEmpty()) {
+        if (structureData == null || structureData.blocks().isEmpty()) {
             remove();
             return;
         }
+        
+        List<StructureManager.StructureBlock> blocks = new ArrayList<>(structureData.blocks());
 
         // 3. Sort for natural growth (Bottom up)
         blocks.sort(Comparator.comparingInt((StructureManager.StructureBlock b) -> b.relativePos().blockY())
                 .thenComparingDouble(b -> b.relativePos().distanceSquared(new Vec(0, b.relativePos().y(), 0))));
+        
+        // Calculate offset to center the structure on the sheep
+        double widthX = structureData.maxPoint().x() - structureData.minPoint().x();
+        double widthZ = structureData.maxPoint().z() - structureData.minPoint().z();
+        
+        Point centerOffset = structureData.minPoint().add(widthX / 2.0, 0, widthZ / 2.0);
+        Point placementOrigin = origin.sub(centerOffset);
 
         // 4. Animated Placement
         AtomicInteger index = new AtomicInteger(0);
-        int blocksPerTick = category.equals("giant") ? 5 : (category.equals("big") ? 3 : 2);
+        int blocksPerTick = category.equals("giant") ? 40 : (category.equals("big") ? 20 : 5);
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (instance == null || isRemoved()) return TaskSchedule.stop();
@@ -93,7 +106,8 @@ public class GretaSheep extends SheepProjectile {
                 }
 
                 StructureManager.StructureBlock sb = blocks.get(curr);
-                Point target = origin.add(sb.relativePos());
+                
+                Point target = placementOrigin.add(sb.relativePos());
                 instance.setBlock(target, sb.block());
 
                 if (curr % 5 == 0) {
@@ -109,8 +123,8 @@ public class GretaSheep extends SheepProjectile {
         double roll = ThreadLocalRandom.current().nextDouble() * 100;
         if (roll < 73.0) return "small";
         if (roll < 95.0) return "mid"; // 73 + 22
-        if (roll < 99.5) return "big"; // 95 + 4.5
-        return "giant"; // remaining 0.5
+        if (roll < 99) return "big"; // 95 + 4
+        return "giant"; // remaining 1
     }
 
     private File[] findAnyAvailableTree() {

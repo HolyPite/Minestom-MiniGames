@@ -32,16 +32,19 @@ public class StructurePreviewManager {
     public void startPreview(Player player, String structureName) {
         cancelPreview(player); // Cancel previous if any
 
-        List<StructureManager.StructureBlock> blocks = structureManager.getStructureBlocks(
+        StructureManager.StructureData data = structureManager.getStructureBlocks(
                 structureName, 
                 StructureManager.StructureRotation.R0, 
-                StructureManager.StructureMirror.NONE
+                StructureManager.StructureMirror.NONE,
+                false // No air in preview
         );
-
-        if (blocks == null || blocks.isEmpty()) {
+        
+        if (data == null || data.blocks().isEmpty()) {
             player.sendMessage(Component.text("Structure not found or empty!", NamedTextColor.RED));
             return;
         }
+
+        List<StructureManager.StructureBlock> blocks = data.blocks();
 
         if (blocks.size() > 500) {
             player.sendMessage(Component.text("Structure too large for full preview (Limit: 500 blocks).", NamedTextColor.YELLOW));

@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.attribute.Attribute;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
 import net.minestom.server.instance.block.Block;
 
@@ -14,6 +15,9 @@ public class TaupeSheep extends SheepProjectile {
 
     public TaupeSheep(Entity shooter) {
         super(shooter);
+        // Reduce gravity to make it fall slower (default is 0.08)
+        getAttribute(Attribute.GRAVITY).setBaseValue(0.005);
+
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BROWN);
             meta.setCustomName(Component.text("Taupe Sheep", NamedTextColor.GOLD));
