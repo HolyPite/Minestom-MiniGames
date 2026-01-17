@@ -114,8 +114,15 @@ public class StructureManager {
     }
 
     public boolean placeStructureWithResult(Instance instance, Point origin, String name, StructureRotation rotation, StructureMirror mirror) {
+        System.out.println("[DEBUG] placeStructureWithResult called: name=" + name + ", origin=" + origin);
         StructureData data = getStructureBlocks(name, rotation, mirror, true);
-        if (data == null) return false;
+        if (data == null) {
+            System.out.println("[DEBUG] Failed to load structure data for: " + name);
+            return false;
+        }
+
+        System.out.println("[DEBUG] Structure loaded. Blocks count: " + data.blocks().size());
+        System.out.println("[DEBUG] Bounds: " + data.minPoint() + " to " + data.maxPoint());
 
         // Pre-load chunks to ensure blocks can be placed
         Point min = origin.add(data.minPoint());
@@ -125,17 +132,22 @@ public class StructureManager {
         int maxChunkX = max.chunkX();
         int minChunkZ = min.chunkZ();
         int maxChunkZ = max.chunkZ();
+        
+        System.out.println("[DEBUG] Loading chunks from (" + minChunkX + "," + minChunkZ + ") to (" + maxChunkX + "," + maxChunkZ + ")");
 
         for (int x = minChunkX; x <= maxChunkX; x++) {
             for (int z = minChunkZ; z <= maxChunkZ; z++) {
                 instance.loadChunk(x, z).join();
             }
         }
+        System.out.println("[DEBUG] Chunks loaded.");
 
+        int count = 0;
         for (StructureBlock sb : data.blocks()) {
             instance.setBlock(origin.add(sb.relativePos()), sb.block());
+            count++;
         }
-        System.out.println("Structure placed: " + name);
+        System.out.println("[DEBUG] Structure placed: " + name + ". Total blocks set: " + count);
         return true;
     }
 
@@ -148,6 +160,8 @@ public class StructureManager {
         Path path = STRUCTURES_DIR.resolve(name);
         if (!path.toFile().exists()) path = STRUCTURES_DIR.resolve(name + ".nbt");
         if (!path.toFile().exists()) path = STRUCTURES_DIR.resolve(name + ".litematic");
+        
+        System.out.println("[DEBUG] looking for structure at: " + path.toAbsolutePath());
         
         if (!path.toFile().exists()) {
              System.err.println("Structure not found: " + name);

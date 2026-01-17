@@ -68,7 +68,8 @@ public class MapManager {
         if (regionPath.toFile().exists()) {
             instance.setChunkLoader(new AnvilLoader(mapPath));
         } else {
-            // Void Generator
+            // Void Generator + Memory persistence
+            instance.setChunkLoader(new MemoryChunkLoader());
             instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
         }
         
@@ -97,6 +98,8 @@ public class MapManager {
                 
                 structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
+            // IMPORTANT: Save chunks to MemoryChunkLoader so they persist when shared with Game Instance
+            instance.saveChunksToStorage().join();
         }
         
         // Spawn Entities from Config
@@ -119,6 +122,7 @@ public class MapManager {
             instance.setChunkLoader(new AnvilLoader(mapPath));
         } else {
              // Basic Generator for consistency if void map
+             instance.setChunkLoader(new MemoryChunkLoader());
              instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
         }
         
