@@ -17,6 +17,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class HedgehogSheep extends SheepProjectile {
 
+    private static final double SPHERE_RADIUS = 1.5;
+    private static final int ARROW_COUNT = 20;
+    private static final long LAUNCH_DELAY_SECONDS = 1;
+    private static final double ARROW_SPEED = 40.0;
+
     public HedgehogSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -31,10 +36,8 @@ public class HedgehogSheep extends SheepProjectile {
         if (isRemoved()) return;
 
         List<HedgehogArrow> arrows = new ArrayList<>();
-        double radius = 1.5;
-        int arrowCount = 20;
 
-        for (int i = 0; i < arrowCount; i++) {
+        for (int i = 0; i < ARROW_COUNT; i++) {
             // Random point on upper hemisphere
             double x = ThreadLocalRandom.current().nextDouble(-1, 1);
             double y = ThreadLocalRandom.current().nextDouble(0.1, 1); // Upwards
@@ -42,7 +45,7 @@ public class HedgehogSheep extends SheepProjectile {
             Vec dir = new Vec(x, y, z).normalize();
             
             // Calculate spawn position
-            Vec pos = getPosition().add(0, getEyeHeight(), 0).asVec().add(dir.mul(radius));
+            Vec pos = getPosition().add(0, getEyeHeight(), 0).asVec().add(dir.mul(SPHERE_RADIUS));
             
             // Use shooter (player) for kill credit
             HedgehogArrow arrow = new HedgehogArrow(shooter); 
@@ -57,7 +60,7 @@ public class HedgehogSheep extends SheepProjectile {
             arrows.add(arrow);
         }
 
-        // Schedule launch after 1 second
+        // Schedule launch after delay
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             for (HedgehogArrow arrow : arrows) {
                 if (arrow.isRemoved()) continue;
@@ -67,9 +70,9 @@ public class HedgehogSheep extends SheepProjectile {
                 
                 // Direction is where the arrow is looking
                 Vec direction = arrow.getPosition().direction();
-                arrow.setVelocity(direction.mul(40.0)); // High speed
+                arrow.setVelocity(direction.mul(ARROW_SPEED)); // High speed
             }
-        }).delay(TaskSchedule.seconds(1)).schedule();
+        }).delay(TaskSchedule.seconds(LAUNCH_DELAY_SECONDS)).schedule();
         
         remove();
     }

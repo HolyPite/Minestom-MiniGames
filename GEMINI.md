@@ -5,6 +5,8 @@
     - **Feature Addition**: When adding a new feature, always attempt to compile (`./gradlew build -x test`), resolve any issues (using documentation tools if necessary), update `GEMINI.md` to document the new functionality, and finally commit the changes.
     - **Agreement First**: During the discussion or debriefing of an idea, no code modifications should be made until the user has provided general agreement on the proposed plan.
     - **Status Reports**: All debriefing messages and status reports must be written in **French**.
+- **Code Style**:
+    - **Constants**: Important gameplay variables (radius, damage, duration, etc.) must be defined as `private static final` constants at the beginning of the class for easy tuning.
 - **Events**: Use `EventNode` for scoping events to specific games or instances.
 - **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
     - **Custom Mobs**: `AggressiveBee` (poison, sting once), `AggressiveSlime` (calmed jump), `AggressiveLarva` (Silverfish/Endermite with AI).
