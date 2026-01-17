@@ -86,6 +86,7 @@ A complex projectile system with 17 unique sheep types.
     - **Jaw**: Spawns evoker fangs at nearby player positions with bite animations and sounds.
     - **Incendiary**: Small explosion followed by 30% chance of setting nearby blocks on fire.
     - **Black Hole**: Attracts entities.
+    - **Island**: Teleports blocks and entities in a 5-block radius 20 blocks up.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17+ total).
     - **Hedgehog**: Fixed arrows being slow and dealing no damage by switching from `EntityProjectile` to `ArrowProjectile` and adding friendly fire filtering.
     - **Note**: `InstantSheep` is a sub-product used by Fragmentation and is blacklisted from random spawns.

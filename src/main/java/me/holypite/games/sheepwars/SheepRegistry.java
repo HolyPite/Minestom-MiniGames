@@ -143,6 +143,10 @@ public class SheepRegistry {
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Piégé", TextColor.fromHexString("#FFC0CB"))).modelData("trapped").build(),
                 TrappedSheep::new);
 
+        register("island", "Mouton Island", 3.0, 5.0,
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Island", NamedTextColor.GREEN)).modelData("island").build(),
+                IslandSheep::new);
+
         register("blast", "Mouton Déflagration", 4.0, 6.0,
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Déflagration", TextColor.fromHexString("#FFD700"))).modelData("blast").build(),
                 BlastSheep::new);
