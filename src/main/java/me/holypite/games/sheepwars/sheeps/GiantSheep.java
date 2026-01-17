@@ -14,6 +14,7 @@ public class GiantSheep extends SheepProjectile {
 
     private int bounceCount = 0;
     private static final int MAX_BOUNCES = 3;
+    private Vec lastVelocity = Vec.ZERO;
 
     public GiantSheep(Entity shooter) {
         super(shooter);
@@ -32,6 +33,15 @@ public class GiantSheep extends SheepProjectile {
     }
 
     @Override
+    public void update(long time) {
+        // Capture velocity before potential landing wipes it
+        if (!landed) {
+            this.lastVelocity = getVelocity();
+        }
+        super.update(time);
+    }
+
+    @Override
     public void onLand() {
         if (isRemoved()) return;
 
@@ -41,26 +51,21 @@ public class GiantSheep extends SheepProjectile {
             // Impact effects (Medium explosion)
             triggerImpact(3.0f);
             
-            // Bounce logic
-            Vec currentVel = getVelocity();
+            // Bounce logic using the captured velocity
+            Vec currentVel = lastVelocity;
+            
             // Invert Y and dampen, keep some X/Z momentum
-            // If strictly vertical, add some random spread? No, keep momentum.
-            this.setVelocity(currentVel.withY(currentVel.y() * -0.6).mul(0.8)); // 60% restitution, friction
+            this.setVelocity(currentVel.withY(Math.abs(currentVel.y()) * 0.6).mul(0.8)); // Force positive Y for bounce
             
             // Force physics update
             this.landed = false;
             // Push up slightly to ensure we leave ground
             this.teleport(getPosition().add(0, 0.5, 0));
-            this.setVelocity(this.getVelocity().add(0, 15, 0)); // Add upward impulse
+            this.setVelocity(this.getVelocity().add(0, 10, 0)); // Reduced explicit impulse, rely on reflection
             
             TKit.playSound(getInstance(), getPosition(), "entity.iron_golem.step", net.kyori.adventure.sound.Sound.Source.HOSTILE, 2.0f, 0.5f);
             
         } else {
-            // Final Impact (Big explosion)
-            triggerImpact(6.0f);
-            remove();
-        }
-    }
     
     private void triggerImpact(float power) {
          if (explosionManager != null) {
