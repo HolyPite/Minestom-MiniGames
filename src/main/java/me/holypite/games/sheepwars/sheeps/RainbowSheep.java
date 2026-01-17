@@ -41,12 +41,18 @@ public class RainbowSheep extends SheepProjectile {
         
         // Constant slow velocity like GluttonSheep
         Vec initialVelocity = getVelocity();
-        double speed = 8.0; // Slightly faster than Glutton (5) to cover more distance
+        double speed = 3.0; // Slightly faster than Glutton (5) to cover more distance
         
         setVelocity(initialVelocity.normalize().mul(speed));
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
+            
+            // Lifetime check: 4 seconds (4 * 20 ticks)
+            if (getAliveTicks() > 4 * 20) {
+                remove();
+                return TaskSchedule.stop();
+            }
             
             // Maintain constant velocity
             setVelocity(initialVelocity.normalize().mul(speed));
