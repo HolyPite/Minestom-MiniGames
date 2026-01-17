@@ -105,7 +105,7 @@ public class MapManager {
                 instance.setChunkLoader(new AnvilLoader(tempPath));
             } else {
                 // Fallback if void template missing
-                instance.setChunkLoader(new MemoryChunkLoader());
+                instance.setChunkLoader(null);
                 instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
             }
         }
@@ -135,8 +135,6 @@ public class MapManager {
                 
                 structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
-            // IMPORTANT: Save chunks to MemoryChunkLoader so they persist when shared with Game Instance
-            instance.saveChunksToStorage().join();
         }
         
         // Spawn Entities from Config
@@ -164,7 +162,7 @@ public class MapManager {
                  copyDirectory(voidTemplate, tempPath);
                  instance.setChunkLoader(new AnvilLoader(tempPath));
              } else {
-                 instance.setChunkLoader(new MemoryChunkLoader());
+                 instance.setChunkLoader(null);
                  instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
              }
         }
