@@ -46,12 +46,15 @@ public class ApocalypseSheep extends SheepProjectile {
 
             // Rain of Meteors (10 seconds)
             Point center = getPosition();
+            int[] waves = {0};
             
             MinecraftServer.getSchedulerManager().submitTask(() -> {
                 if (instance.getPlayers().isEmpty()) return TaskSchedule.stop();
+                if (waves[0] >= 20) return TaskSchedule.stop(); // 10s total (20 * 0.5s)
                 
                 // Spawn Meteor
                 spawnMeteor(instance, center);
+                waves[0]++;
                 
                 return TaskSchedule.tick(10); // Every 0.5s
             });
