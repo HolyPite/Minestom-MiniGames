@@ -42,8 +42,11 @@ public class HedgehogSheep extends SheepProjectile {
                  TKit.getPlayersInRadius(getInstance(), getPosition(), SEARCH_RADIUS, true).forEach(p -> {
                      if (game != null && game.isSameTeam(shooter, p)) return;
 
+                     net.minestom.server.coordinate.Vec direction = p.getPosition().add(0, 1, 0).sub(getPosition().add(0, 1, 0)).asVec().normalize();
+                     net.minestom.server.coordinate.Point spawnPos = getPosition().add(0, 1, 0).add(direction.mul(1.5)); // Spawn 1.5 blocks away
+
                      ArrowProjectile arrow = new ArrowProjectile(EntityType.ARROW, shooter);
-                     arrow.shoot(getInstance(), getPosition().add(0, 1, 0), p.getPosition().add(0, 1, 0), ARROW_SPEED, ARROW_SPREAD);
+                     arrow.shoot(getInstance(), spawnPos, p.getPosition().add(0, 1, 0), ARROW_SPEED, ARROW_SPREAD);
                  });
             }
             
