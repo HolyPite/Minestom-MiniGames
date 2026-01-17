@@ -36,10 +36,16 @@ public class SheepWarsGame extends Game {
     public void setupGameInstance(InstanceContainer instance) {
         // Try to load map
         // We reuse "map_test" for now, ideally create "sheepwars_arena"
-        LoadedMap loadedMap = mapManager.createInstanceFromMap("map_test");
+        String mapName = "map_test";
+        LoadedMap loadedMap = mapManager.createInstanceFromMap(mapName);
+        
         if (loadedMap != null) {
             instance.setChunkLoader(loadedMap.getInstance().getChunkLoader());
             this.mapConfig = loadedMap.getConfig();
+            
+            // Set Blueprint Source
+            InstanceContainer source = mapManager.createBlueprintInstance(mapName);
+            setSourceInstance(source);
         } else {
             // Fallback
             instance.setGenerator(unit -> unit.modifier().fillHeight(0, 40, Block.GRASS_BLOCK));

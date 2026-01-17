@@ -107,6 +107,62 @@ public class MapManager {
         return new LoadedMap(instance, config);
     }
 
+    public InstanceContainer createBlueprintInstance(String mapName) {
+        Path mapPath = MAPS_FOLDER.resolve(mapName);
+        if (!mapPath.toFile().exists()) return null;
+
+        InstanceManager instanceManager = MinecraftServer.getInstanceManager();
+        InstanceContainer instance = instanceManager.createInstanceContainer();
+        
+        Path regionPath = mapPath.resolve("region");
+        if (regionPath.toFile().exists()) {
+            instance.setChunkLoader(new AnvilLoader(mapPath));
+        } else {
+             // Basic Generator for consistency if void map
+             instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+        }
+        
+        // We do NOT load entities or structures for the blueprint, strictly blocks
+        // Actually, if structures modify blocks, we MIGHT want them?
+        // Let's assume for now the map folder/Anvil is the source of truth for "base blocks".
+        // If structures are pasted via code (config.json), we should probably paste them here too
+        // if we want to repair them.
+        
+        // Load Config just for structures
+        MapConfig config = null;
+        Path configPath = mapPath.resolve("config.json");
+        if (configPath.toFile().exists()) {
+            try (Reader reader = Files.newBufferedReader(configPath)) {
+                config = gson.fromJson(reader, MapConfig.class);
+            } catch (Exception ignored) {}
+        }
+        
+         if (config != null && config.structures != null) {
+            for (MapStructureConfig struct : config.structures) {
+                if (struct.pos == null) continue;
+                StructureRotation rot = StructureRotation.R0;
+                if (struct.rotation != null) {
+                    switch (struct.rotation) {
+                        case "90": rot = StructureRotation.R90; break;
+                        case "180": rot = StructureRotation.R180; break;
+                        case "270": rot = StructureRotation.R270; break;
+                    }
+                }
+                StructureMirror mir = StructureMirror.NONE;
+                if (struct.mirror != null) {
+                    switch (struct.mirror.toLowerCase()) {
+                        case "x": mir = StructureMirror.X; break;
+                        case "z": mir = StructureMirror.Z; break;
+                        case "xz": mir = StructureMirror.XZ; break;
+                    }
+                }
+                structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
+            }
+        }
+        
+        return instance;
+    }
+
     private void spawnEntities(InstanceContainer instance, MapConfig config) {
         for (MapEntityConfig entityConfig : config.entities) {
             spawnEntityRecursive(instance, entityConfig, null);

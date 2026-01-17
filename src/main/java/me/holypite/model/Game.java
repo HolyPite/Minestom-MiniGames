@@ -35,6 +35,7 @@ public abstract class Game {
     private final UUID gameId;
     private InstanceContainer lobbyInstance;
     private InstanceContainer gameInstance;
+    private InstanceContainer sourceInstance; // Blueprint instance
     private final Set<Player> players;
     private GameState state;
     private long startTime = 0;
@@ -95,6 +96,14 @@ public abstract class Game {
         
         setupLobbyInstance(this.lobbyInstance);
         updateScoreboard();
+    }
+    
+    public void setSourceInstance(InstanceContainer sourceInstance) {
+        this.sourceInstance = sourceInstance;
+    }
+
+    public InstanceContainer getSourceInstance() {
+        return sourceInstance;
     }
     
     public void setOnEndCallback(Runnable onEndCallback) {
