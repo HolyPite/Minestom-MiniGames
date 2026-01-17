@@ -32,7 +32,13 @@ public class BuilderSheep extends SheepProjectile {
 
         if (sourceWorld != null) {
             TKit.getBlocksInSphere(getPosition(), 6).forEach(pos -> {
-                // Ensure chunk is loaded in source if needed (usually handled by getBlock)
+                // Ensure chunk is loaded in source
+                // We join() to ensure it's loaded before getBlock. 
+                // Since this is a utility sheep, the slight delay if chunk isn't loaded is acceptable.
+                if (sourceWorld.getChunkAt(pos) == null) {
+                     sourceWorld.loadChunk(pos).join();
+                }
+                
                 Block originalBlock = sourceWorld.getBlock(pos);
                 Block currentBlock = gameWorld.getBlock(pos);
                 
