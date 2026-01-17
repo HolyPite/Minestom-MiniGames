@@ -94,7 +94,7 @@ A complex projectile system with 17 unique sheep types.
     - **Giant**: Huge size, bounces 3 times on the ground causing explosions before a final massive blast. Immune to explosions.
     - **Apocalypse**: Sets night time and summons a rain of burning meteors (Block Displays) for 10 seconds.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17+ total).
-    - **Hedgehog**: Invoque une demi-sphère de 20 flèches immobiles qui sont ensuite propulsées vers l'extérieur après un délai.
+    - **Hedgehog**: Tire en rafale 40 flèches vers le haut dans des directions aléatoires (1 flèche/tick) avant de disparaître.
     - **Note**: `InstantSheep` is a sub-product used by Fragmentation and is blacklisted from random spawns.
 - **Utils**: `TKit` (me.holypite.utils) is a central utility class providing:
     - **Spatial Queries**: `getBlocksInSphere`, `getBlocksInCube`, `getEntitiesInRadius`, `getLivingEntitiesInRadius`.
