@@ -58,19 +58,15 @@ public class HedgehogSheep extends SheepProjectile {
             ArrowProjectile arrow = new ArrowProjectile(EntityType.ARROW, shooter);
             arrow.setNoGravity(true); // Suspend them
             
-            // Spawn around sheep
-            arrow.setInstance(getInstance(), getPosition().add(0, 0.5, 0).add(direction.mul(SPHERE_RADIUS)));
+            // Spawn around sheep (Center at +1.5 to avoid ground clipping with radius 1.5)
+            net.minestom.server.coordinate.Point center = getPosition().add(0, 1.5, 0);
             
-            // Orient arrow outwards (Velocity 0 but looking at direction)
-            // Minestom doesn't have easy lookAt for non-living? 
-            // We can set velocity to epsilon to orient it, or calculate yaw/pitch
+            arrow.setInstance(getInstance(), center.add(direction.mul(SPHERE_RADIUS)));
             
-            // Hack: Shoot with 0 power to orient, then stop?
-            // Or manually set View.
-            // AbstractProjectile.shoot sets view based on To-From.
+            // Orient arrow outwards
             arrow.shoot(getInstance(), 
-                        getPosition().add(0, 0.5, 0).add(direction.mul(SPHERE_RADIUS)), 
-                        getPosition().add(0, 0.5, 0).add(direction.mul(SPHERE_RADIUS * 2)), 
+                        center.add(direction.mul(SPHERE_RADIUS)), 
+                        center.add(direction.mul(SPHERE_RADIUS * 2)), 
                         0.001, 0); // Tiny speed to orient
                         
             arrows.add(arrow);
@@ -80,16 +76,15 @@ public class HedgehogSheep extends SheepProjectile {
 
         // Shoot them after delay
         MinecraftServer.getSchedulerManager().buildTask(() -> {
-            if (isRemoved()) { // If sheep died, remove arrows? No, let them shoot!
-                // But if arrows are removed?
+            if (isRemoved()) { 
+                // Sheep removed logic if needed
             }
             
             for (ArrowProjectile arrow : arrows) {
                 if (!arrow.isRemoved()) {
-                    arrow.setNoGravity(false);
+                    // Keep NoGravity(true) for straight flight (Laser-like)
                     // Get current direction from arrow velocity or recalculate
-                    // Since we spawned them in a circle, we know the vector relative to center
-                    Vec dir = arrow.getPosition().sub(getPosition().add(0, 0.5, 0)).asVec().normalize();
+                    Vec dir = arrow.getPosition().sub(getPosition().add(0, 1.5, 0)).asVec().normalize();
                     arrow.setVelocity(dir.mul(ARROW_SPEED * 20)); // Minestom Ticks
                 }
             }
