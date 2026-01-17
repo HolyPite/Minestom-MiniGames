@@ -117,6 +117,21 @@ public class StructureManager {
         StructureData data = getStructureBlocks(name, rotation, mirror, true);
         if (data == null) return false;
 
+        // Pre-load chunks to ensure blocks can be placed
+        Point min = origin.add(data.minPoint());
+        Point max = origin.add(data.maxPoint());
+
+        int minChunkX = min.chunkX();
+        int maxChunkX = max.chunkX();
+        int minChunkZ = min.chunkZ();
+        int maxChunkZ = max.chunkZ();
+
+        for (int x = minChunkX; x <= maxChunkX; x++) {
+            for (int z = minChunkZ; z <= maxChunkZ; z++) {
+                instance.loadChunk(x, z).join();
+            }
+        }
+
         for (StructureBlock sb : data.blocks()) {
             instance.setBlock(origin.add(sb.relativePos()), sb.block());
         }
