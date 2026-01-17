@@ -12,11 +12,11 @@ import net.minestom.server.color.DyeColor;
 
 public class GiantSheep extends SheepProjectile {
 
-    private static final float SCALE = 3.0f;
+    private static final float SCALE = 6.0f;
     private static final int MAX_BOUNCES = 3;
     private static final float BOUNCE_EXPLOSION_POWER = 3.0f;
     private static final float DEATH_EXPLOSION_POWER = 6.0f;
-    private static final double BOUNCE_FACTOR = 1.2;
+    private static final double BOUNCE_FACTOR = 2;
 
     private int bounceCount = 0;
     private Vec lastVelocity = Vec.ZERO;
