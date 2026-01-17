@@ -28,7 +28,9 @@ public class GluttonSheep extends SheepProjectile {
     public void shoot(double power) {
         super.shoot(power);
         // Make it slow
-        setVelocity(getVelocity().normalize().mul(2));
+        Vec velocity = getVelocity();
+        double mul = 5;
+        setVelocity(velocity.normalize().mul(mul));
         setNoGravity(true);
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
@@ -42,18 +44,11 @@ public class GluttonSheep extends SheepProjectile {
             TKit.getBlocksInSphere(getPosition(), 2.5).forEach(p -> {
                  if (!getInstance().getBlock(p).isAir()) {
                      getInstance().setBlock(p, Block.AIR);
-                     
-                     // Minestom doesn't support BLOCK particle data easily in this packet wrapper without data arg?
-                     // Actually ParticlePacket has data field but it's not exposed in simple constructor?
-                     // Or pass data via specialized packet constructor.
-                     // For simplicity, use generic particle or check how to pass block state.
-                     // Particle.BLOCK needs block state.
-                     // Let's use POOF for now to avoid complex packet construction if TKit doesn't help.
                      TKit.spawnParticles(getInstance(), Particle.POOF, p.add(0.5, 0.5, 0.5), 0, 0, 0, 0f, 3);
                  }
             });
 
-            setVelocity(getVelocity().normalize().mul(2));
+            setVelocity(velocity.normalize().mul(mul));
             
             return TaskSchedule.tick(1);
         });

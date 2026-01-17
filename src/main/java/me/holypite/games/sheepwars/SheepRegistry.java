@@ -166,6 +166,10 @@ public class SheepRegistry {
         register("glowing", "Mouton Glowing", 5.0, 5.0,
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Glowing", TextColor.fromHexString("#FFFFE0"))).modelData("glowing").build(),
                 GlowingSheep::new);
+
+        register("rainbow", "Mouton Arc-en-ciel", 2.0, 4.0,
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Arc-en-ciel", NamedTextColor.LIGHT_PURPLE)).modelData("rainbow").build(),
+                RainbowSheep::new);
     }
 
     private static void register(String id, String name, double startWeight, double endWeight, ItemStack item, Function<Entity, SheepProjectile> factory) {
