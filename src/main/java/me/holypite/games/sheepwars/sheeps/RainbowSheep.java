@@ -42,7 +42,7 @@ public class RainbowSheep extends SheepProjectile {
         
         // Constant slow velocity like GluttonSheep
         Vec initialVelocity = getVelocity();
-        double speed = 3.0; // Slightly faster than Glutton (5) to cover more distance
+        double speed = 4.0; // Slightly faster than Glutton (5) to cover more distance
         
         setVelocity(initialVelocity.normalize().mul(speed));
         

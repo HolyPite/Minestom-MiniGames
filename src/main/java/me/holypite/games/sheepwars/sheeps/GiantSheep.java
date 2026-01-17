@@ -55,7 +55,7 @@ public class GiantSheep extends SheepProjectile {
             Vec currentVel = lastVelocity;
             
             // Invert Y and dampen, keep some X/Z momentum
-            this.setVelocity(currentVel.withY(Math.abs(currentVel.y()) * 0.6).mul(0.8)); // Force positive Y for bounce
+            this.setVelocity(currentVel.withY(Math.abs(currentVel.y())).mul(1.2)); // Force positive Y for bounce
             
             // Force physics update
             this.landed = false;

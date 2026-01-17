@@ -57,7 +57,6 @@ public class GluttonSheep extends SheepProjectile {
     @Override
     public void onLand() {
         getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 3f, null);
-        remove();
     }
 
     @Override
