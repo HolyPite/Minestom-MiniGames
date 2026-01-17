@@ -135,6 +135,8 @@ public class MapManager {
                 
                 structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
+            // Persist the placed structures to the ChunkLoader (temp files)
+            instance.saveChunksToStorage().join();
         }
         
         // Spawn Entities from Config
@@ -203,6 +205,7 @@ public class MapManager {
                 }
                 structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
+            instance.saveChunksToStorage().join();
         }
         
         return instance;
