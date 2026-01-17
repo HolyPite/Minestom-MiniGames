@@ -33,6 +33,12 @@ public class DamageManager {
         String typeName = damage.getType().name();
         float amount = damage.getAmount();
 
+        // Explosion Immunity Check
+        if (typeName.contains("explosion") && victim.hasTag(net.minestom.server.tag.Tag.Boolean("explosion_immune"))) {
+            event.setCancelled(true);
+            return;
+        }
+
         // 1. Invulnerability Check
         if (shouldTriggerInvulnerability(typeName)) {
             long now = System.currentTimeMillis();

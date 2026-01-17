@@ -21,6 +21,9 @@ public class GiantSheep extends SheepProjectile {
         // Make it giant!
         getAttribute(Attribute.SCALE).setBaseValue(3.0f);
         
+        // Immune to own explosions
+        setTag(net.minestom.server.tag.Tag.Boolean("explosion_immune"), true);
+        
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.WHITE);
             meta.setCustomName(Component.text("Mouton Géant", NamedTextColor.WHITE));
