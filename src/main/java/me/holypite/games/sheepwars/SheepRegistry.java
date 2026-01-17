@@ -174,6 +174,10 @@ public class SheepRegistry {
         register("builder", "Mouton Constructeur", 3.0, 5.0,
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Constructeur", NamedTextColor.GREEN)).modelData("builder").build(),
                 BuilderSheep::new);
+
+        register("giant", "Mouton Géant", 1.0, 6.0,
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Géant", NamedTextColor.WHITE)).modelData("giant").build(),
+                GiantSheep::new);
     }
 
     private static void register(String id, String name, double startWeight, double endWeight, ItemStack item, Function<Entity, SheepProjectile> factory) {

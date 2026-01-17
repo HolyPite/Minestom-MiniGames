@@ -1,0 +1,74 @@
+package me.holypite.games.sheepwars.sheeps;
+
+import me.holypite.utils.TKit;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
+import net.minestom.server.entity.attribute.Attribute;
+import net.minestom.server.entity.metadata.animal.SheepMeta;
+import net.minestom.server.item.Material;
+import net.minestom.server.color.DyeColor;
+
+public class GiantSheep extends SheepProjectile {
+
+    private int bounceCount = 0;
+    private static final int MAX_BOUNCES = 3;
+
+    public GiantSheep(Entity shooter) {
+        super(shooter);
+        
+        // Make it giant!
+        getAttribute(Attribute.SCALE).setBaseValue(3.0f);
+        
+        if (getEntityMeta() instanceof SheepMeta meta) {
+            meta.setColor(DyeColor.WHITE);
+            meta.setCustomName(Component.text("Mouton Géant", NamedTextColor.WHITE));
+            meta.setCustomNameVisible(true);
+        }
+    }
+
+    @Override
+    public void onLand() {
+        if (isRemoved()) return;
+
+        bounceCount++;
+        
+        if (bounceCount < MAX_BOUNCES) {
+            // Impact effects (Medium explosion)
+            triggerImpact(3.0f);
+            
+            // Bounce logic
+            Vec currentVel = getVelocity();
+            // Invert Y and dampen, keep some X/Z momentum
+            // If strictly vertical, add some random spread? No, keep momentum.
+            this.setVelocity(currentVel.withY(currentVel.y() * -0.6).mul(0.8)); // 60% restitution, friction
+            
+            // Force physics update
+            this.landed = false;
+            // Push up slightly to ensure we leave ground
+            this.teleport(getPosition().add(0, 0.5, 0));
+            this.setVelocity(this.getVelocity().add(0, 15, 0)); // Add upward impulse
+            
+            TKit.playSound(getInstance(), getPosition(), "entity.iron_golem.step", net.kyori.adventure.sound.Sound.Source.HOSTILE, 2.0f, 0.5f);
+            
+        } else {
+            // Final Impact (Big explosion)
+            triggerImpact(6.0f);
+            remove();
+        }
+    }
+    
+    private void triggerImpact(float power) {
+         if (explosionManager != null) {
+            explosionManager.explode(getInstance(), getPosition(), power, true, shooter, this);
+        } else {
+            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), power, null);
+        }
+    }
+
+    @Override
+    public String getId() {
+        return "giant";
+    }
+}
