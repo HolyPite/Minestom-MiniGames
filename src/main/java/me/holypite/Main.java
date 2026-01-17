@@ -24,7 +24,7 @@ import me.holypite.games.sheepwars.SheepRegistry;
 
 public class Main {
     public static void main(String[] args) {
-        MinecraftServer minecraftServer = MinecraftServer.init(new Auth.Online());
+        MinecraftServer minecraftServer = MinecraftServer.init();//new Auth.Online());
         
         // Init Registries
         SheepRegistry.init();

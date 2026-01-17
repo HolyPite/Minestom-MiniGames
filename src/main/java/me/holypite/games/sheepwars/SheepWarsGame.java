@@ -35,7 +35,7 @@ public class SheepWarsGame extends Game {
     @Override
     public void setupGameInstance(InstanceContainer instance) {
         // Try to load map
-        String mapName = "sheepwars_map";
+        String mapName = "map_test";
         LoadedMap loadedMap = mapManager.createInstanceFromMap(mapName);
         
         if (loadedMap != null) {

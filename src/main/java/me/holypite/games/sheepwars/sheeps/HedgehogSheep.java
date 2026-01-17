@@ -17,9 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HedgehogSheep extends SheepProjectile {
 
     private static final double SPHERE_RADIUS = 1.0;
-    private static final int ARROW_COUNT = 40;
+    private static final int ARROW_COUNT = 30;
     private static final int SHOOT_INTERVAL_TICKS = 1; // 0.05 seconds
-    private static final double ARROW_SPEED = 30.0;
+    private static final double ARROW_SPEED = 15.0;
 
     public HedgehogSheep(Entity shooter) {
         super(shooter);
@@ -33,11 +33,6 @@ public class HedgehogSheep extends SheepProjectile {
     @Override
     public void onLand() {
         if (isRemoved()) return;
-
-        // Freeze the sheep in place while shooting
-        setNoGravity(true);
-        setVelocity(Vec.ZERO);
-
         AtomicInteger arrowsShot = new AtomicInteger(0);
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {

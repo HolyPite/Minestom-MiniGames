@@ -2,7 +2,7 @@
   "name": "SheepWars Arena",
   "minPlayers": 2,
   "maxPlayers": 8,
-  "voidY": -10.0,
+  "voidY": -100.0,
   "settings": {
     "time": 6000,
     "weather": "clear",
@@ -13,7 +13,7 @@
     "allowHunger": false,
     "fallDamage": true,
     "canBreakBlocks": true,
-    "canPlaceBlocks": true
+    "canPlaceBlocks": false
   },
   "structures": [
     {
@@ -28,14 +28,14 @@
       "name": "Red",
       "color": "#FF0000",
       "spawns": [
-        { "x": 0, "y": 0, "z": 0, "yaw": 0, "pitch": 0 }
+        { "x": 0, "y": 100, "z": 0, "yaw": 0, "pitch": 0 }
       ]
     },
     {
       "name": "Blue",
       "color": "#0000FF",
       "spawns": [
-        { "x": 0, "y": 0, "z": 0, "yaw": 0, "pitch": 0 }
+        { "x": 0, "y": 100, "z": 0, "yaw": 0, "pitch": 0 }
       ]
     }
   ]

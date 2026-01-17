@@ -42,6 +42,7 @@ public class RainbowSheep extends SheepProjectile {
     @Override
     public void shoot(double power) {
         super.shoot(power);
+        teleport(getPosition().add(0,-1,0));
         
         // Constant slow velocity like GluttonSheep
         Vec initialVelocity = getVelocity();
@@ -61,7 +62,7 @@ public class RainbowSheep extends SheepProjectile {
             setVelocity(initialVelocity.normalize().mul(SPEED));
             
             // Logic previously in onFlightTick()
-            if (tickCounter++ % 2 == 0) {
+            if (tickCounter++ % 5 == 0) {
                 updateColor();
             }
             createBridge();
@@ -109,7 +110,7 @@ public class RainbowSheep extends SheepProjectile {
             Block blockAt = instance.getBlock(targetPos);
             
             // Only place if air to avoid destroying map
-            if (blockAt.isAir()) {
+            if (!blockAt.isSolid()) {
                 DyeColor color = RAINBOW_COLORS.get(colorIndex);
                 String blockName = "minecraft:" + color.name().toLowerCase() + "_stained_glass";
                 Block glassBlock = Block.fromKey(blockName);

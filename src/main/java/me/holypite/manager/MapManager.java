@@ -24,8 +24,11 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 
 import java.io.Reader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.stream.Stream;
 
 public class MapManager {
 
@@ -37,6 +40,32 @@ public class MapManager {
         // Ensure maps folder exists
         if (!MAPS_FOLDER.toFile().exists()) {
             MAPS_FOLDER.toFile().mkdirs();
+        }
+    }
+
+    private void copyDirectory(Path source, Path target) {
+        try {
+            if (Files.notExists(target)) {
+                Files.createDirectories(target);
+            }
+            try (Stream<Path> paths = Files.walk(source)) {
+                paths.forEach(path -> {
+                    try {
+                        Path destination = target.resolve(source.relativize(path));
+                        if (Files.isDirectory(path)) {
+                            if (Files.notExists(destination)) {
+                                Files.createDirectories(destination);
+                            }
+                        } else {
+                            Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -68,9 +97,17 @@ public class MapManager {
         if (regionPath.toFile().exists()) {
             instance.setChunkLoader(new AnvilLoader(mapPath));
         } else {
-            // Void Generator + Memory persistence
-            instance.setChunkLoader(new MemoryChunkLoader());
-            instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+            // Copy "void" template to temp folder
+            Path voidTemplate = MAPS_FOLDER.resolve("void");
+            if (voidTemplate.toFile().exists()) {
+                Path tempPath = Path.of(System.getProperty("java.io.tmpdir"), "minestom_maps", mapName + "_" + java.util.UUID.randomUUID());
+                copyDirectory(voidTemplate, tempPath);
+                instance.setChunkLoader(new AnvilLoader(tempPath));
+            } else {
+                // Fallback if void template missing
+                instance.setChunkLoader(new MemoryChunkLoader());
+                instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+            }
         }
         
         // Load Structures (from config)
@@ -121,9 +158,15 @@ public class MapManager {
         if (regionPath.toFile().exists()) {
             instance.setChunkLoader(new AnvilLoader(mapPath));
         } else {
-             // Basic Generator for consistency if void map
-             instance.setChunkLoader(new MemoryChunkLoader());
-             instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+             Path voidTemplate = MAPS_FOLDER.resolve("void");
+             if (voidTemplate.toFile().exists()) {
+                 Path tempPath = Path.of(System.getProperty("java.io.tmpdir"), "minestom_maps", mapName + "_bp_" + java.util.UUID.randomUUID());
+                 copyDirectory(voidTemplate, tempPath);
+                 instance.setChunkLoader(new AnvilLoader(tempPath));
+             } else {
+                 instance.setChunkLoader(new MemoryChunkLoader());
+                 instance.setGenerator(unit -> unit.modifier().fillHeight(0, 0, Block.AIR));
+             }
         }
         
         // We do NOT load entities or structures for the blueprint, strictly blocks
