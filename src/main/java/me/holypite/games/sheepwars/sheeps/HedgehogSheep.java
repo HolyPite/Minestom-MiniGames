@@ -3,6 +3,7 @@ package me.holypite.games.sheepwars.sheeps;
 import me.holypite.manager.projectile.entities.ArrowProjectile;
 import me.holypite.utils.TKit;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
@@ -35,39 +36,43 @@ public class HedgehogSheep extends SheepProjectile {
     public void onLand() {
         if (getInstance() == null) return;
         
+        // Freeze the sheep to prevent physics glitching with arrows
+        setNoGravity(true);
+        setVelocity(Vec.ZERO);
+        
         List<ArrowProjectile> arrows = new ArrayList<>();
         
         // Spawn dome of arrows
-        // Using Fibonacci Sphere algorithm for even distribution
-        double phi = Math.PI * (3. - Math.sqrt(5.));  // Golden angle
+        double phi = Math.PI * (3. - Math.sqrt(5.));
 
         for (int i = 0; i < ARROW_COUNT; i++) {
-            double y = 1 - (i / (float) (ARROW_COUNT - 1)) * 2;  // y goes from 1 to -1
-            double radius = Math.sqrt(1 - y * y);  // Radius at y
+            double y = 1 - (i / (float) (ARROW_COUNT - 1)) * 2;
+            double radius = Math.sqrt(1 - y * y);
 
-            double theta = phi * i;  // Golden angle increment
+            double theta = phi * i;
 
             double x = Math.cos(theta) * radius;
             double z = Math.sin(theta) * radius;
             
             Vec direction = new Vec(x, y, z).normalize();
             
-            // Only upper hemisphere looks better on ground? 
-            // Or full sphere if it bounces? Let's do full sphere for chaos.
-            
             ArrowProjectile arrow = new ArrowProjectile(EntityType.ARROW, shooter);
             arrow.setNoGravity(true); // Suspend them
             
-            // Spawn around sheep (Center at +1.5 to avoid ground clipping with radius 1.5)
             net.minestom.server.coordinate.Point center = getPosition().add(0, 1.5, 0);
+            net.minestom.server.coordinate.Point arrowPosPoint = center.add(direction.mul(SPHERE_RADIUS));
             
-            arrow.setInstance(getInstance(), center.add(direction.mul(SPHERE_RADIUS)));
+            // Calculate orientation
+            // Minestom Pitch: -90 (Up) to 90 (Down)
+            // atan2(y, horizontal) gives angle from horizontal.
+            double horizontal = Math.sqrt(direction.x() * direction.x() + direction.z() * direction.z());
+            float pitch = (float) -Math.toDegrees(Math.atan2(direction.y(), horizontal));
+            float yaw = (float) -Math.toDegrees(Math.atan2(direction.x(), direction.z()));
             
-            // Orient arrow outwards
-            arrow.shoot(getInstance(), 
-                        center.add(direction.mul(SPHERE_RADIUS)), 
-                        center.add(direction.mul(SPHERE_RADIUS * 2)), 
-                        0.001, 0); // Tiny speed to orient
+            Pos spawnPos = Pos.fromPoint(arrowPosPoint).withView(yaw, pitch);
+            
+            arrow.setInstance(getInstance(), spawnPos);
+            arrow.setVelocity(Vec.ZERO);
                         
             arrows.add(arrow);
         }
@@ -77,20 +82,20 @@ public class HedgehogSheep extends SheepProjectile {
         // Shoot them after delay
         MinecraftServer.getSchedulerManager().buildTask(() -> {
             if (isRemoved()) { 
-                // Sheep removed logic if needed
+                // Handle cleanup if needed
             }
             
             for (ArrowProjectile arrow : arrows) {
                 if (!arrow.isRemoved()) {
-                    // Keep NoGravity(true) for straight flight (Laser-like)
-                    // Get current direction from arrow velocity or recalculate
-                    Vec dir = arrow.getPosition().sub(getPosition().add(0, 1.5, 0)).asVec().normalize();
-                    arrow.setVelocity(dir.mul(ARROW_SPEED * 20)); // Minestom Ticks
+                    // Recalculate direction based on arrow position relative to center
+                    // (Assuming sheep hasn't moved much, which is true since we froze it)
+                    Vec dir = arrow.getPosition().asVec().sub(getPosition().add(0, 1.5, 0)).normalize();
+                    arrow.setVelocity(dir.mul(ARROW_SPEED * 20)); 
                 }
             }
             
             TKit.playSound(getInstance(), getPosition(), "entity.arrow.shoot", net.kyori.adventure.sound.Sound.Source.NEUTRAL, 2f, 1f);
-            remove(); // Remove sheep
+            remove(); 
             
         }).delay(TaskSchedule.tick(SHOOT_DELAY_TICKS)).schedule();
     }
