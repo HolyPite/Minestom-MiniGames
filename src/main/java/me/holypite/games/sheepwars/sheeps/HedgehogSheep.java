@@ -17,10 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class HedgehogSheep extends SheepProjectile {
 
-    private static final double SPHERE_RADIUS = 1.5;
-    private static final int ARROW_COUNT = 20;
-    private static final long LAUNCH_DELAY_SECONDS = 1;
-    private static final double ARROW_SPEED = 40.0;
+    private static final double SPHERE_RADIUS = 1.0;
+    private static final int ARROW_COUNT = 40;
+    private static final long LAUNCH_DELAY_SECONDS = 3;
+    private static final double ARROW_SPEED = 30.0;
 
     public HedgehogSheep(Entity shooter) {
         super(shooter);
@@ -49,13 +49,13 @@ public class HedgehogSheep extends SheepProjectile {
             
             // Use shooter (player) for kill credit
             HedgehogArrow arrow = new HedgehogArrow(shooter); 
-            arrow.setInstance(getInstance(), pos.asPosition());
             
             // Calculate rotation to point outward
             float yaw = (float) -Math.toDegrees(Math.atan2(dir.x(), dir.z()));
             float pitch = (float) -Math.toDegrees(Math.atan2(dir.y(), Math.sqrt(dir.x() * dir.x() + dir.z() * dir.z())));
             
-            arrow.setView(yaw, pitch);
+            // Spawn with correct rotation
+            arrow.setInstance(getInstance(), new net.minestom.server.coordinate.Pos(pos.x(), pos.y(), pos.z(), yaw, pitch));
             
             arrows.add(arrow);
         }
