@@ -13,21 +13,30 @@ import java.util.List;
 
 public class AggressiveLarva extends EntityCreature {
 
+    private static final float MAX_HEALTH = 4.0f;
+    private static final float MOVEMENT_SPEED = 0.35f;
+    private static final double ATTACK_SPEED_MULTIPLIER = 1.6;
+    private static final int ATTACK_COOLDOWN_TICKS = 20;
+    private static final int TARGET_RANGE = 15;
+
     public AggressiveLarva(EntityType type) {
         super(type);
         
         // 4 HP (2 Hearts)
-        getAttribute(Attribute.MAX_HEALTH).setBaseValue(4f);
-        setHealth(4f);
+        getAttribute(Attribute.MAX_HEALTH).setBaseValue(MAX_HEALTH);
+        setHealth(MAX_HEALTH);
+
+        // Increase base movement speed
+        getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(MOVEMENT_SPEED);
         
         // Basic AI: Wander and Attack Players
         addAIGroup(
                 List.of(
-                        new MeleeAttackGoal(this, 1.2, 20, TimeUnit.SERVER_TICK), // Attack with small range
+                        new MeleeAttackGoal(this, ATTACK_SPEED_MULTIPLIER, ATTACK_COOLDOWN_TICKS, TimeUnit.SERVER_TICK),
                         new RandomStrollGoal(this, 20) // Wander around
                 ), 
                 List.of(
-                        new ClosestEntityTarget(this, 15, Player.class)
+                        new ClosestEntityTarget(this, TARGET_RANGE, Player.class)
                 )
         );
     }

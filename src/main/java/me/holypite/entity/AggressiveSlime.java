@@ -20,6 +20,15 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class AggressiveSlime extends EntityCreature {
 
+    private static final int TARGET_RANGE = 15;
+    private static final int JUMP_INTERVAL_TICKS = 15;
+    private static final double JUMP_VELOCITY_TARGET = 1.2;
+    private static final double JUMP_VELOCITY_RANDOM = 0.7;
+    private static final double JUMP_HEIGHT = 0.7;
+    private static final float ATTACK_DAMAGE = 4.0f;
+    private static final long ATTACK_COOLDOWN_MS = 1000;
+    private static final double COLLISION_RADIUS = 1.5;
+
     private long lastAttackTime = 0;
 
     public AggressiveSlime(int size) {
@@ -38,7 +47,7 @@ public class AggressiveSlime extends EntityCreature {
         addAIGroup(
                 List.of(), 
                 List.of(
-                        new ClosestEntityTarget(this, 15, Player.class)
+                        new ClosestEntityTarget(this, TARGET_RANGE, Player.class)
                 )
         );
     }
@@ -53,21 +62,21 @@ public class AggressiveSlime extends EntityCreature {
         super.update(time);
         
         // Damage Players on Collision (with cooldown)
-        if (System.currentTimeMillis() - lastAttackTime > 1000) { // 1 sec cooldown
+        if (System.currentTimeMillis() - lastAttackTime > ATTACK_COOLDOWN_MS) {
             if (getInstance() != null) {
                 getInstance().getEntities().stream()
                     .filter(e -> e instanceof Player)
-                    .filter(e -> e.getPosition().distance(getPosition()) < 1.5)
+                    .filter(e -> e.getPosition().distance(getPosition()) < COLLISION_RADIUS)
                     .findFirst() // Hit only one player
                     .ifPresent(e -> {
-                        ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, 4.0f));
+                        ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, ATTACK_DAMAGE));
                         lastAttackTime = System.currentTimeMillis();
                     });
             }
         }
         
         // Custom Slime Jump AI
-        if (isOnGround() && getAliveTicks() % 20 == 0) { // Jump every second approx
+        if (isOnGround() && getAliveTicks() % JUMP_INTERVAL_TICKS == 0) {
             Entity target = getTarget();
             
             if (target != null) {
@@ -76,7 +85,7 @@ public class AggressiveSlime extends EntityCreature {
                 
                 // Jump towards target
                 Vec direction = target.getPosition().sub(getPosition()).asVec().normalize();
-                setVelocity(direction.mul(0.8).withY(0.6)); 
+                setVelocity(direction.mul(JUMP_VELOCITY_TARGET).withY(JUMP_HEIGHT)); 
             } else {
                 // Random jump
                 if (ThreadLocalRandom.current().nextDouble() < 0.3) {
@@ -87,7 +96,7 @@ public class AggressiveSlime extends EntityCreature {
                     float yaw = (float) Math.toDegrees(Math.atan2(-randomDir.x(), randomDir.z()));
                     setView(yaw, 0);
                     
-                    setVelocity(randomDir.mul(0.5).withY(0.6));
+                    setVelocity(randomDir.mul(JUMP_VELOCITY_RANDOM).withY(JUMP_HEIGHT));
                 }
             }
         }
