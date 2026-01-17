@@ -35,8 +35,7 @@ public class SheepWarsGame extends Game {
     @Override
     public void setupGameInstance(InstanceContainer instance) {
         // Try to load map
-        // We reuse "map_test" for now, ideally create "sheepwars_arena"
-        String mapName = "map_test";
+        String mapName = "sheepwars_map";
         LoadedMap loadedMap = mapManager.createInstanceFromMap(mapName);
         
         if (loadedMap != null) {
@@ -66,11 +65,6 @@ public class SheepWarsGame extends Game {
 
     @Override
     public void onGameStart() {
-        // ActionBar Logic
-        getGameEventNode().addListener(net.minestom.server.event.player.PlayerChangeHeldSlotEvent.class, event -> {
-            refreshActionBar(event.getPlayer(), event.getPlayer().getInventory().getItemStack(event.getSlot()));
-        });
-
         getGameEventNode().addListener(net.minestom.server.event.player.PlayerUseItemEvent.class, event -> {
             // Short delay to let amount update
             MinecraftServer.getSchedulerManager().buildTask(() -> {
