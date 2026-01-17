@@ -11,6 +11,10 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class TrappedSheep extends SheepProjectile {
 
+    private static final int LIFETIME_TICKS = 20 * 10;
+    private static final double TRIGGER_RADIUS = 2.5;
+    private static final float EXPLOSION_POWER = 3.0f;
+
     public TrappedSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -24,16 +28,16 @@ public class TrappedSheep extends SheepProjectile {
     public void onLand() {
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
-            if (getAliveTicks() > 20 * 10) { // 15 seconds
+            if (getAliveTicks() > LIFETIME_TICKS) { // 10 seconds
                 remove();
                 return TaskSchedule.stop();
             }
             
             // Check players nearby
-            boolean playerNearby = !TKit.getPlayersInRadius(getInstance(), getPosition(), 2.5, true).isEmpty();
+            boolean playerNearby = !TKit.getPlayersInRadius(getInstance(), getPosition(), TRIGGER_RADIUS, true).isEmpty();
             
             if (playerNearby) {
-                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 3f, null);
+                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), EXPLOSION_POWER, null);
                 remove();
                 return TaskSchedule.stop();
             }

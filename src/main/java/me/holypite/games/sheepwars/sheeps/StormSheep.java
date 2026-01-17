@@ -16,9 +16,14 @@ import java.util.List;
 
 public class StormSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double RADIUS = 6.0;
+    private static final double PUSH_STRENGTH = 30.0;
+    private static final double LIFT_STRENGTH = 10.0;
+
     public StormSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.GRAY); // Or CYAN/LIGHT_BLUE mix
             meta.setCustomName(Component.text("Storm Sheep", TextColor.fromHexString("#708090")));
@@ -34,8 +39,7 @@ public class StormSheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 6.0;
-        List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), radius, true);
+        List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), RADIUS, true);
         
         for (Player p : players) {
             // Lightning
@@ -46,7 +50,7 @@ public class StormSheep extends SheepProjectile {
             
             // Push away
             Vec direction = p.getPosition().sub(getPosition()).asVec().normalize();
-            p.setVelocity(p.getVelocity().add(direction.mul(30.0).withY(10.0)));
+            p.setVelocity(p.getVelocity().add(direction.mul(PUSH_STRENGTH).withY(LIFT_STRENGTH)));
         }
 
         // Visual Cloud

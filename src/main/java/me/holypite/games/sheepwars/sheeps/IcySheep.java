@@ -15,9 +15,20 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class IcySheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double RADIUS = 5.0;
+    
+    // Probabilities (Cumulative)
+    private static final double CHANCE_SNOW_BLOCK = 0.80;
+    private static final double CHANCE_ICE = 0.90;
+    private static final double CHANCE_BLUE_ICE = 0.95;
+    // Remainder is POWDER_SNOW
+    
+    private static final double CHANCE_SNOW_LAYER = 0.30;
+
     public IcySheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.CYAN);
             meta.setCustomName(Component.text("Icy Sheep", TextColor.fromHexString("#87CEEB")));
@@ -33,8 +44,7 @@ public class IcySheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 5.0;
-        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), RADIUS);
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         
         for (Point pos : blocks) {
@@ -44,9 +54,9 @@ public class IcySheep extends SheepProjectile {
             if (!current.isLiquid() && !current.isAir()) {
                 double r = rnd.nextDouble();
                 Block newBlock;
-                if (r < 0.80) newBlock = Block.SNOW_BLOCK;
-                else if (r < 0.90) newBlock = Block.ICE;
-                else if (r < 0.95) newBlock = Block.BLUE_ICE;
+                if (r < CHANCE_SNOW_BLOCK) newBlock = Block.SNOW_BLOCK;
+                else if (r < CHANCE_ICE) newBlock = Block.ICE;
+                else if (r < CHANCE_BLUE_ICE) newBlock = Block.BLUE_ICE;
                 else newBlock = Block.POWDER_SNOW;
                 
                 getInstance().setBlock(pos, newBlock);
@@ -55,7 +65,7 @@ public class IcySheep extends SheepProjectile {
             
             // 2. Snow Layer on top
             Block below = getInstance().getBlock(pos.sub(0, 1, 0));
-            if (below.isSolid() && rnd.nextDouble() < 0.30) {
+            if (below.isSolid() && rnd.nextDouble() < CHANCE_SNOW_LAYER) {
                 getInstance().setBlock(pos, Block.SNOW);
             }
         }

@@ -15,9 +15,14 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class ShieldSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 0;
+    private static final int DURATION_SECONDS = 5;
+    private static final double PUSH_RADIUS = 5.0;
+    private static final double PUSH_STRENGTH = 2.5;
+
     public ShieldSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(0); // I suspect it should start instantly and REMOVE after 5s.
+        setActivationDelay(ACTIVATION_DELAY); // I suspect it should start instantly and REMOVE after 5s.
          if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GRAY);
             meta.setCustomName(Component.text("Mouton Bouclier", TextColor.color(0x808080)));
@@ -30,15 +35,15 @@ public class ShieldSheep extends SheepProjectile {
         // Active for 5 seconds
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
-            if (getAliveTicks() > 20 * 10) { // Safety timeout
+            if (getAliveTicks() > 20 * (DURATION_SECONDS * 2)) { // Safety timeout (10s)
                  remove();
                  return TaskSchedule.stop();
             }
             
             // Push entities
-             TKit.getEntitiesInRadius(getInstance(), getPosition(), 5).forEach(e -> {
+             TKit.getEntitiesInRadius(getInstance(), getPosition(), PUSH_RADIUS).forEach(e -> {
                  if (e != this && !(e instanceof Player)) {
-                     Vec dir = e.getPosition().sub(getPosition()).asVec().normalize().mul(2.5);
+                     Vec dir = e.getPosition().sub(getPosition()).asVec().normalize().mul(PUSH_STRENGTH);
                      dir = dir.withY(0.5); // Add some lift
                      e.setVelocity(dir.mul(20)); // Minestom velocity scale
                  }
@@ -54,7 +59,7 @@ public class ShieldSheep extends SheepProjectile {
         
         // Remove after 5 seconds
         MinecraftServer.getSchedulerManager().buildTask(this::remove)
-            .delay(TaskSchedule.seconds(5))
+            .delay(TaskSchedule.seconds(DURATION_SECONDS))
             .schedule();
     }
 

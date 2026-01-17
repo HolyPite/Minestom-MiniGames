@@ -16,9 +16,13 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class GlowingSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final double SEARCH_RADIUS = 10.0;
+    private static final int EFFECT_DURATION = 200;
+
     public GlowingSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.YELLOW);
             meta.setCustomName(Component.text("Mouton Glowing", TextColor.color(0xFFFFE0)));
@@ -28,8 +32,8 @@ public class GlowingSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-            TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
-                 p.addEffect(new Potion(PotionEffect.GLOWING, (byte)0, 200));
+            TKit.getPlayersInRadius(getInstance(), getPosition(), SEARCH_RADIUS, true).forEach(p -> {
+                 p.addEffect(new Potion(PotionEffect.GLOWING, (byte)0, EFFECT_DURATION));
             });
             
             TKit.spawnParticles(getInstance(), Particle.END_ROD, getPosition(), 0.5f, 0.5f, 0.5f, 0f, 50);

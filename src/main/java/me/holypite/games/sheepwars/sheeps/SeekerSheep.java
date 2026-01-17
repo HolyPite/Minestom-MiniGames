@@ -20,13 +20,18 @@ import java.util.List;
 
 public class SeekerSheep extends SheepProjectile {
 
+    private static final float MOVEMENT_SPEED = 0.3f;
+    private static final float EXPLOSION_POWER = 3.0f;
+    private static final int TIMEOUT_TICKS = 20 * 15;
+    private static final double TRIGGER_RADIUS = 2.0;
+
     public SeekerSheep(Entity shooter) {
         super(shooter);
         
         // Speed is required for Navigator to work
         getAttribute(Attribute.MAX_HEALTH).setBaseValue(8f);
         setHealth(8f);
-        getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.3f);
+        getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(MOVEMENT_SPEED);
 
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.PURPLE);
@@ -50,13 +55,13 @@ public class SeekerSheep extends SheepProjectile {
         if (!landed || isRemoved()) return;
 
         // Explode on contact with any player
-        TKit.getPlayersInRadius(getInstance(), getPosition(), 2.0, true).stream()
+        TKit.getPlayersInRadius(getInstance(), getPosition(), TRIGGER_RADIUS, true).stream()
                 .filter(p -> p != shooter)
                 .findFirst()
                 .ifPresent(p -> explode());
 
         // Timeout
-        if (getAliveTicks() > 20 * 15) {
+        if (getAliveTicks() > TIMEOUT_TICKS) {
             explode();
         }
     }
@@ -64,9 +69,9 @@ public class SeekerSheep extends SheepProjectile {
     private void explode() {
         if (isRemoved()) return;
         if (explosionManager != null) {
-            explosionManager.explode(getInstance(), getPosition(), 3.0f, true, shooter, this);
+            explosionManager.explode(getInstance(), getPosition(), EXPLOSION_POWER, true, shooter, this);
         } else {
-            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 3.0f, null);
+            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), EXPLOSION_POWER, null);
         }
         remove();
     }

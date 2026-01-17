@@ -21,9 +21,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class CloneSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double RADIUS = 5.0;
+
     public CloneSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.CYAN);
             meta.setCustomName(Component.text("Clone Sheep", TextColor.fromHexString("#40E0D0")));
@@ -39,13 +42,12 @@ public class CloneSheep extends SheepProjectile {
     private void activate() {
         if (getInstance() == null || isRemoved()) return;
 
-        double radius = 5.0;
-        List<Entity> nearby = TKit.getEntitiesInRadius(getInstance(), getPosition(), radius);
+        List<Entity> nearby = TKit.getEntitiesInRadius(getInstance(), getPosition(), RADIUS);
         
         for (Entity e : nearby) {
             if (e == this) continue;
             
-            Point randomPos = getRandomPosition(getPosition(), radius);
+            Point randomPos = getRandomPosition(getPosition(), RADIUS);
 
             // Clone Sheep or Monsters
             if (e.getEntityType() == EntityType.SHEEP) {

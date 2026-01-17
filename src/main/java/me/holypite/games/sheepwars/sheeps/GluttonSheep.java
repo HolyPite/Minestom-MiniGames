@@ -15,6 +15,11 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class GluttonSheep extends SheepProjectile {
 
+    private static final double SPEED_MULTIPLIER = 5.0;
+    private static final int LIFETIME_TICKS = 20 * 8;
+    private static final double EAT_RADIUS = 2.5;
+    private static final float EXPLOSION_POWER = 3.0f;
+
     public GluttonSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -29,26 +34,25 @@ public class GluttonSheep extends SheepProjectile {
         super.shoot(power);
         // Make it slow
         Vec velocity = getVelocity();
-        double mul = 5;
-        setVelocity(velocity.normalize().mul(mul));
+        setVelocity(velocity.normalize().mul(SPEED_MULTIPLIER));
         setNoGravity(true);
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
-            if (getAliveTicks() > 20 * 8) {
+            if (getAliveTicks() > LIFETIME_TICKS) {
                 remove();
                 return TaskSchedule.stop();
             }
             
             // Eat blocks
-            TKit.getBlocksInSphere(getPosition(), 2.5).forEach(p -> {
+            TKit.getBlocksInSphere(getPosition(), EAT_RADIUS).forEach(p -> {
                  if (!getInstance().getBlock(p).isAir()) {
                      getInstance().setBlock(p, Block.AIR);
                      TKit.spawnParticles(getInstance(), Particle.POOF, p.add(0.5, 0.5, 0.5), 0, 0, 0, 0f, 3);
                  }
             });
 
-            setVelocity(velocity.normalize().mul(mul));
+            setVelocity(velocity.normalize().mul(SPEED_MULTIPLIER));
             
             return TaskSchedule.tick(1);
         });
@@ -56,7 +60,7 @@ public class GluttonSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-        getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 3f, null);
+        getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), EXPLOSION_POWER, null);
     }
 
     @Override

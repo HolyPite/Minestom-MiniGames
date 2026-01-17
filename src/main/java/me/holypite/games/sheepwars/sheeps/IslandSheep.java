@@ -15,6 +15,9 @@ import java.util.Map;
 
 public class IslandSheep extends SheepProjectile {
 
+    private static final double RADIUS = 5.0;
+    private static final double TELEPORT_HEIGHT = 20.0;
+
     public IslandSheep(Entity shooter) {
         super(shooter);
         setActivationDelay(0.5f); // Short delay to see it land
@@ -35,18 +38,16 @@ public class IslandSheep extends SheepProjectile {
         Instance instance = getInstance();
         if (instance == null) return;
         Point center = getPosition();
-        double radius = 5.0;
-        double heightOffset = 20.0;
 
         // 1. Teleport Entities
-        List<Entity> entities = TKit.getEntitiesInRadius(instance, center, radius);
+        List<Entity> entities = TKit.getEntitiesInRadius(instance, center, RADIUS);
         for (Entity entity : entities) {
             if (entity == this) continue;
-            entity.teleport(entity.getPosition().add(0, heightOffset, 0));
+            entity.teleport(entity.getPosition().add(0, TELEPORT_HEIGHT, 0));
         }
 
         // 2. Move Blocks
-        List<Point> blockPositions = TKit.getBlocksInSphere(center, radius);
+        List<Point> blockPositions = TKit.getBlocksInSphere(center, RADIUS);
         Map<Point, Block> blocksToMove = new HashMap<>();
 
         // Capture blocks
@@ -64,7 +65,7 @@ public class IslandSheep extends SheepProjectile {
 
         // Set new blocks (Shifted Up)
         for (Map.Entry<Point, Block> entry : blocksToMove.entrySet()) {
-            Point newPos = entry.getKey().add(0, heightOffset, 0);
+            Point newPos = entry.getKey().add(0, TELEPORT_HEIGHT, 0);
             instance.setBlock(newPos, entry.getValue());
         }
     }

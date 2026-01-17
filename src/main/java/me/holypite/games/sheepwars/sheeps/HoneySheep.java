@@ -11,9 +11,14 @@ import net.minestom.server.instance.block.Block;
 
 public class HoneySheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double RADIUS = 5.0;
+    private static final double HONEY_CHANCE = 0.7;
+    private static final int BEE_COUNT = 2;
+
     public HoneySheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.ORANGE);
             meta.setCustomName(Component.text("Honey Sheep", TextColor.fromHexString("#FFD700")));
@@ -29,18 +34,17 @@ public class HoneySheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 5.0;
         
         // 1. Honey Blocks
-        for (Point pos : TKit.getBlocksInSphere(getPosition(), radius)) {
+        for (Point pos : TKit.getBlocksInSphere(getPosition(), RADIUS)) {
             Block block = getInstance().getBlock(pos);
-            if (block.isSolid() && TKit.chance(0.7)) {
+            if (block.isSolid() && TKit.chance(HONEY_CHANCE)) {
                 getInstance().setBlock(pos, Block.HONEY_BLOCK);
             }
         }
 
         // 2. Spawn Bees
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < BEE_COUNT; i++) {
             AggressiveBee bee = new AggressiveBee();
             bee.setInstance(getInstance(), getPosition().add(0, 1, 0));
         }

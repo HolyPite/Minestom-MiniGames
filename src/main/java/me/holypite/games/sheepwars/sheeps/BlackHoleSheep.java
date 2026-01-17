@@ -14,6 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BlackHoleSheep extends SheepProjectile {
 
+    private static final int LIFETIME_SECONDS = 5;
+    private static final double RADIUS = 8.0;
+    private static final double PULL_STRENGTH = 0.4;
+    private static final double LIFT_STRENGTH = 0.8;
+    private static final double JITTER = 0.5;
+    private static final float EXPLOSION_POWER = 1.0f;
+
     public BlackHoleSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -30,14 +37,14 @@ public class BlackHoleSheep extends SheepProjectile {
         setVelocity(new Vec(0, 0.3, 0));
 
         AtomicInteger ticks = new AtomicInteger(0);
-        int maxTicks = 5 * 20;
+        int maxTicks = LIFETIME_SECONDS * 20;
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
 
             if (ticks.getAndAdd(1) >= maxTicks) {
                 // End
-                getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 1.0f, null);
+                getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), EXPLOSION_POWER, null);
                 remove();
                 return TaskSchedule.stop();
             }
@@ -45,8 +52,7 @@ public class BlackHoleSheep extends SheepProjectile {
             setVelocity(new Vec(0, 0.8, 0));
 
             // Attraction Logic
-            double radius = 8.0;
-            TKit.getEntitiesInRadius(getInstance(), getPosition(), radius).stream()
+            TKit.getEntitiesInRadius(getInstance(), getPosition(), RADIUS).stream()
 
                     .filter(e -> e != this)
 
@@ -54,17 +60,16 @@ public class BlackHoleSheep extends SheepProjectile {
                         Vec diff = getPosition().sub(e.getPosition()).asVec();
 
                         // Horizontal attraction
-                        Vec horizontal = diff.withY(0).normalize().mul(0.4);
+                        Vec horizontal = diff.withY(0).normalize().mul(PULL_STRENGTH);
 
                         // Vertical lift (counteracting gravity)
-                        Vec vertical = new Vec(0, diff.y(), 0).mul(0.8);
+                        Vec vertical = new Vec(0, diff.y(), 0).mul(LIFT_STRENGTH);
 
                         // Random jitter
-                        double jitter = 0.5;
                         Vec randomVec = new Vec(
-                                (Math.random() - 0.5) * jitter,
+                                (Math.random() - 0.5) * JITTER,
                                 0,
-                                (Math.random() - 0.5) * jitter
+                                (Math.random() - 0.5) * JITTER
                         );
                         e.setVelocity(e.getVelocity().add(horizontal).add(vertical).add(randomVec));
 

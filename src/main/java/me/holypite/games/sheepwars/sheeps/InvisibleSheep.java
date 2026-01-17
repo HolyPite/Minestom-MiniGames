@@ -16,9 +16,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 public class InvisibleSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final double SEARCH_RADIUS = 8.0;
+    private static final int EFFECT_DURATION = 200;
+
     public InvisibleSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.WHITE);
             meta.setCustomName(Component.text("Mouton Invisible", NamedTextColor.WHITE));
@@ -28,8 +32,8 @@ public class InvisibleSheep extends SheepProjectile {
 
     @Override
     public void onLand() {
-             TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
-                 p.addEffect(new Potion(PotionEffect.INVISIBILITY, (byte)0, 200));
+             TKit.getPlayersInRadius(getInstance(), getPosition(), SEARCH_RADIUS, true).forEach(p -> {
+                 p.addEffect(new Potion(PotionEffect.INVISIBILITY, (byte)0, EFFECT_DURATION));
              });
              
              getInstance().sendGroupedPacket(new ParticlePacket(

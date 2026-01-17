@@ -16,6 +16,9 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class HealSheep extends SheepProjectile {
 
+    private static final int LIFETIME_SECONDS = 5;
+    private static final double RADIUS = 8.0;
+
     public HealSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -29,14 +32,14 @@ public class HealSheep extends SheepProjectile {
     public void onLand() {
         MinecraftServer.getSchedulerManager().submitTask(() -> {
              if (isRemoved()) return TaskSchedule.stop();
-             if (getAliveTicks() > 20 * 5) { // 5 seconds duration
+             if (getAliveTicks() > 20 * LIFETIME_SECONDS) {
                  remove();
                  return TaskSchedule.stop();
              }
              
              // Heal players every second (20 ticks)
              if (getAliveTicks() % 20 == 0) {
-                 TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
+                 TKit.getPlayersInRadius(getInstance(), getPosition(), RADIUS, true).forEach(p -> {
                      p.addEffect(new Potion(PotionEffect.INSTANT_HEALTH, (byte)0, 1));
                  });
                  

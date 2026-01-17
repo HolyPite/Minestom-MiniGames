@@ -20,9 +20,15 @@ import java.util.List;
 
 public class AnvilSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final double SEARCH_RADIUS = 6.0;
+    private static final double SPAWN_CHANCE = 0.1;
+    private static final int SPAWN_HEIGHT_OFFSET = 10;
+    private static final float DAMAGE = 6.0f;
+
     public AnvilSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GRAY);
             meta.setCustomName(Component.text("Mouton Enclume", TextColor.color(0x696969)));
@@ -34,16 +40,16 @@ public class AnvilSheep extends SheepProjectile {
     public void onLand() {
         if (getInstance() == null) return;
             
-        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 6);
+        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), SEARCH_RADIUS);
             
         for (Point p : blocks) {
-                if (TKit.chance(0.1) && !getInstance().getBlock(p).isAir() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
+                if (TKit.chance(SPAWN_CHANCE) && !getInstance().getBlock(p).isAir() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
                     Entity anvil = new Entity(EntityType.FALLING_BLOCK);
                     FallingBlockMeta meta = (FallingBlockMeta) anvil.getEntityMeta();
                     meta.setBlock(Block.ANVIL);
-                    meta.setSpawnPosition(p.add(0, 10, 0)); // Start high
+                    meta.setSpawnPosition(p.add(0, SPAWN_HEIGHT_OFFSET, 0)); // Start high
                     
-                    anvil.setInstance(getInstance(), p.add(0.5, 10, 0.5));
+                    anvil.setInstance(getInstance(), p.add(0.5, SPAWN_HEIGHT_OFFSET, 0.5));
                     
                     // Add particles at spawn
                     TKit.spawnParticles(getInstance(), Particle.CLOUD, anvil.getPosition(), 0, 0, 0, 0f, 5);
@@ -56,7 +62,7 @@ public class AnvilSheep extends SheepProjectile {
                         for (Entity target : anvil.getInstance().getEntities()) {
                             if (target instanceof net.minestom.server.entity.LivingEntity living && target != anvil) {
                                 if (anvil.getBoundingBox().intersectEntity(anvil.getPosition(), target)) {
-                                    living.damage(me.holypite.manager.damage.DamageSources.generic(6.0f));
+                                    living.damage(me.holypite.manager.damage.DamageSources.generic(DAMAGE));
                                     anvil.remove();
                                     return TaskSchedule.stop();
                                 }

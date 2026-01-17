@@ -8,9 +8,11 @@ import net.minestom.server.entity.metadata.animal.SheepMeta;
 
 public class BoardingSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+
     public BoardingSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BLUE); // Blue/Cyan like wool manager
             meta.setCustomName(Component.text("Boarding Sheep", NamedTextColor.BLUE));

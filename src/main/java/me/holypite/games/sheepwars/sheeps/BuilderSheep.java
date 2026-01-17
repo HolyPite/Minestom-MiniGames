@@ -14,6 +14,8 @@ import net.minestom.server.color.DyeColor;
 
 public class BuilderSheep extends SheepProjectile {
 
+    private static final double RADIUS = 6.0;
+
     public BuilderSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -31,7 +33,7 @@ public class BuilderSheep extends SheepProjectile {
         InstanceContainer sourceWorld = game.getSourceInstance();
 
         if (sourceWorld != null) {
-            TKit.getBlocksInSphere(getPosition(), 6).forEach(pos -> {
+            TKit.getBlocksInSphere(getPosition(), RADIUS).forEach(pos -> {
                 // Ensure chunk is loaded in source
                 // We join() to ensure it's loaded before getBlock. 
                 // Since this is a utility sheep, the slight delay if chunk isn't loaded is acceptable.

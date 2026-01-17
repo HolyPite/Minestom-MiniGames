@@ -12,9 +12,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class FragmentationSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final float EXPLOSION_POWER = 2.5f;
+
     public FragmentationSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.ORANGE);
             meta.setCustomName(Component.text("Mouton Fragmentation", TextColor.color(0xFF8C00)));
@@ -26,9 +29,9 @@ public class FragmentationSheep extends SheepProjectile {
     public void onLand() {
             // Main explosion
             if (explosionManager != null) {
-                explosionManager.explode(getInstance(), getPosition(), 2.5f, true, shooter, this);
+                explosionManager.explode(getInstance(), getPosition(), EXPLOSION_POWER, true, shooter, this);
             } else {
-                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2.5f, null);
+                getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), EXPLOSION_POWER, null);
             }
             
             // Spawn cluster

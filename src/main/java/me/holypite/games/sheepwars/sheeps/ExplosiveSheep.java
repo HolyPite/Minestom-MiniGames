@@ -10,6 +10,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 
 public class ExplosiveSheep extends SheepProjectile {
 
+    private static final float EXPLOSION_POWER = 3.0f;
+
     public ExplosiveSheep(Entity shooter) {
         super(shooter);
         setActivationDelay(3);
@@ -29,9 +31,9 @@ public class ExplosiveSheep extends SheepProjectile {
         if (isRemoved()) return;
         
         if (explosionManager != null) {
-            explosionManager.explode(getInstance(), getPosition(), 3.0f, true, shooter, this);
+            explosionManager.explode(getInstance(), getPosition(), EXPLOSION_POWER, true, shooter, this);
         } else {
-            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 3.0f, null);
+            getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), EXPLOSION_POWER, null);
         }
         remove();
     }

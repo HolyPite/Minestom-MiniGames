@@ -15,9 +15,14 @@ import net.kyori.adventure.sound.Sound;
 
 public class JawSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 2;
+    private static final double SEARCH_RADIUS = 8.0;
+    private static final float DAMAGE = 6.0f;
+    private static final int DAMAGE_DELAY_TICKS = 10;
+
     public JawSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(2);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.BROWN);
             meta.setCustomName(Component.text("Mouton Mâchoire", TextColor.color(0x800000)));
@@ -29,7 +34,7 @@ public class JawSheep extends SheepProjectile {
     public void onLand() {
         if (getInstance() == null) return;
 
-        TKit.getPlayersInRadius(getInstance(), getPosition(), 8, true).forEach(p -> {
+        TKit.getPlayersInRadius(getInstance(), getPosition(), SEARCH_RADIUS, true).forEach(p -> {
             // Create Fangs
             Entity fangs = new Entity(EntityType.EVOKER_FANGS);
             
@@ -48,11 +53,11 @@ public class JawSheep extends SheepProjectile {
             MinecraftServer.getSchedulerManager().buildTask(() -> {
                 if (!p.isRemoved() && p.getInstance() != null) {
                     if (p.getPosition().distanceSquared(fangs.getPosition()) < 2*2) {
-                        p.damage(me.holypite.manager.damage.DamageSources.magic(6.0f));
+                        p.damage(me.holypite.manager.damage.DamageSources.magic(DAMAGE));
                     }
                 }
                 fangs.remove();
-            }).delay(TaskSchedule.tick(10)).schedule();
+            }).delay(TaskSchedule.tick(DAMAGE_DELAY_TICKS)).schedule();
         });
 
         // Visual cloud at sheep location

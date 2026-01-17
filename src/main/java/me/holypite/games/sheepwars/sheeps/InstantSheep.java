@@ -7,6 +7,8 @@ import net.kyori.adventure.text.Component;
 
 public class InstantSheep extends SheepProjectile {
 
+    private static final float EXPLOSION_POWER = 0.8f;
+
     public InstantSheep(Entity shooter) {
         super(shooter);
         if (getEntityMeta() instanceof SheepMeta meta) {
@@ -20,7 +22,7 @@ public class InstantSheep extends SheepProjectile {
     public void onLand() {
         if (getInstance() != null) {
             if (explosionManager != null) {
-                explosionManager.explode(getInstance(), getPosition(), 0.8f, true, shooter, this);
+                explosionManager.explode(getInstance(), getPosition(), EXPLOSION_POWER, true, shooter, this);
             } else {
                 getInstance().explode((float)getPosition().x(), (float)getPosition().y(), (float)getPosition().z(), 2f, null);
             }

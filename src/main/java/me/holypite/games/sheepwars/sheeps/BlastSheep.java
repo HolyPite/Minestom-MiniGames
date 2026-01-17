@@ -11,9 +11,15 @@ import net.kyori.adventure.text.format.TextColor;
 
 public class BlastSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final double BLAST_RADIUS = 10.0;
+    private static final float BLAST_POWER = 0.4f;
+    private static final int LIFETIME_TICKS = 20 * 4;
+    private static final int BLAST_INTERVAL_TICKS = 20;
+
     public BlastSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.ORANGE);
             meta.setCustomName(Component.text("Mouton Déflagration", TextColor.color(0xFFD700)));
@@ -26,24 +32,24 @@ public class BlastSheep extends SheepProjectile {
             MinecraftServer.getSchedulerManager().submitTask(() -> {
                 if (isRemoved()) return TaskSchedule.stop();
                 
-                TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
+                TKit.getPlayersInRadius(getInstance(), getPosition(), BLAST_RADIUS, true).forEach(p -> {
                     if (explosionManager != null) {
-                        explosionManager.explode(getInstance(), p.getPosition(), 0.4f, true, shooter, this);
+                        explosionManager.explode(getInstance(), p.getPosition(), BLAST_POWER, true, shooter, this);
                     } else {
-                        getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), 0.4f, null);
+                        getInstance().explode((float)p.getPosition().x(), (float)p.getPosition().y(), (float)p.getPosition().z(), BLAST_POWER, null);
                     }
                 });
                 
-                if (getAliveTicks() > 20 * 4) { // Timeout
+                if (getAliveTicks() > LIFETIME_TICKS) { // Timeout
                     remove();
                     return TaskSchedule.stop();
                 }
                 
-                return TaskSchedule.tick(20); // Delay between blasts
+                return TaskSchedule.tick(BLAST_INTERVAL_TICKS); // Delay between blasts
             });
             
             // Auto remove after bursts (approx 3 * 20 = 60 ticks)
-            MinecraftServer.getSchedulerManager().buildTask(this::remove).delay(TaskSchedule.tick(80)).schedule();
+            MinecraftServer.getSchedulerManager().buildTask(this::remove).delay(TaskSchedule.tick(LIFETIME_TICKS)).schedule();
     }
 
     @Override

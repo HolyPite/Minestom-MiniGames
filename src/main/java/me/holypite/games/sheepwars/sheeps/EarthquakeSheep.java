@@ -19,9 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class EarthquakeSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final int DURATION_TICKS = 3 * 20;
+    private static final double RADIUS = 5.0;
+    private static final float EXPLOSION_POWER = 1.0f;
+
     public EarthquakeSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.RED); // Dark Red
             meta.setCustomName(Component.text("Earthquake Sheep", TextColor.fromHexString("#8B0000")));
@@ -32,27 +37,25 @@ public class EarthquakeSheep extends SheepProjectile {
     @Override
     public void onLand() {
         AtomicInteger ticks = new AtomicInteger(0);
-        int maxTicks = 3 * 20;
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
 
-            if (ticks.getAndAdd(20) >= maxTicks) {
+            if (ticks.getAndAdd(20) >= DURATION_TICKS) {
                 // Final Explosion
                 if (explosionManager != null) {
-                    explosionManager.explode(getInstance(), getPosition(), 1.0f, true, shooter, this);
+                    explosionManager.explode(getInstance(), getPosition(), EXPLOSION_POWER, true, shooter, this);
                 } else {
-                    getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), 1.0f, null);
+                    getInstance().explode((float) getPosition().x(), (float) getPosition().y(), (float) getPosition().z(), EXPLOSION_POWER, null);
                 }
                 remove();
                 return TaskSchedule.stop();
             }
 
             // Quake Effect
-            double radius = 5.0;
             
             // 1. Toss Players
-            List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), radius, true);
+            List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), RADIUS, true);
             for (Player p : players) {
                 Vec randomDir = new Vec(
                         ThreadLocalRandom.current().nextDouble(-0.5, 0.5),
@@ -63,7 +66,7 @@ public class EarthquakeSheep extends SheepProjectile {
             }
 
             // 2. Break Blocks
-            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), RADIUS);
             for (Point pos : blocks) {
                 if (TKit.chance(0.1)) {
                     getInstance().setBlock(pos, Block.AIR);
@@ -73,7 +76,7 @@ public class EarthquakeSheep extends SheepProjectile {
             // 3. Particles
             net.minestom.server.particle.Particle blockParticle = net.minestom.server.particle.Particle.BLOCK.withBlock(Block.DIRT);
             
-            TKit.spawnParticles(getInstance(), blockParticle, getPosition(), (float) radius/2, 0.5f, (float) radius/2, 0.1f, 100);
+            TKit.spawnParticles(getInstance(), blockParticle, getPosition(), (float) RADIUS/2, 0.5f, (float) RADIUS/2, 0.1f, 100);
 
             return TaskSchedule.seconds(1);
         });

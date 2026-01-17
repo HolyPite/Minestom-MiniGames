@@ -12,15 +12,20 @@ import net.minestom.server.color.DyeColor;
 
 public class GiantSheep extends SheepProjectile {
 
-    private int bounceCount = 0;
+    private static final float SCALE = 3.0f;
     private static final int MAX_BOUNCES = 3;
+    private static final float BOUNCE_EXPLOSION_POWER = 3.0f;
+    private static final float DEATH_EXPLOSION_POWER = 6.0f;
+    private static final double BOUNCE_FACTOR = 1.2;
+
+    private int bounceCount = 0;
     private Vec lastVelocity = Vec.ZERO;
 
     public GiantSheep(Entity shooter) {
         super(shooter);
         
         // Make it giant!
-        getAttribute(Attribute.SCALE).setBaseValue(3.0f);
+        getAttribute(Attribute.SCALE).setBaseValue(SCALE);
         
         // Immune to own explosions
         setTag(net.minestom.server.tag.Tag.Boolean("explosion_immune"), true);
@@ -49,13 +54,13 @@ public class GiantSheep extends SheepProjectile {
         
         if (bounceCount < MAX_BOUNCES) {
             // Impact effects (Medium explosion)
-            triggerImpact(3.0f);
+            triggerImpact(BOUNCE_EXPLOSION_POWER);
             
             // Bounce logic using the captured velocity
             Vec currentVel = lastVelocity;
             
             // Invert Y and dampen, keep some X/Z momentum
-            this.setVelocity(currentVel.withY(Math.abs(currentVel.y())).mul(1.2)); // Force positive Y for bounce
+            this.setVelocity(currentVel.withY(Math.abs(currentVel.y())).mul(BOUNCE_FACTOR)); // Force positive Y for bounce
             
             // Force physics update
             this.landed = false;
@@ -67,7 +72,7 @@ public class GiantSheep extends SheepProjectile {
             
         } else {
             // Final Impact (Big explosion)
-            triggerImpact(6.0f);
+            triggerImpact(DEATH_EXPLOSION_POWER);
             remove();
         }
     }

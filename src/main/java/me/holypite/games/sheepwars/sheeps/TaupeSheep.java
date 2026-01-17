@@ -11,12 +11,16 @@ import net.minestom.server.instance.block.Block;
 
 public class TaupeSheep extends SheepProjectile {
 
-    private int ticksLeft = 5 * 20; // 5 seconds lifetime
+    private static final int LIFETIME_TICKS = 5 * 20;
+    private static final double GRAVITY = 0.005;
+    private static final double DIG_RADIUS = 2.0;
+
+    private int ticksLeft = LIFETIME_TICKS;
 
     public TaupeSheep(Entity shooter) {
         super(shooter);
         // Reduce gravity to make it fall slower (default is 0.08)
-        getAttribute(Attribute.GRAVITY).setBaseValue(0.005);
+        getAttribute(Attribute.GRAVITY).setBaseValue(GRAVITY);
 
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BROWN);
@@ -43,7 +47,7 @@ public class TaupeSheep extends SheepProjectile {
     @Override
     protected void onFlightTick() {
         // Destroy blocks around while flying AND while on ground (digging)
-        destroyBlocks(2.0);
+        destroyBlocks(DIG_RADIUS);
     }
 
     private void destroyBlocks(double radius) {

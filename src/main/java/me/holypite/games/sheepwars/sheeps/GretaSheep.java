@@ -24,6 +24,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class GretaSheep extends SheepProjectile {
 
+    private static final double CHANCE_SMALL = 73.0;
+    private static final double CHANCE_MID = 22.0;
+    private static final double CHANCE_BIG = 4.0;
+    private static final double CHANCE_GIANT = 1.0;
+    
     private final StructureManager structureManager = new StructureManager();
 
     public GretaSheep(Entity shooter) {
@@ -121,10 +126,10 @@ public class GretaSheep extends SheepProjectile {
 
     private String rollCategory() {
         double roll = ThreadLocalRandom.current().nextDouble() * 100;
-        if (roll < 73.0) return "small";
-        if (roll < 95.0) return "mid"; // 73 + 22
-        if (roll < 99) return "big"; // 95 + 4
-        return "giant"; // remaining 1
+        if (roll < CHANCE_SMALL) return "small";
+        if (roll < CHANCE_SMALL + CHANCE_MID) return "mid";
+        if (roll < CHANCE_SMALL + CHANCE_MID + CHANCE_BIG) return "big";
+        return "giant";
     }
 
     private File[] findAnyAvailableTree() {

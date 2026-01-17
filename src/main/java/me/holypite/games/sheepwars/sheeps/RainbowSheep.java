@@ -21,6 +21,10 @@ public class RainbowSheep extends SheepProjectile {
             DyeColor.LIME, DyeColor.LIGHT_BLUE, DyeColor.BLUE, DyeColor.PURPLE, DyeColor.MAGENTA
     );
     
+    private static final double SPEED = 4.0;
+    private static final int LIFETIME_TICKS = 4 * 20;
+    private static final int BRIDGE_DURATION_SECONDS = 15;
+    
     private int colorIndex = 0;
     private int tickCounter = 0;
 
@@ -38,28 +42,26 @@ public class RainbowSheep extends SheepProjectile {
     @Override
     public void shoot(double power) {
         super.shoot(power);
-        teleport(getPosition().add(0,-1,0));
         
         // Constant slow velocity like GluttonSheep
         Vec initialVelocity = getVelocity();
-        double speed = 4.0; // Slightly faster than Glutton (5) to cover more distance
         
-        setVelocity(initialVelocity.normalize().mul(speed));
+        setVelocity(initialVelocity.normalize().mul(SPEED));
         
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
             
             // Lifetime check: 4 seconds (4 * 20 ticks)
-            if (getAliveTicks() > 4 * 20) {
+            if (getAliveTicks() > LIFETIME_TICKS) {
                 remove();
                 return TaskSchedule.stop();
             }
             
             // Maintain constant velocity
-            setVelocity(initialVelocity.normalize().mul(speed));
+            setVelocity(initialVelocity.normalize().mul(SPEED));
             
             // Logic previously in onFlightTick()
-            if (tickCounter++ % 5 == 0) {
+            if (tickCounter++ % 2 == 0) {
                 updateColor();
             }
             createBridge();
@@ -69,7 +71,9 @@ public class RainbowSheep extends SheepProjectile {
     }
 
     @Override
-    protected void onFlightTick() {}
+    protected void onFlightTick() {
+        // Handled in the scheduler task in shoot()
+    }
     
     private void updateColor() {
         colorIndex = (colorIndex + 1) % RAINBOW_COLORS.size();
@@ -119,7 +123,7 @@ public class RainbowSheep extends SheepProjectile {
                         if (instance.getBlock(finalPos).compare(glassBlock)) {
                             instance.setBlock(finalPos, Block.AIR);
                         }
-                    }).delay(TaskSchedule.seconds(15)).schedule();
+                    }).delay(TaskSchedule.seconds(BRIDGE_DURATION_SECONDS)).schedule();
                 }
             }
         }

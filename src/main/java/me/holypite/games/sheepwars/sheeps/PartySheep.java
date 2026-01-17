@@ -18,9 +18,14 @@ import java.util.function.Function;
 
 public class PartySheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 0;
+    private static final int MAX_CYCLES = 15;
+    private static final int TICK_RATE = 4;
+    private static final double RADIUS = 4.0;
+
     public PartySheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(0);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.MAGENTA);
             meta.setCustomName(Component.text("Party Sheep!!!", TextColor.fromHexString("#FF00FF")));
@@ -31,14 +36,12 @@ public class PartySheep extends SheepProjectile {
     @Override
     public void onLand() {
         AtomicInteger cycles = new AtomicInteger(0);
-        int maxCycles = 15; // 3 seconds approx (if tick=4)
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();
             
             // 1. Change wool blocks around
-            double radius = 4.0;
-            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), RADIUS);
             for (Point pos : blocks) {
                 Block block = getInstance().getBlock(pos);
                 if (block.isSolid() && getInstance().getBlock(pos.add(0, 1, 0)).isAir()) {
@@ -46,7 +49,7 @@ public class PartySheep extends SheepProjectile {
                 }
             }
 
-            if (cycles.getAndIncrement() >= maxCycles) {
+            if (cycles.getAndIncrement() >= MAX_CYCLES) {
                 // 2. Random Sheeps Spawn
                 int numSheep = ThreadLocalRandom.current().nextInt(3, 6);
                 double step = 2 * Math.PI / numSheep;
@@ -72,7 +75,7 @@ public class PartySheep extends SheepProjectile {
                 return TaskSchedule.stop();
             }
             
-            return TaskSchedule.tick(4);
+            return TaskSchedule.tick(TICK_RATE);
         });
     }
 

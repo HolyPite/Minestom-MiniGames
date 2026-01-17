@@ -18,9 +18,13 @@ import java.util.List;
 
 public class ThornySheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 1;
+    private static final double RADIUS = 5.0;
+    private static final double BUSH_CHANCE = 0.6;
+
     public ThornySheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(1);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.GREEN);
             meta.setCustomName(Component.text("Mouton Épineux", TextColor.color(0x008000)));
@@ -32,9 +36,9 @@ public class ThornySheep extends SheepProjectile {
     public void onLand() {
             if (getInstance() == null) return;
             
-            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 5);
+            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), RADIUS);
             for (Point p : blocks) {
-                if (TKit.chance(0.6) && getInstance().getBlock(p).isSolid() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
+                if (TKit.chance(BUSH_CHANCE) && getInstance().getBlock(p).isSolid() && getInstance().getBlock(p.add(0, 1, 0)).isAir()) {
                     getInstance().setBlock(p.add(0, 1, 0), Block.SWEET_BERRY_BUSH);
                 }
             }

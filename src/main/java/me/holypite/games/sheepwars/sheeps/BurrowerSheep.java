@@ -14,9 +14,13 @@ import java.util.List;
 
 public class BurrowerSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double SEARCH_RADIUS = 5.0;
+    private static final double TNT_CHANCE = 0.05;
+
     public BurrowerSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.BROWN);
             meta.setCustomName(Component.text("Burrower Sheep", TextColor.fromHexString("#8B4513")));
@@ -32,13 +36,12 @@ public class BurrowerSheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 5.0;
-        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), SEARCH_RADIUS);
         
         for (Point pos : blocks) {
             Block current = getInstance().getBlock(pos);
             if (current.isSolid()) {
-                if (TKit.chance(0.05)) { // 5% chance
+                if (TKit.chance(TNT_CHANCE)) { // 5% chance
                     getInstance().setBlock(pos, Block.TNT);
                 }
             }

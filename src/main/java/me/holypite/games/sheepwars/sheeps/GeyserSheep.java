@@ -15,9 +15,12 @@ import java.util.List;
 
 public class GeyserSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double SEARCH_RADIUS = 8.0;
+
     public GeyserSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.LIGHT_BLUE);
             meta.setCustomName(Component.text("Geyser Sheep", TextColor.fromHexString("#1E90FF")));
@@ -33,8 +36,7 @@ public class GeyserSheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 8.0;
-        List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), radius, true);
+        List<Player> players = TKit.getPlayersInRadius(getInstance(), getPosition(), SEARCH_RADIUS, true);
         
         for (Player p : players) {
             // Project Up

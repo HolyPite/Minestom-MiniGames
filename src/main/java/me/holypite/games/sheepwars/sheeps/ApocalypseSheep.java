@@ -19,6 +19,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ApocalypseSheep extends SheepProjectile {
 
+    private static final long NIGHT_TIME = 18000;
+    private static final int DURATION_SECONDS = 10;
+    private static final int WAVES_COUNT = 20;
+    private static final int WAVE_INTERVAL_TICKS = 10; // 0.5s
+    private static final double METEOR_SPAWN_RADIUS = 20.0;
+    private static final double METEOR_HEIGHT_OFFSET = 30.0;
+    private static final double METEOR_SPEED = 1.5;
+
     private long previousTime = 6000;
 
     public ApocalypseSheep(Entity shooter) {
@@ -38,7 +46,7 @@ public class ApocalypseSheep extends SheepProjectile {
         if (instance != null) {
             // Set Night
             this.previousTime = instance.getTime();
-            instance.setTime(18000);
+            instance.setTime(NIGHT_TIME);
             
             // Sound Effect
             TKit.playSound(instance, getPosition(), "entity.wither.spawn", net.kyori.adventure.sound.Sound.Source.HOSTILE, 1.0f, 0.5f);
@@ -50,19 +58,19 @@ public class ApocalypseSheep extends SheepProjectile {
             
             MinecraftServer.getSchedulerManager().submitTask(() -> {
                 if (instance.getPlayers().isEmpty()) return TaskSchedule.stop();
-                if (waves[0] >= 20) return TaskSchedule.stop(); // 10s total (20 * 0.5s)
+                if (waves[0] >= WAVES_COUNT) return TaskSchedule.stop(); // 10s total
                 
                 // Spawn Meteor
                 spawnMeteor(instance, center);
                 waves[0]++;
                 
-                return TaskSchedule.tick(10); // Every 0.5s
+                return TaskSchedule.tick(WAVE_INTERVAL_TICKS);
             });
             
-            // Restore time after 10s
+            // Restore time after duration
             MinecraftServer.getSchedulerManager().buildTask(() -> {
                 instance.setTime(previousTime);
-            }).delay(TaskSchedule.seconds(10)).schedule();
+            }).delay(TaskSchedule.seconds(DURATION_SECONDS)).schedule();
         }
 
         remove();
@@ -71,19 +79,19 @@ public class ApocalypseSheep extends SheepProjectile {
     private void spawnMeteor(Instance instance, Point center) {
         ThreadLocalRandom rng = ThreadLocalRandom.current();
         
-        // Random position in 20 block radius
+        // Random position in radius
         double angle = rng.nextDouble() * 2 * Math.PI;
-        double radius = rng.nextDouble() * 20;
+        double radius = rng.nextDouble() * METEOR_SPAWN_RADIUS;
         double x = center.x() + radius * Math.cos(angle);
         double z = center.z() + radius * Math.sin(angle);
-        double y = center.y() + 30;
+        double y = center.y() + METEOR_HEIGHT_OFFSET;
         
         Pos spawnPos = new Pos(x, y, z);
         Pos targetPos = new Pos(x + rng.nextGaussian() * 5, center.y(), z + rng.nextGaussian() * 5); // Target ground roughly below
         
         MeteorProjectile meteor = new MeteorProjectile(shooter);
         meteor.setExplosionManager(explosionManager);
-        meteor.shoot(spawnPos, targetPos, 1.5, 0); // Speed 1.5
+        meteor.shoot(spawnPos, targetPos, METEOR_SPEED, 0);
     }
 
     @Override

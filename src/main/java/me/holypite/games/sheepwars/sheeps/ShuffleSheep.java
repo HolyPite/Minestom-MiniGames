@@ -20,9 +20,12 @@ import java.util.stream.Collectors;
 
 public class ShuffleSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 2;
+    private static final double SEARCH_RADIUS = 10.0;
+
     public ShuffleSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(2);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(DyeColor.PINK); 
             meta.setCustomName(Component.text("Mouton Shuffle", TextColor.color(0xFF69B4)));
@@ -35,7 +38,7 @@ public class ShuffleSheep extends SheepProjectile {
             if (getInstance() == null) return;
             
             Instance instance = getInstance();
-            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), 10);
+            List<Point> blocks = TKit.getBlocksInSphere(getPosition(), SEARCH_RADIUS);
             
             // Filter safe spots (Solid block with 2 air blocks above)
             List<Point> safeSpots = blocks.stream().filter(p -> 
@@ -45,7 +48,7 @@ public class ShuffleSheep extends SheepProjectile {
             ).collect(Collectors.toList());
             
             if (!safeSpots.isEmpty()) {
-                TKit.getPlayersInRadius(instance, getPosition(), 10, true).forEach(p -> {
+                TKit.getPlayersInRadius(instance, getPosition(), SEARCH_RADIUS, true).forEach(p -> {
                     Point randomSpot = safeSpots.get(ThreadLocalRandom.current().nextInt(safeSpots.size()));
                     p.teleport(new Pos(randomSpot.x() + 0.5, randomSpot.y() + 1, randomSpot.z() + 0.5));
                     

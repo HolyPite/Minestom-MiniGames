@@ -14,9 +14,13 @@ import java.util.List;
 
 public class ParasiteSheep extends SheepProjectile {
 
+    private static final float ACTIVATION_DELAY = 3;
+    private static final double RADIUS = 5.0;
+    private static final double INFEST_CHANCE = 0.2;
+
     public ParasiteSheep(Entity shooter) {
         super(shooter);
-        setActivationDelay(3);
+        setActivationDelay(ACTIVATION_DELAY);
         if (getEntityMeta() instanceof SheepMeta meta) {
             meta.setColor(net.minestom.server.color.DyeColor.PURPLE);
             meta.setCustomName(Component.text("Parasite Sheep", TextColor.fromHexString("#4B0082")));
@@ -32,14 +36,13 @@ public class ParasiteSheep extends SheepProjectile {
     private void activate() {
         if (isRemoved()) return;
 
-        double radius = 5.0;
-        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), radius);
+        List<Point> blocks = TKit.getBlocksInSphere(getPosition(), RADIUS);
         
         // 1. Infested Blocks
         for (Point pos : blocks) {
             Block current = getInstance().getBlock(pos);
             if (current.isSolid()) {
-                if (TKit.chance(0.2)) {
+                if (TKit.chance(INFEST_CHANCE)) {
                     getInstance().setBlock(pos, Block.INFESTED_STONE);
                 }
             }
