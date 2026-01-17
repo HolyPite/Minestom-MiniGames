@@ -75,7 +75,10 @@ public class ArrowProjectile extends AbstractProjectile {
     public void shoot(@NotNull Point from, @NotNull Point to, double power, double spread) {
         var instance = shooter.getInstance();
         if (instance == null) return;
+        shoot(instance, from, to, power, spread);
+    }
 
+    public void shoot(@NotNull net.minestom.server.instance.Instance instance, @NotNull Point from, @NotNull Point to, double power, double spread) {
         float yaw = -shooter.getPosition().yaw();
         float originalPitch = -shooter.getPosition().pitch();
         float pitch = originalPitch - 35f;

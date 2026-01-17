@@ -43,7 +43,7 @@ public class HedgehogSheep extends SheepProjectile {
                      if (game != null && game.isSameTeam(shooter, p)) return;
 
                      ArrowProjectile arrow = new ArrowProjectile(EntityType.ARROW, shooter);
-                     arrow.shoot(getPosition().add(0, 1, 0), p.getPosition().add(0, 1, 0), ARROW_SPEED, ARROW_SPREAD);
+                     arrow.shoot(getInstance(), getPosition().add(0, 1, 0), p.getPosition().add(0, 1, 0), ARROW_SPEED, ARROW_SPREAD);
                  });
             }
             
