@@ -129,8 +129,17 @@ public class StructureManager {
     }
 
     public StructureData getStructureBlocks(String name, StructureRotation rotation, StructureMirror mirror, boolean includeAir) {
-        Path path = STRUCTURES_DIR.resolve(name + (name.endsWith(".nbt") ? "" : ".nbt"));
-        if (!path.toFile().exists()) return null;
+        // Try simple name, then .nbt, then .litematic
+        Path path = STRUCTURES_DIR.resolve(name);
+        if (!path.toFile().exists()) path = STRUCTURES_DIR.resolve(name + ".nbt");
+        if (!path.toFile().exists()) path = STRUCTURES_DIR.resolve(name + ".litematic");
+        
+        if (!path.toFile().exists()) {
+             System.err.println("Structure not found: " + name);
+             return null;
+        }
+        
+        boolean isLitematic = path.toString().endsWith(".litematic");
 
         try {
             // Manual check for GZIP
@@ -146,6 +155,36 @@ public class StructureManager {
                 } else {
                     root = BinaryTagIO.reader(Long.MAX_VALUE).read(is);
                 }
+            }
+            
+            if (isLitematic) {
+                 StructureData data = LitematicLoader.load(root);
+                 if (data == null) return null;
+                 // Apply transformations (Rotation/Mirror) for Litematic results
+                 // Note: LitematicLoader currently returns raw blocks. We should ideally transform them here too.
+                 // For now, we return as is, or we can iterate and transform.
+                 // Let's transform them to support rotation/mirror on litematics too!
+                 List<StructureBlock> transformed = new ArrayList<>();
+                 for (StructureBlock sb : data.blocks()) {
+                     Point finalPos = transformPosition(sb.relativePos().blockX(), sb.relativePos().blockY(), sb.relativePos().blockZ(), rotation, mirror);
+                     Block block = transformBlockState(sb.block(), rotation, mirror);
+                     if (includeAir || !block.isAir()) {
+                         transformed.add(new StructureBlock(finalPos, block));
+                     }
+                 }
+                 // Recalculate bounds
+                 int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+                 int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
+                 for (StructureBlock sb : transformed) {
+                      if (sb.relativePos().blockX() < minX) minX = sb.relativePos().blockX();
+                      if (sb.relativePos().blockY() < minY) minY = sb.relativePos().blockY();
+                      if (sb.relativePos().blockZ() < minZ) minZ = sb.relativePos().blockZ();
+                      if (sb.relativePos().blockX() > maxX) maxX = sb.relativePos().blockX();
+                      if (sb.relativePos().blockY() > maxY) maxY = sb.relativePos().blockY();
+                      if (sb.relativePos().blockZ() > maxZ) maxZ = sb.relativePos().blockZ();
+                 }
+                 if (transformed.isEmpty()) return new StructureData(transformed, Vec.ZERO, Vec.ZERO);
+                 return new StructureData(transformed, new Vec(minX, minY, minZ), new Vec(maxX, maxY, maxZ));
             }
 
             CompoundBinaryTag data = findDataTag(root);

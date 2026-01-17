@@ -21,6 +21,12 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 - [ ] **Team Chat** : Implémenter un canal de discussion réservé à l'équipe.
 - [ ] **Spectator Compass** : Un item pour les spectateurs permettant de se téléporter rapidement aux joueurs encore en vie.
 
+### Nouveaux types de moutons (Idées)
+- [ ] **Mouton Arc-en-ciel** : Sans gravité, génère un pont de verre coloré (15s) sur son passage.
+- [ ] **Mouton Géant** : Taille gigantesque, casse les blocs au sol à l'impact, rebondit et frappe le sol 3 fois.
+- [ ] **Mouton Apocalypse** : Met la nuit, déclenche une pluie de météorites (incendiaires) dans un large rayon.
+- [ ] **Mouton Constructeur** : Reconstruit/Restaure les blocs de la map dans sa zone d'effet.
+
 ### Map & Structure System
 - [ ] **Wireframe Preview** : Pour les structures > 500 blocs, n'afficher que les coins et les contours via des particules.
 - [ ] **Map Voting** : Système de vote au Lobby si plusieurs maps sont disponibles pour un mode.
@@ -60,4 +66,4 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 - [x] **Potion Visual Sync** : Correction Glowing/Invisibilité.
 
 ---
-*Dernière mise à jour : 15 Janvier 2026*
+*Dernière mise à jour : 16 Janvier 2026*

@@ -54,8 +54,9 @@ All mini-games extend the abstract `Game` class.
 
 ### Structure System
 Allows saving and placing NBT structures (Schematics).
-- **Format**: Standard Minecraft NBT Structure format (palette based).
-- **Storage**: `structures/<name>.nbt`.
+- **Format**: Standard Minecraft NBT Structure format and **Litematic (.litematic)** support.
+- **Litematic Loader**: Native bit-packing decompression (Bit-Stream format) for large structures (beyond 48x48x48).
+- **Storage**: `structures/<name>.nbt` or `structures/<name>.litematic`.
 - **Loading**: Robust loader with **GZIP detection** and **recursive tag search** for Vanilla Minecraft compatibility.
 - **Transformation**: Supports **Rotation** (0, 90, 180, 270) and **Mirroring** (X, Z, XZ) during placement.
 - **Preview**: Real-time **Structure Preview** using `BlockDisplay`.
@@ -86,6 +87,7 @@ A complex projectile system with 17 unique sheep types.
     - **Incendiary**: Small explosion followed by 30% chance of setting nearby blocks on fire.
     - **Black Hole**: Attracts entities.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17+ total).
+    - **Hedgehog**: Fixed arrows being slow and dealing no damage by switching from `EntityProjectile` to `ArrowProjectile` and adding friendly fire filtering.
     - **Note**: `InstantSheep` is a sub-product used by Fragmentation and is blacklisted from random spawns.
 - **Utils**: `TKit` (me.holypite.utils) is a central utility class providing:
     - **Spatial Queries**: `getBlocksInSphere`, `getBlocksInCube`, `getEntitiesInRadius`, `getLivingEntitiesInRadius`.

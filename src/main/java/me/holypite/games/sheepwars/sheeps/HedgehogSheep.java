@@ -1,11 +1,11 @@
 package me.holypite.games.sheepwars.sheeps;
 
+import me.holypite.manager.projectile.entities.ArrowProjectile;
 import me.holypite.utils.TKit;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityProjectile;
 import net.minestom.server.entity.EntityType;
+import net.minestom.server.entity.Player;
 import net.minestom.server.entity.metadata.animal.SheepMeta;
 import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.color.DyeColor;
@@ -35,10 +35,10 @@ public class HedgehogSheep extends SheepProjectile {
             // Shoot arrows every second
             if (getAliveTicks() % 20 == 0) {
                  TKit.getPlayersInRadius(getInstance(), getPosition(), 10, true).forEach(p -> {
-                     EntityProjectile arrow = new EntityProjectile(shooter, EntityType.ARROW);
-                     arrow.setInstance(getInstance(), getPosition().add(0, 1, 0));
-                     Vec direction = p.getPosition().sub(getPosition()).asVec().normalize().mul(40); // Speed
-                     arrow.setVelocity(direction);
+                     if (game != null && game.isSameTeam(shooter, p)) return;
+
+                     ArrowProjectile arrow = new ArrowProjectile(EntityType.ARROW, shooter);
+                     arrow.shoot(getPosition().add(0, 1, 0), p.getPosition().add(0, 1, 0), 2.0, 1.0);
                  });
             }
             
