@@ -66,6 +66,11 @@ public class GiantSheep extends SheepProjectile {
             TKit.playSound(getInstance(), getPosition(), "entity.iron_golem.step", net.kyori.adventure.sound.Sound.Source.HOSTILE, 2.0f, 0.5f);
             
         } else {
+            // Final Impact (Big explosion)
+            triggerImpact(6.0f);
+            remove();
+        }
+    }
     
     private void triggerImpact(float power) {
          if (explosionManager != null) {
