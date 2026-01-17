@@ -52,10 +52,10 @@ All mini-games extend the abstract `Game` class.
 - **Hub/Lobby**: Players are forced into **Adventure Mode** (no block breaking). Empty lobbies are automatically destroyed to save resources.
 - **Game (SheepWars)**: Players are set to **Survival Mode** (can break blocks, take damage).
 - **Dismount**: Players can exit vehicles/mounts (like the Boarding Sheep) by **sneaking**, if allowed by the game rules (`allowDismountSneak`).
-- **Fall Damage**: Damage is calculated based on fall distance. **Entering water resets the fall distance**, allowing "water clutching".
+    - **Fall Damage**: Damage is calculated based on fall distance. **Entering water resets the fall distance**, allowing "water clutching".
+- **TNT Propagation**: When enabled in the game rules, TNT blocks destroyed by an explosion will ignite and become `PrimedTnt` entities with randomized fuses, creating chain reactions.
 
-### Structure System
-Allows saving and placing NBT structures (Schematics).
+### Structure SystemAllows saving and placing NBT structures (Schematics).
 - **Format**: Standard Minecraft NBT Structure format and **Litematic (.litematic)** support.
 - **Litematic Loader**: Native bit-packing decompression (Bit-Stream format) for large structures (beyond 48x48x48).
 - **Storage**: `structures/<name>.nbt` or `structures/<name>.litematic`.
