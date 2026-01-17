@@ -178,6 +178,10 @@ public class SheepRegistry {
         register("giant", "Mouton Géant", 1.0, 6.0,
                 new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Géant", NamedTextColor.WHITE)).modelData("giant").build(),
                 GiantSheep::new);
+
+        register("apocalypse", "Mouton Apocalypse", 0.0, 3.0, // Rare start, low end weight
+                new ItemBuilder(Material.WHITE_WOOL).name(Component.text("Mouton Apocalypse", NamedTextColor.DARK_RED)).modelData("apocalypse").build(),
+                ApocalypseSheep::new);
     }
 
     private static void register(String id, String name, double startWeight, double endWeight, ItemStack item, Function<Entity, SheepProjectile> factory) {

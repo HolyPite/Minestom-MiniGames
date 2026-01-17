@@ -89,7 +89,8 @@ A complex projectile system with 17 unique sheep types.
     - **Island**: Teleports blocks and entities in a 5-block radius 20 blocks up.
     - **Rainbow**: Flies in a straight line (no gravity) leaving a trail of colored glass that disappears after 15s.
     - **Builder**: Restores blocks in a 6-block radius to their original state using a "Blueprint" instance.
-    - **Giant**: Huge size, bounces 3 times on the ground causing explosions before a final massive blast.
+    - **Giant**: Huge size, bounces 3 times on the ground causing explosions before a final massive blast. Immune to explosions.
+    - **Apocalypse**: Sets night time and summons a rain of burning meteors (Block Displays) for 10 seconds.
     - **Heal, Ice, Fire, Lightning, Earthquake...** (17+ total).
     - **Hedgehog**: Fixed arrows being slow and dealing no damage by switching from `EntityProjectile` to `ArrowProjectile` and adding friendly fire filtering.
     - **Note**: `InstantSheep` is a sub-product used by Fragmentation and is blacklisted from random spawns.
