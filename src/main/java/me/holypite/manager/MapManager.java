@@ -91,7 +91,9 @@ public class MapManager {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
+        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
         
+        // Region check
         // Region check
         Path regionPath = mapPath.resolve("region");
         if (regionPath.toFile().exists()) {
@@ -153,7 +155,9 @@ public class MapManager {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
+        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
         
+        // Region check
         Path regionPath = mapPath.resolve("region");
         if (regionPath.toFile().exists()) {
             instance.setChunkLoader(new AnvilLoader(mapPath));
