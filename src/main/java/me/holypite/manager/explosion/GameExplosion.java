@@ -1,6 +1,8 @@
 package me.holypite.manager.explosion;
 
+import me.holypite.entity.PrimedTnt;
 import me.holypite.manager.damage.DamageSources;
+import me.holypite.model.Game;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
@@ -21,6 +23,7 @@ public class GameExplosion extends Explosion {
     private final boolean fire;
     private final Entity attacker;
     private final Entity source;
+    private Game game;
 
     public GameExplosion(float centerX, float centerY, float centerZ, float strength, boolean breakBlocks, boolean fire, Entity attacker, Entity source) {
         super(centerX, centerY, centerZ, strength);
@@ -34,6 +37,10 @@ public class GameExplosion extends Explosion {
         this(centerX, centerY, centerZ, strength, breakBlocks, fire, null, null);
     }
 
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
     @Override
     protected List<Point> prepare(Instance instance) {
         Set<Point> blocks = new HashSet<>();
@@ -41,6 +48,7 @@ public class GameExplosion extends Explosion {
         float centerX = getCenterX();
         float centerY = getCenterY();
         float centerZ = getCenterZ();
+        Point center = new Vec(centerX, centerY, centerZ);
 
         // 1. Block Destruction Logic (Vanilla Raycasting)
         if (breakBlocks) {
@@ -73,7 +81,18 @@ public class GameExplosion extends Explosion {
                                 if (rayStrength > 0.0F) {
                                     // Don't break Bedrock or Air
                                     if (block != Block.BEDROCK && !block.isAir()) {
-                                        blocks.add(blockPos);
+                                        // TNT Propagation Check
+                                        if (block == Block.TNT && game != null && game.isTntPropagation()) {
+                                            instance.setBlock(blockPos, Block.AIR);
+                                            PrimedTnt tnt = new PrimedTnt(attacker, ThreadLocalRandom.current().nextInt(10, 30));
+                                            tnt.setInstance(instance, blockPos.add(0.5, 0, 0.5));
+                                            
+                                            // Launch TNT away from explosion
+                                            Vec dir = blockPos.add(0.5, 0.5, 0.5).sub(center).asVec().normalize();
+                                            tnt.setVelocity(dir.mul(5.0).withY(4.0));
+                                        } else {
+                                            blocks.add(blockPos);
+                                        }
                                     }
                                 }
 
@@ -89,7 +108,6 @@ public class GameExplosion extends Explosion {
 
         // 2. Entity Damage Logic
         double damageRadius = strength * 2.0;
-        Point center = new Vec(centerX, centerY, centerZ);
         
         instance.getEntities().stream()
                 .filter(e -> e instanceof LivingEntity)

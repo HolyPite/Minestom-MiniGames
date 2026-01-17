@@ -68,6 +68,7 @@ public abstract class Game {
     private boolean fallDamageEnabled = true;
     private boolean fallingBlockDamage = true;
     private boolean allowDismountSneak = true;
+    private boolean tntPropagation = true;
     protected net.minestom.server.entity.GameMode gameMode = net.minestom.server.entity.GameMode.SURVIVAL;
     
     // Kits
@@ -96,6 +97,14 @@ public abstract class Game {
         
         setupLobbyInstance(this.lobbyInstance);
         updateScoreboard();
+    }
+    
+    public void setTntPropagation(boolean tntPropagation) {
+        this.tntPropagation = tntPropagation;
+    }
+
+    public boolean isTntPropagation() {
+        return tntPropagation;
     }
     
     public void setSourceInstance(InstanceContainer sourceInstance) {
@@ -398,6 +407,7 @@ public abstract class Game {
         // Apply Map Config Settings & Rules
         applyMapConfig();
         
+        this.explosionManager.setGame(this);
         this.gameInstance.setExplosionSupplier(explosionManager.getSupplier(canBreakBlocks));
         
         this.gameEventNode = EventNode.event("game-" + gameId, EventFilter.ALL, event -> {

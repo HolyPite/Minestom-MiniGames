@@ -1,11 +1,18 @@
 package me.holypite.manager.explosion;
 
+import me.holypite.model.Game;
 import net.minestom.server.coordinate.Point;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.instance.ExplosionSupplier;
 import net.minestom.server.instance.Instance;
 
 public class ExplosionManager {
+
+    private Game game;
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
 
     /**
      * Triggers an explosion at the specified location.
@@ -22,6 +29,7 @@ public class ExplosionManager {
                 (float) point.x(), (float) point.y(), (float) point.z(),
                 strength, breakBlocks, false, attacker, source
         );
+        explosion.setGame(game);
         explosion.apply(instance);
     }
 
@@ -33,7 +41,10 @@ public class ExplosionManager {
      * Returns a supplier to be used with Instance#setExplosionSupplier.
      */
     public ExplosionSupplier getSupplier(boolean breakBlocks) {
-        return (centerX, centerY, centerZ, strength, additionalData) -> 
-                new GameExplosion(centerX, centerY, centerZ, strength, breakBlocks, false);
+        return (centerX, centerY, centerZ, strength, additionalData) -> {
+            GameExplosion explosion = new GameExplosion(centerX, centerY, centerZ, strength, breakBlocks, false);
+            explosion.setGame(game);
+            return explosion;
+        };
     }
 }
