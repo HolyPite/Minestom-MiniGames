@@ -1,19 +1,13 @@
 package me.holypite.entity;
 
+import me.holypite.utils.TKit;
 import net.minestom.server.coordinate.Vec;
-import net.minestom.server.entity.Entity;
-import net.minestom.server.entity.EntityCreature;
-import net.minestom.server.entity.EntityType;
-import net.minestom.server.entity.LivingEntity;
-import net.minestom.server.entity.Player;
-import net.minestom.server.entity.ai.goal.MeleeAttackGoal;
+import net.minestom.server.entity.*;
 import net.minestom.server.entity.ai.goal.RandomStrollGoal;
 import net.minestom.server.entity.ai.target.ClosestEntityTarget;
 import net.minestom.server.entity.attribute.Attribute;
-import net.minestom.server.entity.damage.Damage;
-import net.minestom.server.entity.damage.DamageType;
 import net.minestom.server.entity.metadata.other.SlimeMeta;
-import net.minestom.server.utils.time.TimeUnit;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,10 +15,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class AggressiveSlime extends EntityCreature {
 
     private static final int TARGET_RANGE = 15;
-    private static final int JUMP_INTERVAL_TICKS = 15;
-    private static final double JUMP_VELOCITY_TARGET = 1.2;
-    private static final double JUMP_VELOCITY_RANDOM = 0.7;
-    private static final double JUMP_HEIGHT = 0.7;
+    private static final int JUMP_INTERVAL_TICKS = 10;
+    private static final double JUMP_VELOCITY_TARGET = 8.0;
+    private static final double JUMP_VELOCITY_RANDOM = 4.0;
+    private static final double JUMP_HEIGHT = 0.8;
     private static final float ATTACK_DAMAGE = 4.0f;
     private static final long ATTACK_COOLDOWN_MS = 1000;
     private static final double COLLISION_RADIUS = 1.5;
@@ -43,16 +37,13 @@ public class AggressiveSlime extends EntityCreature {
         getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
         setHealth(maxHealth);
         
-        // Target Selector only
+        // Add a goal to keep AI ticking and a target selector
         addAIGroup(
-                List.of(), 
-                List.of(
-                        new ClosestEntityTarget(this, TARGET_RANGE, Player.class)
-                )
+                List.of(new RandomStrollGoal(this, 20)), 
+                List.of(new ClosestEntityTarget(this, TARGET_RANGE, Player.class))
         );
     }
     
-    // Default constructor for compatibility if needed (defaults to size 1)
     public AggressiveSlime() {
         this(1);
     }
@@ -61,24 +52,29 @@ public class AggressiveSlime extends EntityCreature {
     public void update(long time) {
         super.update(time);
         
+        if (getInstance() == null) return;
+
         // Damage Players on Collision (with cooldown)
         if (System.currentTimeMillis() - lastAttackTime > ATTACK_COOLDOWN_MS) {
-            if (getInstance() != null) {
-                getInstance().getEntities().stream()
-                    .filter(e -> e instanceof Player)
-                    .filter(e -> e.getPosition().distance(getPosition()) < COLLISION_RADIUS)
-                    .findFirst() // Hit only one player
-                    .ifPresent(e -> {
-                        ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, ATTACK_DAMAGE));
-                        lastAttackTime = System.currentTimeMillis();
-                    });
-            }
+            getInstance().getEntities().stream()
+                .filter(e -> e instanceof Player)
+                .filter(e -> e.getPosition().distance(getPosition()) < COLLISION_RADIUS)
+                .findFirst() 
+                .ifPresent(e -> {
+                    ((LivingEntity) e).damage(me.holypite.manager.damage.DamageSources.mobAttack(this, ATTACK_DAMAGE));
+                    lastAttackTime = System.currentTimeMillis();
+                });
         }
         
         // Custom Slime Jump AI
         if (isOnGround() && getAliveTicks() % JUMP_INTERVAL_TICKS == 0) {
             Entity target = getTarget();
             
+            // Manual fallback
+            if (target == null) {
+                target = TKit.getNearestPlayer(getInstance(), getPosition(), TARGET_RANGE, true);
+            }
+
             if (target != null) {
                 // Look at target
                 lookAt(target);

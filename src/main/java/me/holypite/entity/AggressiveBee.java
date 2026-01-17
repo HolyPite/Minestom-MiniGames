@@ -13,14 +13,18 @@ import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.potion.Potion;
 import net.minestom.server.potion.PotionEffect;
 
+import net.minestom.server.entity.ai.goal.RandomStrollGoal;
+import net.minestom.server.utils.time.TimeUnit;
+import me.holypite.utils.TKit;
+
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AggressiveBee extends EntityCreature {
 
     private static final float MAX_HEALTH = 4.0f;
-    private static final double ATTACK_VELOCITY = 0.8;
-    private static final double RANDOM_FLIGHT_VELOCITY = 0.5;
+    private static final double ATTACK_VELOCITY = 7.0;
+    private static final double RANDOM_FLIGHT_VELOCITY = 3.0;
     private static final float ATTACK_DAMAGE = 4.0f;
     private static final int POISON_DURATION_TICKS = 200;
     private static final int TARGET_RANGE = 15;
@@ -38,12 +42,10 @@ public class AggressiveBee extends EntityCreature {
         
         setNoGravity(true); // Bees fly
         
-        // Target Selector only
+        // Add a goal to keep AI ticking and a target selector
         addAIGroup(
-                List.of(), 
-                List.of(
-                        new ClosestEntityTarget(this, TARGET_RANGE, Player.class)
-                )
+                List.of(new RandomStrollGoal(this, 20)), 
+                List.of(new ClosestEntityTarget(this, TARGET_RANGE, Player.class))
         );
     }
 
@@ -51,31 +53,35 @@ public class AggressiveBee extends EntityCreature {
     public void update(long time) {
         super.update(time);
         
-        if (hasStung) return; // Stop AI if stung
+        if (hasStung || getInstance() == null) return;
         
         // Damage Players on Collision
-        if (getInstance() != null) {
-            getInstance().getEntities().stream()
-                .filter(e -> e instanceof Player)
-                .filter(e -> e.getPosition().distance(getPosition()) < COLLISION_RADIUS)
-                .findFirst()
-                .ifPresent(e -> {
-                    LivingEntity target = (LivingEntity) e;
-                    target.damage(me.holypite.manager.damage.DamageSources.mobAttack(this, ATTACK_DAMAGE));
-                    target.addEffect(new Potion(PotionEffect.POISON, (byte) 1, POISON_DURATION_TICKS));
-                    
-                    hasStung = true;
-                    setVelocity(Vec.ZERO); // Stop moving immediately
-                    
-                    // Die after 5 seconds
-                    MinecraftServer.getSchedulerManager().buildTask(this::remove)
-                        .delay(TaskSchedule.seconds(5))
-                        .schedule();
-                });
-        }
-        
+        getInstance().getEntities().stream()
+            .filter(e -> e instanceof Player)
+            .filter(e -> e.getPosition().distance(getPosition()) < COLLISION_RADIUS)
+            .findFirst()
+            .ifPresent(e -> {
+                LivingEntity target = (LivingEntity) e;
+                target.damage(me.holypite.manager.damage.DamageSources.mobAttack(this, ATTACK_DAMAGE));
+                target.addEffect(new Potion(PotionEffect.POISON, (byte) 1, POISON_DURATION_TICKS));
+                
+                hasStung = true;
+                setVelocity(Vec.ZERO); 
+                
+                MinecraftServer.getSchedulerManager().buildTask(this::remove)
+                    .delay(TaskSchedule.seconds(5))
+                    .schedule();
+            });
+
+        if (hasStung) return;
+
         // Custom Flight AI
         Entity target = getTarget();
+        
+        // Manual fallback if AI target is null
+        if (target == null) {
+            target = TKit.getNearestPlayer(getInstance(), getPosition(), TARGET_RANGE, true);
+        }
         
         if (target != null) {
             // Fly towards target
@@ -84,7 +90,7 @@ public class AggressiveBee extends EntityCreature {
             lookAt(target);
         } else {
             // Random flight
-            if (ticksSinceLastMove++ > 40) { // Change direction every 2s
+            if (ticksSinceLastMove++ > 40) {
                 double angle = ThreadLocalRandom.current().nextDouble(Math.PI * 2);
                 double verticalAngle = ThreadLocalRandom.current().nextDouble(-0.5, 0.5);
                 
