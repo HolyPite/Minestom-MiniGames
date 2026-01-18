@@ -40,6 +40,7 @@ public class Main {
         new me.holypite.manager.damage.DamageManager();
 
         // Commands
+        MinecraftServer.getCommandManager().register(new me.holypite.commands.MapCommand(mapManager));
         MinecraftServer.getCommandManager().register(new PlayCommand(gameManager));
         MinecraftServer.getCommandManager().register(new DebugCommand());
         MinecraftServer.getCommandManager().register(new GiveWoolCommand());

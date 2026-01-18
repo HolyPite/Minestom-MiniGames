@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 public class MapManager {
@@ -40,6 +43,48 @@ public class MapManager {
         // Ensure maps folder exists
         if (!MAPS_FOLDER.toFile().exists()) {
             MAPS_FOLDER.toFile().mkdirs();
+        }
+    }
+
+    public void saveInstance(InstanceContainer instance, String mapName) {
+        Path mapPath = MAPS_FOLDER.resolve(mapName);
+        try {
+            // 1. Create directories
+            Files.createDirectories(mapPath.resolve("region"));
+
+            // 2. Use AnvilLoader to save chunks
+            AnvilLoader loader = new AnvilLoader(mapPath);
+            
+            // Save Instance (level.dat)
+            loader.loadInstance(instance); // Minestom's saveInstance is weirdly named in some versions or missing, 
+                                           // actually AnvilLoader has saveInstance(Instance)
+            loader.saveInstance(instance);
+
+            // Save all loaded chunks
+            for (net.minestom.server.instance.Chunk chunk : instance.getChunks()) {
+                if (chunk.isLoaded()) {
+                    loader.saveChunk(chunk);
+                }
+            }
+
+            // 3. Save a basic config.json
+            Path configPath = mapPath.resolve("config.json");
+            if (Files.notExists(configPath)) {
+                MapConfig config = new MapConfig();
+                config.name = mapName;
+                config.voidY = -64.0;
+                // Settings & Rules objects need to be initialized if we want to save them
+                config.settings = new MapConfig.MapSettings();
+                config.settings.time = 6000L;
+                config.settings.weather = "clear";
+                
+                Files.writeString(configPath, gson.toJson(config));
+            }
+            
+            System.out.println("Map '" + mapName + "' saved successfully to " + mapPath.toAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("Failed to save map " + mapName);
+            e.printStackTrace();
         }
     }
 
