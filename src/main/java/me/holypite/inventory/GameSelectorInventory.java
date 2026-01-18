@@ -52,7 +52,7 @@ public class GameSelectorInventory {
         }
 
         // Add game items
-        int[] slots = {11, 15}; // Hardcoded for 2 games, could be dynamic
+        int[] slots = {11, 15}; // Distributed for 2 games
         GameType[] types = GameType.values();
         
         for (int i = 0; i < types.length && i < slots.length; i++) {

@@ -34,6 +34,7 @@ public class Main {
         HubManager hubManager = new HubManager(mapManager);
         GameManager gameManager = new GameManager(hubManager, mapManager);
         hubManager.init(gameManager);
+        new me.holypite.manager.ElytraCourseManager(hubManager);
         me.holypite.manager.StructurePreviewManager previewManager = new me.holypite.manager.StructurePreviewManager(new me.holypite.manager.StructureManager());
         new me.holypite.manager.PotionManager();
         new me.holypite.manager.damage.DamageManager();
