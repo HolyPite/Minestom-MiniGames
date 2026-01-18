@@ -76,8 +76,10 @@ public class ElytraCourseManager {
                     if (session == null) {
                         // Start race
                         session = new CourseSession();
+                        session.nextCheckpointIndex = 1; // Mark first checkpoint as passed
                         sessions.put(player.getUuid(), session);
                         player.sendMessage(Component.text("Course démarrée !", NamedTextColor.GREEN, TextDecoration.BOLD));
+                        player.sendMessage(Component.text("Checkpoint 1/" + checkpoints.size(), NamedTextColor.AQUA));
                         TKit.playSound(player.getInstance(), player.getPosition(), SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP.name(), Sound.Source.PLAYER, 1f, 1f);
                     } else {
                         session.nextCheckpointIndex++;
