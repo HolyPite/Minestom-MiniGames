@@ -8,6 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
+import net.minestom.server.entity.EquipmentSlot;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
@@ -39,6 +40,14 @@ public class HubManager {
             .name(Component.text("Sélectionneur de Jeux", NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false))
             .build();
 
+    private static final ItemStack ROCKET_ITEM = new ItemBuilder(Material.FIREWORK_ROCKET)
+            .name(Component.text("Propulseur Infini", NamedTextColor.AQUA).decoration(TextDecoration.ITALIC, false))
+            .build();
+
+    private static final ItemStack ELYTRA_ITEM = new ItemBuilder(Material.ELYTRA)
+            .name(Component.text("Ailes du Hub", NamedTextColor.LIGHT_PURPLE).decoration(TextDecoration.ITALIC, false))
+            .build();
+
     public HubManager(MapManager mapManager) {
         this.mapManager = mapManager;
         // Create initial hub
@@ -51,8 +60,12 @@ public class HubManager {
         // Listen for right click
         MinecraftServer.getGlobalEventHandler().addListener(PlayerUseItemEvent.class, event -> {
             if (!isHub(event.getInstance())) return;
-            if (event.getItemStack().equals(COMPASS_ITEM)) {
+            ItemStack item = event.getItemStack();
+            if (item.equals(COMPASS_ITEM)) {
                 selectorInventory.open(event.getPlayer());
+            } else if (item.material() == Material.FIREWORK_ROCKET) {
+                // Infinite rocket logic: Redive the item to ensure it stays in hand
+                event.getPlayer().getInventory().setItemStack(event.getPlayer().getHeldSlot(), ROCKET_ITEM);
             }
         });
 
@@ -72,7 +85,9 @@ public class HubManager {
 
         // Prevent moving items in Hub inventory
         MinecraftServer.getGlobalEventHandler().addListener(InventoryPreClickEvent.class, event -> {
-            if (event.getInventory() == null && isHub(event.getPlayer().getInstance()) && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+            if (isHub(event.getPlayer().getInstance()) && event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+                // If it's a click in the player inventory (event.getInventory() == null)
+                // OR if it's an interaction with the armor slots
                 event.setCancelled(true);
             }
         });
@@ -131,5 +146,9 @@ public class HubManager {
 
         // Give Compass
         player.getInventory().setItemStack(4, COMPASS_ITEM);
+        // Give Infinite Rocket
+        player.getInventory().setItemStack(0, ROCKET_ITEM);
+        // Equip Elytra
+        player.setEquipment(EquipmentSlot.CHESTPLATE, ELYTRA_ITEM);
     }
 }
