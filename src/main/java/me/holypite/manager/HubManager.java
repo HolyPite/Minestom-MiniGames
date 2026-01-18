@@ -8,10 +8,21 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
-import net.minestom.server.entity.EquipmentSlot;
+import me.holypite.inventory.GameSelectorInventory;
+import me.holypite.utils.ItemBuilder;
+import me.holypite.utils.TKit;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Player;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
+import net.minestom.server.event.player.PlayerTickEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -19,6 +30,9 @@ import net.minestom.server.instance.block.Block;
 
 import me.holypite.model.map.LoadedMap;
 import net.minestom.server.entity.GameMode;
+import net.minestom.server.entity.EquipmentSlot;
+import net.minestom.server.particle.Particle;
+import net.minestom.server.sound.SoundEvent;
 import java.nio.file.Path;
 
 import java.util.ArrayList;
@@ -61,11 +75,35 @@ public class HubManager {
         MinecraftServer.getGlobalEventHandler().addListener(PlayerUseItemEvent.class, event -> {
             if (!isHub(event.getInstance())) return;
             ItemStack item = event.getItemStack();
+            Player player = event.getPlayer();
+            
             if (item.equals(COMPASS_ITEM)) {
-                selectorInventory.open(event.getPlayer());
+                selectorInventory.open(player);
             } else if (item.material() == Material.FIREWORK_ROCKET) {
                 // Infinite rocket logic: Redive the item to ensure it stays in hand
-                event.getPlayer().getInventory().setItemStack(event.getPlayer().getHeldSlot(), ROCKET_ITEM);
+                player.getInventory().setItemStack(player.getHeldSlot(), ROCKET_ITEM);
+                
+                // Boost logic
+                if (player.getEntityMeta().isFlyingWithElytra()) {
+                    Vec direction = player.getPosition().direction();
+                    player.setVelocity(direction.mul(30)); // Strong boost
+                    
+                    // Visuals and Sound
+                    TKit.playSound(player.getInstance(), player.getPosition(), SoundEvent.ENTITY_FIREWORK_ROCKET_LAUNCH.name(), Sound.Source.PLAYER, 1.0f, 1.0f);
+                    TKit.spawnParticles(player.getInstance(), Particle.FIREWORK, player.getPosition(), 0.2f, 0.1f, 0.2f, 0.1f, 10);
+                    TKit.spawnParticles(player.getInstance(), Particle.LARGE_SMOKE, player.getPosition(), 0.1f, 0.1f, 0.1f, 0.05f, 5);
+                }
+            }
+        });
+
+        // Auto-elytra deployment
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerTickEvent.class, event -> {
+            Player player = event.getPlayer();
+            if (isHub(player.getInstance()) && !player.isOnGround() && !player.getEntityMeta().isFlyingWithElytra()) {
+                // If player is falling or jumping, activate elytra
+                if (player.getVelocity().y() < 0) {
+                    player.getEntityMeta().setFlyingWithElytra(true);
+                }
             }
         });
 
