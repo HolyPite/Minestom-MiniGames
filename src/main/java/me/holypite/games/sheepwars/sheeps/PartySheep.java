@@ -36,6 +36,9 @@ public class PartySheep extends SheepProjectile {
     @Override
     public void onLand() {
         AtomicInteger cycles = new AtomicInteger(0);
+        
+        // Play Disco music!
+        TKit.playSound(getInstance(), getPosition(), "music_disc.lava_chicken", net.kyori.adventure.sound.Sound.Source.AMBIENT, 1.0f, 1.0f);
 
         MinecraftServer.getSchedulerManager().submitTask(() -> {
             if (isRemoved()) return TaskSchedule.stop();

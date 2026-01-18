@@ -74,6 +74,9 @@ public class HedgehogSheep extends SheepProjectile {
         
         // Launch immediately
         arrow.setVelocity(dir.mul(ARROW_SPEED));
+        
+        // Play launch sound
+        me.holypite.utils.TKit.playSound(getInstance(), getPosition(), "block.dispenser.launch", net.kyori.adventure.sound.Sound.Source.NEUTRAL, 1.0f, 1.5f);
     }
 
     @Override

@@ -59,7 +59,7 @@ public class BuilderSheep extends SheepProjectile {
                 }
             });
             
-            TKit.playSound(gameWorld, getPosition(), "entity.experience_orb.pickup", net.kyori.adventure.sound.Sound.Source.NEUTRAL, 1.0f, 1.0f);
+            TKit.playSound(gameWorld, getPosition(), "entity.villager.work_toolsmith", net.kyori.adventure.sound.Sound.Source.NEUTRAL, 1.0f, 1.0f);
         }
 
         remove();
