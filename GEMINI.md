@@ -31,7 +31,8 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 
 ### Core Managers
 - **`GameManager`**: Handles the lifecycle of games (Lobby -> Game -> End -> Hub). Manages players joining and quitting.
-- **`HubManager`**: Manages multiple Hub instances. Handles player connection, state reset (inventory, gamemode, health), and load balancing between hubs.
+- **`HubManager`**: Manages multiple Hub instances. Handles player connection, state reset (inventory, gamemode, health), and load balancing between hubs. **New**: Provides a **Game Selector Compass** to players, allowing them to open a GUI to join games.
+- **`GameSelectorInventory`**: Custom GUI for selecting and joining mini-games from the Hub.
 - **`MapManager`**: Loads world instances from the `maps/` directory in **read-only** mode (Anvil format). Parses `config.json` for team spawns and game rules.
 - **`StructureManager`**: Saves and loads structures (NBT format) from/to the `structures/` directory. Compatible with Minecraft Structure Blocks.
 - **`StructurePreviewManager`**: Manages real-time structure previews using `BlockDisplay` entities and raycasting.

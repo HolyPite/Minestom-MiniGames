@@ -14,8 +14,8 @@ import java.util.List;
 public class AggressiveLarva extends EntityCreature {
 
     private static final float MAX_HEALTH = 4.0f;
-    private static final float MOVEMENT_SPEED = 0.35f;
-    private static final double ATTACK_SPEED_MULTIPLIER = 1.6;
+    private static final float MOVEMENT_SPEED = 0.45f;
+    private static final double ATTACK_SPEED_MULTIPLIER = 1.8;
     private static final int ATTACK_COOLDOWN_TICKS = 20;
     private static final int TARGET_RANGE = 15;
 

@@ -33,6 +33,7 @@ public class Main {
         MapManager mapManager = new MapManager();
         HubManager hubManager = new HubManager(mapManager);
         GameManager gameManager = new GameManager(hubManager, mapManager);
+        hubManager.init(gameManager);
         me.holypite.manager.StructurePreviewManager previewManager = new me.holypite.manager.StructurePreviewManager(new me.holypite.manager.StructureManager());
         new me.holypite.manager.PotionManager();
         new me.holypite.manager.damage.DamageManager();

@@ -19,6 +19,7 @@ public class SheepWarsGame extends Game {
         setPvpEnabled(true);
         setCanRespawn(true); // For debug
         setRespawnDelay(5);
+        setTntPropagation(true);
         setCanBreakBlocks(true); // Explosions will destroy blocks!
         setGameMode(net.minestom.server.entity.GameMode.SURVIVAL);
         setAllowDismountSneak(true);
