@@ -1,5 +1,7 @@
 package me.holypite.manager;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import me.holypite.games.elytra.Checkpoint;
 import me.holypite.utils.TKit;
 import net.kyori.adventure.sound.Sound;
@@ -8,15 +10,21 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.player.PlayerMoveEvent;
 import net.minestom.server.event.player.PlayerStopFlyingWithElytraEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
+import net.minestom.server.instance.Instance;
 import net.minestom.server.item.Material;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.sound.SoundEvent;
 import net.minestom.server.timer.TaskSchedule;
 
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,66 +32,34 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ElytraCourseManager {
 
-    private static final List<Checkpoint> CHECKPOINTS = List.of(
-            new Checkpoint(1, new Pos(0.5, 63, 53), 3),
-            new Checkpoint(2, new Pos(0, 58, 79), 3),
-            new Checkpoint(3, new Pos(30, 52, 94), 3),
-            new Checkpoint(4, new Pos(88, 127, 123), 3),
-            new Checkpoint(5, new Pos(87, 125, 96), 10),
-            new Checkpoint(6, new Pos(80, 125, 20), 3),
-            new Checkpoint(7, new Pos(82, 124, -19), 2),
-            new Checkpoint(8, new Pos(54, 94, -71), 3),
-            new Checkpoint(9, new Pos(-17, 70, -65), 3),
-            new Checkpoint(10, new Pos(-54, 70, -47), 3),
-            new Checkpoint(11, new Pos(-81, 82, -43), 3),
-            new Checkpoint(12, new Pos(-100, 97, -77), 3),
-            new Checkpoint(13, new Pos(-53, 117, -96), 3),
-            new Checkpoint(14, new Pos(-23, 125, -95), 3),
-            new Checkpoint(15, new Pos(-1, 127, -92), 3),
-            new Checkpoint(16, new Pos(13, 133, -116), 3),
-            new Checkpoint(17, new Pos(11, 137, -155), 5),
-            new Checkpoint(18, new Pos(35, 150, -203), 3),
-            new Checkpoint(19, new Pos(73, 145, -202), 5),
-            new Checkpoint(20, new Pos(110, 133, -190), 3),
-            new Checkpoint(21, new Pos(143, 127, -169), 4),
-            new Checkpoint(22, new Pos(141, 123, -128), 2),
-            new Checkpoint(23, new Pos(155, 156, -126), 2),
-            new Checkpoint(24, new Pos(153, 194, -142), 2),
-            new Checkpoint(25, new Pos(128, 199, -142), 2),
-            new Checkpoint(26, new Pos(99, 190, -156), 2),
-            new Checkpoint(27, new Pos(44, 199, -159), 4),
-            new Checkpoint(28, new Pos(20, 201, -110), 4),
-            new Checkpoint(29, new Pos(17, 202, -62), 4),
-            new Checkpoint(30, new Pos(12, 194, 24), 4),
-            new Checkpoint(31, new Pos(-47, 180, 66), 4),
-            new Checkpoint(32, new Pos(-96, 179, 34), 4),
-            new Checkpoint(33, new Pos(-138, 176, 15), 4),
-            new Checkpoint(34, new Pos(-141, 167, -24), 4),
-            new Checkpoint(35, new Pos(-141, 148, -91), 4),
-            new Checkpoint(36, new Pos(-137, 135, -146), 4),
-            new Checkpoint(37, new Pos(-98, 126, -172), 4),
-            new Checkpoint(38, new Pos(-14, 96, -172), 4),
-            new Checkpoint(39, new Pos(20, 63, -129), 4),
-            new Checkpoint(40, new Pos(16, 49, -80), 4),
-            new Checkpoint(41, new Pos(9, 24, 29), 4),
-            new Checkpoint(42, new Pos(10, 11, 60), 4),
-            new Checkpoint(43, new Pos(-49, 1, 70), 4),
-            new Checkpoint(44, new Pos(-85, -9, 68), 4),
-            new Checkpoint(45, new Pos(-120, 12, 0), 4),
-            new Checkpoint(46, new Pos(-121, 34, -37), 4),
-            new Checkpoint(47, new Pos(-120, 52, -83), 4),
-            new Checkpoint(48, new Pos(-83, 58, -92), 3),
-            new Checkpoint(49, new Pos(-33, 51, -94), 3),
-            new Checkpoint(50, new Pos(0, 66, -51), 3)
-    );
-
+    private final List<Checkpoint> checkpoints = new ArrayList<>();
     private final Map<UUID, CourseSession> sessions = new ConcurrentHashMap<>();
     private final HubManager hubManager;
+    private final Gson gson = new Gson();
 
     public ElytraCourseManager(HubManager hubManager) {
         this.hubManager = hubManager;
+        loadCheckpoints();
         setupListeners();
         startParticleTask();
+    }
+
+    private void loadCheckpoints() {
+        Path path = Path.of("maps/hub/checkpoints_elytra.json");
+        if (!Files.exists(path)) {
+            System.err.println("Elytra checkpoints file not found at " + path.toAbsolutePath());
+            return;
+        }
+
+        try (Reader reader = Files.newBufferedReader(path)) {
+            List<Checkpoint> loaded = gson.fromJson(reader, new TypeToken<List<Checkpoint>>() {}.getType());
+            if (loaded != null) {
+                checkpoints.addAll(loaded);
+                System.out.println("Loaded " + checkpoints.size() + " elytra checkpoints.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setupListeners() {
@@ -94,9 +70,9 @@ public class ElytraCourseManager {
             CourseSession session = sessions.get(player.getUuid());
             int nextIdx = (session == null) ? 0 : session.nextCheckpointIndex;
 
-            if (nextIdx < CHECKPOINTS.size()) {
-                Checkpoint cp = CHECKPOINTS.get(nextIdx);
-                if (cp.contains(event.getNewPosition())) {
+            if (nextIdx < checkpoints.size()) {
+                Checkpoint cp = checkpoints.get(nextIdx);
+                if (cp.isPassed(player.getPosition(), event.getNewPosition())) {
                     if (session == null) {
                         // Start race
                         session = new CourseSession();
@@ -105,10 +81,10 @@ public class ElytraCourseManager {
                         TKit.playSound(player.getInstance(), player.getPosition(), SoundEvent.ENTITY_EXPERIENCE_ORB_PICKUP.name(), Sound.Source.PLAYER, 1f, 1f);
                     } else {
                         session.nextCheckpointIndex++;
-                        if (session.nextCheckpointIndex >= CHECKPOINTS.size()) {
+                        if (session.nextCheckpointIndex >= checkpoints.size()) {
                             finishRace(player, session);
                         } else {
-                            player.sendMessage(Component.text("Checkpoint " + session.nextCheckpointIndex + "/" + CHECKPOINTS.size(), NamedTextColor.AQUA));
+                            player.sendMessage(Component.text("Checkpoint " + session.nextCheckpointIndex + "/" + checkpoints.size(), NamedTextColor.AQUA));
                             TKit.playSound(player.getInstance(), player.getPosition(), SoundEvent.BLOCK_NOTE_BLOCK_PLING.name(), Sound.Source.PLAYER, 1f, 2f);
                         }
                     }
@@ -153,13 +129,32 @@ public class ElytraCourseManager {
                 if (player == null || player.getInstance() == null) continue;
 
                 CourseSession session = entry.getValue();
-                if (session.nextCheckpointIndex < CHECKPOINTS.size()) {
-                    Checkpoint cp = CHECKPOINTS.get(session.nextCheckpointIndex);
-                    // Only spawn particles for the specific player to avoid cluttering for everyone
-                    TKit.spawnParticles(player.getInstance(), Particle.END_ROD, cp.position(), (float) cp.radius() / 2, (float) cp.radius() / 2, (float) cp.radius() / 2, 0.05f, 15);
+                if (session.nextCheckpointIndex < checkpoints.size()) {
+                    Checkpoint cp = checkpoints.get(session.nextCheckpointIndex);
+                    spawnRingParticles(player, cp);
                 }
             }
         }).repeat(TaskSchedule.tick(5)).schedule();
+    }
+
+    private void spawnRingParticles(Player player, Checkpoint cp) {
+        double radius = cp.radius();
+        Pos center = cp.position();
+        String axis = cp.axis().toUpperCase();
+
+        for (int i = 0; i < 360; i += 20) {
+            double angle = Math.toRadians(i);
+            double cos = Math.cos(angle) * radius;
+            double sin = Math.sin(angle) * radius;
+
+            Pos particlePos = switch (axis) {
+                case "X" -> center.add(0, cos, sin);
+                case "Y" -> center.add(cos, 0, sin);
+                default -> center.add(cos, sin, 0); // Z
+            };
+
+            TKit.spawnParticles(player.getInstance(), Particle.END_ROD, particlePos, 0.01f, 0.01f, 0.01f, 0.01f, 1);
+        }
     }
 
     private static class CourseSession {
