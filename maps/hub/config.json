@@ -1,15 +1,1 @@
-{
-  "name": "Hub Principal",
-  "minPlayers": 0,
-  "maxPlayers": 100,
-  "spawns": [
-    {
-      "x": 0.5,
-      "y": 64.0,
-      "z": 0.5,
-      "yaw": 0.0,
-      "pitch": 0.0
-    }
-  ],
-  "entities": []
-}
+{"name":"hub2","voidY":-64.0,"settings":{"time":6000,"weather":"clear"}}
