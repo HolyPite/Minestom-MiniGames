@@ -22,7 +22,6 @@ import net.minestom.server.entity.Player;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.event.item.ItemDropEvent;
 import net.minestom.server.event.player.PlayerSpawnEvent;
-import net.minestom.server.event.player.PlayerTickEvent;
 import net.minestom.server.event.player.PlayerUseItemEvent;
 import net.minestom.server.instance.InstanceContainer;
 import net.minestom.server.instance.InstanceManager;
@@ -92,17 +91,6 @@ public class HubManager {
                     TKit.playSound(player.getInstance(), player.getPosition(), SoundEvent.ENTITY_FIREWORK_ROCKET_LAUNCH.name(), Sound.Source.PLAYER, 1.0f, 1.0f);
                     TKit.spawnParticles(player.getInstance(), Particle.FIREWORK, player.getPosition(), 0.2f, 0.1f, 0.2f, 0.1f, 10);
                     TKit.spawnParticles(player.getInstance(), Particle.LARGE_SMOKE, player.getPosition(), 0.1f, 0.1f, 0.1f, 0.05f, 5);
-                }
-            }
-        });
-
-        // Auto-elytra deployment
-        MinecraftServer.getGlobalEventHandler().addListener(PlayerTickEvent.class, event -> {
-            Player player = event.getPlayer();
-            if (isHub(player.getInstance()) && !player.isOnGround() && !player.getEntityMeta().isFlyingWithElytra()) {
-                // If player is falling or jumping, activate elytra
-                if (player.getVelocity().y() < 0) {
-                    player.getEntityMeta().setFlyingWithElytra(true);
                 }
             }
         });
