@@ -71,8 +71,19 @@ All mini-games extend the abstract `Game` class.
 
 ### Cosmetic System
 A particle trail system active only in Hub instances.
+- **`CosmeticManager`**: Manages active trails per player. Listens to `PlayerMoveEvent` and checks if the player is in a Hub.
 - **`TrailType`**: Enum defining available styles (Smoke, Flame, Hearts, Music, Rainbow).
 - **Command**: `/cosmetic <type>` (alias: `/trail`) to enable/disable trails.
+
+### Model System (WSEE)
+Integration of **WorldSeedEntityEngine** for custom 3D animated models (.bbmodel).
+- **`ModelManager`**: Initializes the engine and generates the Resource Pack + Mappings at startup.
+- **Directories**:
+    - `models_source/`: Place `.bbmodel` files here.
+    - `resource_pack/`: Generated Resource Pack (to be sent to players).
+    - `models_data/`: Generated JSON data for the server.
+- **`PetEntity`**: Example entity using WSEE `GenericModelImpl` to display a custom model and follow the owner.
+- **Command**: `/pet <modelId>` to spawn a pet with a specific model.
 
 ### Scoreboard System
 Each game features a dynamic **Sidebar** (Scoreboard) that displays:
@@ -183,3 +194,9 @@ Used to explore Minecraft-related source files and packets.
 - `search_code_scoped`: Search for keywords limited to a specific folder.
 - `read_minecraft_class`: Read the source code of a Minecraft-related class.
 - `find_packet`: Search specifically for Packet files.
+
+### WSEE Documentation Tools
+Used to explore WorldSeedEntityEngine source code.
+- `wsee_docs__list_packages`: List packages in WSEE.
+- `wsee_docs__list_classes_in_package`: List classes in a package.
+- `wsee_docs__read_class_code`: Read source code of a WSEE class.
