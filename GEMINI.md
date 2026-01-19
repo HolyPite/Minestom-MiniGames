@@ -80,6 +80,7 @@ Integration of **WorldSeedEntityEngine** for custom 3D animated models (.bbmodel
 - **`ModelManager`**: Initializes the engine and generates the Resource Pack + Mappings at startup.
 - **Directories**:
     - `models_source/`: Place `.bbmodel` files here.
+    - `custom_assets/`: Place standard Resource Pack assets here (e.g., `assets/minecraft/textures/...`). They will be merged automatically.
     - `resource_pack/`: Generated Resource Pack (to be sent to players).
     - `models_data/`: Generated JSON data for the server.
 - **`ResourcePackManager`**:

@@ -21,21 +21,29 @@ public class ResourcePackManager {
 
     private static final int PORT = 8080;
     private static final String PACK_DIR = "resource_pack";
+    private static final String CUSTOM_ASSETS_DIR = "custom_assets";
     private static final String ZIP_FILE = "resource_pack.zip";
     private String hash;
     private HttpServer httpServer;
 
     public ResourcePackManager() {
         try {
-            // 1. Zip the resource pack folder
             Path sourceDir = Path.of(PACK_DIR);
+            Path customDir = Path.of(CUSTOM_ASSETS_DIR);
             Path zipPath = Path.of(ZIP_FILE);
             
             if (Files.exists(sourceDir)) {
+                // 1. Merge custom assets into the generated pack
+                if (Files.exists(customDir)) {
+                    System.out.println("Merging custom assets from '" + CUSTOM_ASSETS_DIR + "'...");
+                    mergeDirectories(customDir, sourceDir);
+                }
+
+                // 2. Zip the resource pack folder
                 System.out.println("Zipping resource pack...");
                 zipFolder(sourceDir, zipPath);
                 
-                // 2. Calculate Hash
+                // 3. Calculate Hash
                 this.hash = calculateSha1(zipPath);
                 System.out.println("Resource Pack Hash: " + hash);
 
@@ -110,6 +118,26 @@ public class ResourcePackManager {
                          System.err.println(e);
                      }
                  });
+        }
+    }
+
+    private void mergeDirectories(Path source, Path target) throws IOException {
+        try (Stream<Path> paths = Files.walk(source)) {
+            paths.forEach(sourcePath -> {
+                Path targetPath = target.resolve(source.relativize(sourcePath));
+                try {
+                    if (Files.isDirectory(sourcePath)) {
+                        if (!Files.exists(targetPath)) {
+                            Files.createDirectory(targetPath);
+                        }
+                    } else {
+                        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    System.err.println("Failed to merge file: " + sourcePath);
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
