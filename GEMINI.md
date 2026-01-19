@@ -82,6 +82,10 @@ Integration of **WorldSeedEntityEngine** for custom 3D animated models (.bbmodel
     - `models_source/`: Place `.bbmodel` files here.
     - `resource_pack/`: Generated Resource Pack (to be sent to players).
     - `models_data/`: Generated JSON data for the server.
+- **`ResourcePackManager`**:
+    - Automatically zips the generated `resource_pack/` folder at startup.
+    - Hosts a local HTTP server (port 8080) to serve the `resource_pack.zip`.
+    - Forces the client to download the pack upon connection (`ResourcePackRequest`).
 - **`PetEntity`**: Example entity using WSEE `GenericModelImpl` to display a custom model and follow the owner.
 - **Command**: `/pet <modelId>` to spawn a pet with a specific model.
 

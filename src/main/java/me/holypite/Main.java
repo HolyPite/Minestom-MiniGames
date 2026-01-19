@@ -38,6 +38,7 @@ public class Main {
         me.holypite.manager.StructurePreviewManager previewManager = new me.holypite.manager.StructurePreviewManager(new me.holypite.manager.StructureManager());
         me.holypite.manager.CosmeticManager cosmeticManager = new me.holypite.manager.CosmeticManager(hubManager);
         new me.holypite.manager.model.ModelManager();
+        new me.holypite.manager.ResourcePackManager();
         new me.holypite.manager.PotionManager();
         new me.holypite.manager.damage.DamageManager();
 
