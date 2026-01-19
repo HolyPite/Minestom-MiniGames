@@ -51,15 +51,28 @@ public class ResourcePackManager {
                 // 3. Start HTTP Server
                 startServer(zipPath);
 
-                // Determine URL (Try to get LAN IP, fallback to localhost)
+                // Determine URL
                 String ip = "localhost";
-                try {
-                    ip = InetAddress.getLocalHost().getHostAddress();
-                } catch (Exception e) {
-                    System.err.println("Could not determine local IP, using localhost.");
+                File ipFile = new File("server_ip.txt");
+                if (ipFile.exists()) {
+                    try {
+                        ip = Files.readString(ipFile.toPath()).trim();
+                        System.out.println("Using IP from server_ip.txt: " + ip);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        ip = InetAddress.getLocalHost().getHostAddress();
+                        System.out.println("Auto-detected IP (May be wrong in WSL): " + ip);
+                        System.out.println("If connection fails, create 'server_ip.txt' with your LAN IP (e.g. 192.168.1.X)");
+                    } catch (Exception e) {
+                        System.err.println("Could not determine local IP, using localhost.");
+                    }
                 }
+                
                 final String downloadUrl = "http://" + ip + ":" + PORT + "/resource_pack.zip";
-                System.out.println("Resource Pack URL: " + downloadUrl);
+                System.out.println("Resource Pack URL sent to clients: " + downloadUrl);
 
                 // 4. Register Event to send pack
                 GlobalEventHandler handler = MinecraftServer.getGlobalEventHandler();
@@ -72,10 +85,11 @@ public class ResourcePackManager {
                             hash
                     );
                     
+                    // Changed required to false to allow debugging connection issues
                     event.getPlayer().sendResourcePacks(ResourcePackRequest.resourcePackRequest()
                             .packs(packInfo)
-                            .required(true)
-                            .prompt(net.kyori.adventure.text.Component.text("Téléchargement des modèles 3D requis."))
+                            .required(false) 
+                            .prompt(net.kyori.adventure.text.Component.text("Téléchargement des modèles 3D conseillé."))
                             .build()
                     );
                 });
