@@ -42,6 +42,7 @@ The server uses a centralized Manager system to handle game lifecycles and mecha
 - **`DeathManager`**: Listens to `CustomDeathEvent` (fired by `DamageManager`) to handle player elimination smoothly. Puts players in a **Ghost Mode** (Adventure, Invisible, Flight), **clears all potion effects**, and manages respawn timers. Includes **Titles**, **Sounds**, automatic **Void Protection**, and **Kill Messages**.
 - **`ProjectileManager`**: Handles custom projectiles. Supports **Friendly Fire** protection (Melee/Bow) and **Self-Collision** grace periods.
 - **`PotionManager`**: Handles vanilla-like potion effects (Regeneration, Poison, Instant Health/Damage, etc.). Includes **Visual Sync** for effects like **Glowing** and **Invisibility** via entity metadata. **Safety**: Periodic damage automatically skips players in Spectator mode.
+- **`CosmeticManager`**: Manages active trails per player. Listens to `PlayerMoveEvent` and checks if the player is in a Hub.
 
 ### Game Structure
 All mini-games extend the abstract `Game` class.
@@ -67,6 +68,11 @@ All mini-games extend the abstract `Game` class.
     - **Controls**: `Left-Click` to confirm placement, `Sneak` to cancel.
     - **Limits**: Up to 500 blocks for real-time visualization.
 - **Usage**: Used for saving arenas or specific game features without loading full worlds.
+
+### Cosmetic System
+A particle trail system active only in Hub instances.
+- **`TrailType`**: Enum defining available styles (Smoke, Flame, Hearts, Music, Rainbow).
+- **Command**: `/cosmetic <type>` (alias: `/trail`) to enable/disable trails.
 
 ### Scoreboard System
 Each game features a dynamic **Sidebar** (Scoreboard) that displays:
@@ -157,6 +163,7 @@ Maps are stored in `maps/<map_name>/`.
 - `/structure confirm/cancel`: Manual commands for active preview.
 - `/debug`: Give basic equipment.
 - `/instances`: Debug command to list active instances and player counts.
+- `/cosmetic <type>`: Set active particle trail.
 
 ## Available Documentation Tools
 

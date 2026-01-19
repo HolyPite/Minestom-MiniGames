@@ -36,6 +36,7 @@ public class Main {
         hubManager.init(gameManager);
         new me.holypite.manager.ElytraCourseManager(hubManager);
         me.holypite.manager.StructurePreviewManager previewManager = new me.holypite.manager.StructurePreviewManager(new me.holypite.manager.StructureManager());
+        me.holypite.manager.CosmeticManager cosmeticManager = new me.holypite.manager.CosmeticManager(hubManager);
         new me.holypite.manager.PotionManager();
         new me.holypite.manager.damage.DamageManager();
 
@@ -47,6 +48,7 @@ public class Main {
         MinecraftServer.getCommandManager().register(new InstancesCommand());
         MinecraftServer.getCommandManager().register(new me.holypite.commands.StructureCommand(previewManager));
         MinecraftServer.getCommandManager().register(new me.holypite.commands.GamemodeCommand());
+        MinecraftServer.getCommandManager().register(new me.holypite.commands.CosmeticCommand(cosmeticManager));
 
         // Events
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
