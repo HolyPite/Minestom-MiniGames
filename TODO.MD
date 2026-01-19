@@ -16,6 +16,15 @@ Ce fichier liste les améliorations, correctifs et nouvelles fonctionnalités pr
 
 ## 🟡 Priorité Moyenne (Features & Polissage)
 
+### Nouveaux Jeux
+- [ ] **Splatoon (Projet Suivant)** : Combat de peinture territorial. Utilisation de paquets de blocs rapides pour l'encre, mécanique de nage dans l'encre (vitesse + recharge), et armes custom.
+- [ ] **Dropper Modulaire** : Jeu de chute verticale généré procéduralement par empilement de segments (Structures NBT). Système de checkpoints dynamiques et "Instant Retry" à la mort.
+
+### Idées de Mécaniques "Minestom-Only"
+- [ ] **Champs de Vecteurs** : Zones de vent ou ventilateurs appliquant une vélocité fluide aux joueurs (trampolines d'air, courants latéraux).
+- [ ] **Monde Per-Player** : Objets ou blocs visibles/solides uniquement pour certains joueurs (ex: plateformes d'équipe, illusions d'optique).
+- [ ] **Véhicules Custom** : Systèmes de conduite (karts, drones) avec physique d'inertie en interceptant les touches directionnelles.
+
 ### Système de Jeu
 - [ ] **Kit Selector GUI** : Créer une interface d'inventaire pour choisir son kit au Lobby.
 - [ ] **Team Chat** : Implémenter un canal de discussion réservé à l'équipe.

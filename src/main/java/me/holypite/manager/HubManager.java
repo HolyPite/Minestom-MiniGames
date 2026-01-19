@@ -141,6 +141,16 @@ public class HubManager {
         
         hubs.add(hub);
         System.out.println("Total Hubs: " + hubs.size());
+
+        // DEBUG: Test Moving Platform
+        new me.holypite.entity.MovingPlatform(
+            hub, 
+            new Pos(5, 65, 5), 
+            new Pos(15, 75, 5), 
+            Block.MAGENTA_GLAZED_TERRACOTTA, 
+            3, 3, 
+            0.1
+        );
     }
 
     public InstanceContainer getBestHub() {

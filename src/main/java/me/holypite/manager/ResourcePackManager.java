@@ -8,6 +8,7 @@ import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.AsyncPlayerConfigurationEvent;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.*;
@@ -50,16 +51,24 @@ public class ResourcePackManager {
                 // 3. Start HTTP Server
                 startServer(zipPath);
 
+                // Determine URL (Try to get LAN IP, fallback to localhost)
+                String ip = "localhost";
+                try {
+                    ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (Exception e) {
+                    System.err.println("Could not determine local IP, using localhost.");
+                }
+                final String downloadUrl = "http://" + ip + ":" + PORT + "/resource_pack.zip";
+                System.out.println("Resource Pack URL: " + downloadUrl);
+
                 // 4. Register Event to send pack
                 GlobalEventHandler handler = MinecraftServer.getGlobalEventHandler();
                 handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
-                    String url = "http://localhost:" + PORT + "/resource_pack.zip";
-                    
                     System.out.println("Sending Resource Pack request to " + event.getPlayer().getUsername());
                     
                     ResourcePackInfo packInfo = ResourcePackInfo.resourcePackInfo(
                             UUID.randomUUID(),
-                            URI.create(url),
+                            URI.create(downloadUrl),
                             hash
                     );
                     
@@ -79,16 +88,21 @@ public class ResourcePackManager {
     }
 
     private void startServer(Path zipPath) throws IOException {
-        httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
+        httpServer = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0); // Listen on all interfaces
         httpServer.createContext("/resource_pack.zip", exchange -> {
+            System.out.println("Incoming HTTP Request for Resource Pack from: " + exchange.getRemoteAddress());
             try {
                 byte[] bytes = Files.readAllBytes(zipPath);
                 exchange.sendResponseHeaders(200, bytes.length);
                 OutputStream os = exchange.getResponseBody();
                 os.write(bytes);
                 os.close();
+                System.out.println("Resource Pack sent successfully (" + bytes.length + " bytes).");
             } catch (Exception e) {
+                System.err.println("Failed to send Resource Pack via HTTP:");
                 e.printStackTrace();
+                exchange.sendResponseHeaders(500, 0);
+                exchange.close();
             }
         });
         httpServer.setExecutor(null); // creates a default executor
