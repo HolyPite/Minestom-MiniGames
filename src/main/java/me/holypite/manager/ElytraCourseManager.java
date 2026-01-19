@@ -34,7 +34,7 @@ public class ElytraCourseManager {
 
     private final List<Checkpoint> checkpoints = new ArrayList<>();
     private final Map<UUID, CourseSession> sessions = new ConcurrentHashMap<>();
-    private final List<ScoreEntry> scores = new ArrayList<>();
+    private final List<PlayerRecord> records = new ArrayList<>();
     private final Map<Instance, List<Entity>> leaderboardEntities = new ConcurrentHashMap<>();
     private final HubManager hubManager;
     private final Gson gson = new Gson();
@@ -77,21 +77,47 @@ public class ElytraCourseManager {
     private void loadScores() {
         if (!Files.exists(scoresPath)) return;
         try (Reader reader = Files.newBufferedReader(scoresPath)) {
-            List<ScoreEntry> loaded = gson.fromJson(reader, new TypeToken<List<ScoreEntry>>() {}.getType());
-            if (loaded != null) scores.addAll(loaded);
+            List<PlayerRecord> loaded = gson.fromJson(reader, new TypeToken<List<PlayerRecord>>() {}.getType());
+            if (loaded != null) records.addAll(loaded);
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void saveScores() {
         try {
             Files.createDirectories(scoresPath.getParent());
-            Files.writeString(scoresPath, gson.toJson(scores));
+            Files.writeString(scoresPath, gson.toJson(records));
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void recordScore(Player player, long time, int rockets) {
-        scores.removeIf(s -> s.uuid.equals(player.getUuid()));
-        scores.add(new ScoreEntry(player.getUuid(), player.getUsername(), time, rockets));
+        PlayerRecord record = records.stream()
+                .filter(r -> r.uuid.equals(player.getUuid()))
+                .findFirst()
+                .orElse(null);
+
+        if (record == null) {
+            record = new PlayerRecord(player.getUuid(), player.getUsername());
+            records.add(record);
+        }
+
+        RunRecord newRun = new RunRecord(time, rockets);
+
+        // Update Best Time (Lowest time is best)
+        if (record.bestTime == null || time < record.bestTime.time) {
+            record.bestTime = newRun;
+        }
+
+        // Update Best Accuracy (Lowest rockets, then lowest time)
+        if (record.bestAccuracy == null) {
+            record.bestAccuracy = newRun;
+        } else {
+            if (rockets < record.bestAccuracy.rockets) {
+                record.bestAccuracy = newRun;
+            } else if (rockets == record.bestAccuracy.rockets && time < record.bestAccuracy.time) {
+                record.bestAccuracy = newRun;
+            }
+        }
+
         saveScores();
         updateLeaderboards();
     }
@@ -172,26 +198,35 @@ public class ElytraCourseManager {
     }
 
     private void updateLeaderboardText(Entity timeDisplay, Entity rocketDisplay) {
-        // Time Top
-        List<ScoreEntry> timeTop = scores.stream().sorted(Comparator.comparingLong(s -> s.time)).limit(10).toList();
+        // Time Top (Best Time)
+        List<PlayerRecord> timeTop = records.stream()
+                .filter(r -> r.bestTime != null)
+                .sorted(Comparator.comparingLong(r -> r.bestTime.time))
+                .limit(10).toList();
+
         Component timeText = Component.text("🏆 Top 10 - Chrono", NamedTextColor.GOLD, TextDecoration.BOLD).append(Component.newline());
         for (int i = 0; i < 10; i++) {
             timeText = timeText.append(Component.newline());
             if (i < timeTop.size()) {
-                ScoreEntry s = timeTop.get(i);
-                timeText = timeText.append(Component.text((i + 1) + ". " + s.name + " - " + String.format("%.2fs", s.time / 1000.0), NamedTextColor.WHITE));
+                PlayerRecord r = timeTop.get(i);
+                timeText = timeText.append(Component.text((i + 1) + ". " + r.name + " - " + String.format("%.2fs", r.bestTime.time / 1000.0), NamedTextColor.WHITE));
             } else timeText = timeText.append(Component.text((i + 1) + ". ---", NamedTextColor.DARK_GRAY));
         }
         ((TextDisplayMeta) timeDisplay.getEntityMeta()).setText(timeText);
 
-        // Rocket Top
-        List<ScoreEntry> rocketTop = scores.stream().sorted(Comparator.comparingInt(s -> s.rockets)).limit(10).toList();
+        // Rocket Top (Best Accuracy -> Less Rockets, then Less Time)
+        List<PlayerRecord> rocketTop = records.stream()
+                .filter(r -> r.bestAccuracy != null)
+                .sorted(Comparator.comparingInt((PlayerRecord r) -> r.bestAccuracy.rockets)
+                        .thenComparingLong(r -> r.bestAccuracy.time))
+                .limit(10).toList();
+
         Component rocketText = Component.text("🚀 Top 10 - Précision", NamedTextColor.AQUA, TextDecoration.BOLD).append(Component.newline());
         for (int i = 0; i < 10; i++) {
             rocketText = rocketText.append(Component.newline());
             if (i < rocketTop.size()) {
-                ScoreEntry s = rocketTop.get(i);
-                rocketText = rocketText.append(Component.text((i + 1) + ". " + s.name + " - " + s.rockets + " 🚀", NamedTextColor.WHITE));
+                PlayerRecord r = rocketTop.get(i);
+                rocketText = rocketText.append(Component.text((i + 1) + ". " + r.name + " - " + r.bestAccuracy.rockets + " 🚀", NamedTextColor.WHITE));
             } else rocketText = rocketText.append(Component.text((i + 1) + ". ---", NamedTextColor.DARK_GRAY));
         }
         ((TextDisplayMeta) rocketDisplay.getEntityMeta()).setText(rocketText);
@@ -234,13 +269,25 @@ public class ElytraCourseManager {
         int rocketsUsed = 0;
     }
 
-    private static class ScoreEntry {
+    private static class PlayerRecord {
         final UUID uuid;
         final String name;
-        final long time;
-        final int rockets;
-        ScoreEntry(UUID uuid, String name, long time, int rockets) {
-            this.uuid = uuid; this.name = name; this.time = time; this.rockets = rockets;
+        RunRecord bestTime;
+        RunRecord bestAccuracy;
+
+        PlayerRecord(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
         }
     }
+
+    private static class RunRecord {
+        final long time;
+        final int rockets;
+        RunRecord(long time, int rockets) {
+            this.time = time;
+            this.rockets = rockets;
+        }
+    }
+
 }
