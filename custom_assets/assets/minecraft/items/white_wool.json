@@ -1,0 +1,264 @@
+{
+  "model": {
+    "type": "range_dispatch",
+    "property": "custom_model_data",
+    "entries": [
+      {
+        "threshold": 2,
+        "model": {
+          "type": "model",
+          "model": "item/taupe_wool"
+        }
+      },
+      {
+        "threshold": 3,
+        "model": {
+          "type": "model",
+          "model": "item/greta_wool"
+        }
+      },
+      {
+        "threshold": 4,
+        "model": {
+          "type": "model",
+          "model": "item/explosive_wool"
+        }
+      },
+      {
+        "threshold": 5,
+        "model": {
+          "type": "model",
+          "model": "item/black_hole_wool"
+        }
+      },
+      {
+        "threshold": 6,
+        "model": {
+          "type": "model",
+          "model": "item/geyser_wool"
+        }
+      },
+      {
+        "threshold": 7,
+        "model": {
+          "type": "model",
+          "model": "item/random_wool"
+        }
+      },
+      {
+        "threshold": 8,
+        "model": {
+          "type": "model",
+          "model": "item/shield_wool"
+        }
+      },
+      {
+        "threshold": 9,
+        "model": {
+          "type": "model",
+          "model": "item/invisible_wool"
+        }
+      },
+      {
+        "threshold": 10,
+        "model": {
+          "type": "model",
+          "model": "item/honey_wool"
+        }
+      },
+      {
+        "threshold": 11,
+        "model": {
+          "type": "model",
+          "model": "item/seeker_wool"
+        }
+      },
+      {
+        "threshold": 12,
+        "model": {
+          "type": "model",
+          "model": "item/heal_wool"
+        }
+      },
+      {
+        "threshold": 13,
+        "model": {
+          "type": "model",
+          "model": "item/jaw_wool"
+        }
+      },
+      {
+        "threshold": 14,
+        "model": {
+          "type": "model",
+          "model": "item/boarding_wool"
+        }
+      },
+      {
+        "threshold": 15,
+        "model": {
+          "type": "model",
+          "model": "item/incendiary_wool"
+        }
+      },
+      {
+        "threshold": 16,
+        "model": {
+          "type": "model",
+          "model": "item/shuffle_wool"
+        }
+      },
+      {
+        "threshold": 17,
+        "model": {
+          "type": "model",
+          "model": "item/icy_wool"
+        }
+      },
+      {
+        "threshold": 18,
+        "model": {
+          "type": "model",
+          "model": "item/spider_wool"
+        }
+      },
+      {
+        "threshold": 20,
+        "model": {
+          "type": "model",
+          "model": "item/storm_wool"
+        }
+      },
+      {
+        "threshold": 21,
+        "model": {
+          "type": "model",
+          "model": "item/anvil_wool"
+        }
+      },
+      {
+        "threshold": 22,
+        "model": {
+          "type": "model",
+          "model": "item/eater_wool"
+        }
+      },
+      {
+        "threshold": 23,
+        "model": {
+          "type": "model",
+          "model": "item/sticky_wool"
+        }
+      },
+      {
+        "threshold": 24,
+        "model": {
+          "type": "model",
+          "model": "item/fragmentation_wool"
+        }
+      },
+      {
+        "threshold": 25,
+        "model": {
+          "type": "model",
+          "model": "item/parasite_wool"
+        }
+      },
+      {
+        "threshold": 26,
+        "model": {
+          "type": "model",
+          "model": "item/earthquake_wool"
+        }
+      },
+      {
+        "threshold": 27,
+        "model": {
+          "type": "model",
+          "model": "item/trapped_wool"
+        }
+      },
+      {
+        "threshold": 28,
+        "model": {
+          "type": "model",
+          "model": "item/positive_potion_wool"
+        }
+      },
+      {
+        "threshold": 29,
+        "model": {
+          "type": "model",
+          "model": "item/negative_potion_wool"
+        }
+      },
+      {
+        "threshold": 30,
+        "model": {
+          "type": "model",
+          "model": "item/chain_reaction_wool"
+        }
+      },
+      {
+        "threshold": 31,
+        "model": {
+          "type": "model",
+          "model": "item/thorny_wool"
+        }
+      },
+      {
+        "threshold": 32,
+        "model": {
+          "type": "model",
+          "model": "item/clone_wool"
+        }
+      },
+      {
+        "threshold": 33,
+        "model": {
+          "type": "model",
+          "model": "item/party_wool"
+        }
+      },
+      {
+        "threshold": 34,
+        "model": {
+          "type": "model",
+          "model": "item/hedgehog_wool"
+        }
+      },
+      {
+        "threshold": 35,
+        "model": {
+          "type": "model",
+          "model": "item/nightmare_wool"
+        }
+      },
+      {
+        "threshold": 36,
+        "model": {
+          "type": "model",
+          "model": "item/radioactive_wool"
+        }
+      },
+      {
+        "threshold": 37,
+        "model": {
+          "type": "model",
+          "model": "item/burrower_wool"
+        }
+      },
+      {
+        "threshold": 38,
+        "model": {
+          "type": "model",
+          "model": "item/glowing_wool"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "model",
+      "model": "block/white_wool"
+    }
+  }
+}
