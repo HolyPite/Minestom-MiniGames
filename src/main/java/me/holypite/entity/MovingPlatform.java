@@ -98,43 +98,80 @@ public class MovingPlatform {
     private void tick() {
         if (instance == null) return; // Should handle cleanup
 
-        // Update progress
+        // Update progress tracking (Virtual position)
         double step = speed / totalDistance;
         
+        // Calculate Velocity Vector
+        // direction is normalized. speed is blocks/tick.
+        Vec velocity = direction.mul(movingForward ? speed : -speed);
+
         if (movingForward) {
             progress += step;
             if (progress >= 1.0) {
+                // End of path reached
                 progress = 1.0;
-                movingForward = false; // Reverse
+                movingForward = false;
+                
+                // RE-SYNC: Teleport to exact end position to fix drift
+                reSync(endPos);
+                return; 
             }
         } else {
             progress -= step;
             if (progress <= 0.0) {
+                // Start of path reached
                 progress = 0.0;
-                movingForward = true; // Forward
+                movingForward = true;
+                
+                // RE-SYNC: Teleport to exact start position to fix drift
+                reSync(startPos);
+                return;
             }
         }
 
-        // Calculate new base position (Lerp)
-        // Pos = Start + (End - Start) * progress
-        // Or simpler: Start + Direction * (progress * totalDistance)
-        // Let's use Lerp for precision
-        double currentDist = progress * totalDistance;
-        Pos newPos = startPos.add(direction.mul(currentDist));
+        // Apply Velocity (For Client Prediction - Smoothness)
+        displayEntity.setVelocity(velocity);
+        
+        // Push Players
+        Pos platformPos = displayEntity.getPosition();
+        for (net.minestom.server.entity.Player player : instance.getPlayers()) {
+            Pos pPos = player.getPosition();
+            
+            // Check if player is on the platform
+            // Platform base is at platformPos. Shulkers are 1 block high.
+            // Player feet should be around platformPos.y + 1
+            
+            boolean inX = pPos.x() >= platformPos.x() - 0.5 && pPos.x() <= platformPos.x() + width + 0.5;
+            boolean inZ = pPos.z() >= platformPos.z() - 0.5 && pPos.z() <= platformPos.z() + length + 0.5;
+            boolean inY = pPos.y() >= platformPos.y() + 0.5 && pPos.y() <= platformPos.y() + 2.5; // Tolerance
+            
+            if (inX && inZ && inY) {
+                // Apply same velocity to player to carry them
+                // We set the velocity directly. The client handles the addition to their own movement (walking).
+                player.setVelocity(velocity);
+            }
+        }
+        
+        // Apply to Colliders
+        // Note: Minestom physics must update their server-side position for collisions to work!
+        for (Entity shulker : colliders) {
+            shulker.setVelocity(velocity);
+        }
+    }
 
-        // Teleport Visual
-        // For smooth movement on client, we should use teleport but Minestom handles it.
-        // Ideally we setVelocity for prediction but for platforms teleport is often used for absolute sync.
-        // Let's try teleport first.
-        displayEntity.teleport(newPos);
-
-        // Teleport Colliders
+    private void reSync(Pos targetBasePos) {
+        // Stop movement momentarily ensuring exact position
+        displayEntity.setVelocity(Vec.ZERO);
+        displayEntity.teleport(targetBasePos);
+        
         int i = 0;
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < length; z++) {
-                Entity shulker = colliders.get(i++);
-                // Shulker pos is newPos + offset
-                shulker.teleport(newPos.add(x, 0, z));
+                if (i < colliders.size()) {
+                    Entity shulker = colliders.get(i++);
+                    shulker.setVelocity(Vec.ZERO);
+                    shulker.teleport(targetBasePos.add(x, 0, z));
+                }
             }
         }
     }

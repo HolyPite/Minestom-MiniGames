@@ -7,6 +7,12 @@
     - **Status Reports**: All debriefing messages and status reports must be written in **French**.
 - **Code Style**:
     - **Constants**: Important gameplay variables (radius, damage, duration, etc.) must be defined as `private static final` constants at the beginning of the class for easy tuning.
+    - **Lighting**: Always use `LightingChunk` in Game instances (`instance.setChunkSupplier(LightingChunk::new)`). 
+        - **Map Generation**: Generally avoid using it during generation to prevent saving incomplete lighting data.
+        - **Exception**: For "Void" maps where structures are pasted (`MapManager`):
+            1. Enable `LightingChunk`.
+            2. Load chunks with a **+1 margin** around the structure to ensure neighbor context for light propagation.
+            3. Force a **full `relight`** (`LightingChunk.relight`) after placement and before saving.
 - **Events**: Use `EventNode` for scoping events to specific games or instances.
 - **Entities**: Use `EntityCreature` for custom mobs. Optimized AI with **Hitbox-aware reach**, Leap Attacks for Slimes, and periodic pathfinding updates.
     - **Custom Mobs**: `AggressiveBee` (poison, sting once), `AggressiveSlime` (calmed jump), `AggressiveLarva` (Silverfish/Endermite with AI).

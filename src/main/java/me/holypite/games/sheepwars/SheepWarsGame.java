@@ -35,6 +35,8 @@ public class SheepWarsGame extends Game {
 
     @Override
     public void setupGameInstance(InstanceContainer instance) {
+        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
+
         // Try to load map
         String mapName = "sheepwars_map";
         LoadedMap loadedMap = mapManager.createInstanceFromMap(mapName);

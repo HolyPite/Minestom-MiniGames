@@ -149,7 +149,7 @@ public class HubManager {
             new Pos(15, 75, 5), 
             Block.MAGENTA_GLAZED_TERRACOTTA, 
             3, 3, 
-            0.1
+            0.35
         );
     }
 

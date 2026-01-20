@@ -136,7 +136,7 @@ public class MapManager {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
-        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
+        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new); // Enabled to calculate light during structure pasting // Deferred to game instance
         
         // Region check
         // Region check
@@ -182,6 +182,12 @@ public class MapManager {
                 
                 structureManager.placeStructureWithResult(instance, struct.pos.toPos(), struct.name, rot, mir);
             }
+            
+            // Force full relight of all loaded chunks to ensure correct lighting before save
+            // This fixes issues where incremental updates during placement missed edge cases or neighbors
+            System.out.println("Relighting chunks...");
+            net.minestom.server.instance.LightingChunk.relight(instance, instance.getChunks());
+            
             // Persist the placed structures to the ChunkLoader (temp files)
             instance.saveChunksToStorage().join();
         }
@@ -200,7 +206,7 @@ public class MapManager {
 
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         InstanceContainer instance = instanceManager.createInstanceContainer();
-        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
+        instance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new); // Enabled to calculate light during structure pasting 
         
         // Region check
         Path regionPath = mapPath.resolve("region");

@@ -133,10 +133,11 @@ public class StructureManager {
         int minChunkZ = min.chunkZ();
         int maxChunkZ = max.chunkZ();
         
-        System.out.println("[DEBUG] Loading chunks from (" + minChunkX + "," + minChunkZ + ") to (" + maxChunkX + "," + maxChunkZ + ")");
+        System.out.println("[DEBUG] Loading chunks from (" + minChunkX + "," + minChunkZ + ") to (" + maxChunkX + "," + maxChunkZ + ") with margin");
 
-        for (int x = minChunkX; x <= maxChunkX; x++) {
-            for (int z = minChunkZ; z <= maxChunkZ; z++) {
+        // Load chunks with +1 margin for lighting propagation
+        for (int x = minChunkX - 1; x <= maxChunkX + 1; x++) {
+            for (int z = minChunkZ - 1; z <= maxChunkZ + 1; z++) {
                 instance.loadChunk(x, z).join();
             }
         }

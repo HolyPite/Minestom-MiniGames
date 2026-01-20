@@ -94,6 +94,7 @@ public abstract class Game {
         // Create the lobby instance
         InstanceManager instanceManager = MinecraftServer.getInstanceManager();
         this.lobbyInstance = instanceManager.createInstanceContainer();
+        this.lobbyInstance.setChunkSupplier(net.minestom.server.instance.LightingChunk::new);
         
         setupLobbyInstance(this.lobbyInstance);
         updateScoreboard();
