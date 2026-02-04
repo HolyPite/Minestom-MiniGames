@@ -23,7 +23,10 @@ public class PetCommand extends Command {
                 return;
             }
 
-            String modelName = context.get(modelArg);
+            String rawModelName = context.get(modelArg);
+            String modelName = rawModelName.endsWith(".bbmodel") ? rawModelName : rawModelName + ".bbmodel";
+            
+            sender.sendMessage("Spawning pet with model ID: " + modelName);
             PetEntity pet = new PetEntity(EntityType.ZOMBIE, modelName, player);
             pet.setInstance(player.getInstance(), player.getPosition());
             

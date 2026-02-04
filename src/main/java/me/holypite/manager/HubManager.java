@@ -142,14 +142,46 @@ public class HubManager {
         hubs.add(hub);
         System.out.println("Total Hubs: " + hubs.size());
 
-        // DEBUG: Test Moving Platform
+        // DEBUG: Test Moving Platforms
+        
+        // 1. Slow Vertical Elevator (Away from spawn)
         new me.holypite.entity.MovingPlatform(
             hub, 
-            new Pos(5, 65, 5), 
-            new Pos(15, 75, 5), 
-            Block.MAGENTA_GLAZED_TERRACOTTA, 
+            new Pos(50, 64, 50), 
+            new Pos(50, 80, 50), 
+            Block.QUARTZ_BLOCK, 
             3, 3, 
-            0.35
+            0.15 // Slow
+        );
+
+        // 2. Fast Vertical Launcher (Away from spawn)
+        new me.holypite.entity.MovingPlatform(
+            hub, 
+            new Pos(-50, 64, 50), 
+            new Pos(-50, 90, 50), 
+            Block.RED_CONCRETE, 
+            3, 3, 
+            0.6 // Fast (12 blocks/sec)
+        );
+
+        // 3. Horizontal Conveyor (Long distance)
+        new me.holypite.entity.MovingPlatform(
+            hub, 
+            new Pos(50, 65, -50), 
+            new Pos(90, 65, -50), 
+            Block.BLUE_GLAZED_TERRACOTTA, 
+            3, 5, 
+            0.3 // Moderate
+        );
+        
+        // 4. Diagonal Complex Mover
+        new me.holypite.entity.MovingPlatform(
+            hub, 
+            new Pos(-50, 65, -50), 
+            new Pos(-70, 75, -70), 
+            Block.LIME_STAINED_GLASS, 
+            4, 4, 
+            0.4 
         );
     }
 

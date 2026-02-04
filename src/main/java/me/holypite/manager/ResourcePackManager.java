@@ -39,8 +39,14 @@ public class ResourcePackManager {
                     System.out.println("Merging custom assets from '" + CUSTOM_ASSETS_DIR + "'...");
                     mergeDirectories(customDir, sourceDir);
                 }
+                
+                // 2. FORCE correct pack.mcmeta for 1.21.10 (Format 69)
+                Path mcmetaPath = sourceDir.resolve("pack.mcmeta");
+                String mcmetaContent = "{\"pack\":{\"description\":\"Minestom-MiniGames\",\"pack_format\":69,\"min_format\":69,\"max_format\":69}}";
+                Files.writeString(mcmetaPath, mcmetaContent);
+                System.out.println("[ResourcePackManager] pack.mcmeta enforced to format 69");
 
-                // 2. Zip the resource pack folder
+                // 3. Zip the resource pack folder
                 System.out.println("Zipping resource pack...");
                 zipFolder(sourceDir, zipPath);
                 

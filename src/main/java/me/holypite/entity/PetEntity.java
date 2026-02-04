@@ -31,14 +31,23 @@ public class PetEntity extends EntityCreature {
     }
 
     @Override
+    public void updateNewViewer(@NotNull Player player) {
+        super.updateNewViewer(player);
+        model.addViewer(player);
+    }
+
+    @Override
     public void update(long time) {
         super.update(time);
         
         // Sync model position and rotation with base entity
         if (model.getInstance() != null) {
-            model.setPosition(getPosition());
-            model.setGlobalRotation(getPosition().yaw(), getPosition().pitch());
-            model.setHeadRotation("head", getPosition().yaw()); // Basic head sync attempt
+            try {
+                model.setPosition(getPosition());
+                model.setGlobalRotation(getPosition().yaw(), getPosition().pitch());
+                model.setHeadRotation("head", getPosition().yaw()); 
+                model.draw();
+            } catch (Exception e) {}
         }
         
         // Simple follow logic
@@ -57,7 +66,14 @@ public class PetEntity extends EntityCreature {
     public CompletableFuture<Void> setInstance(@NotNull Instance instance, @NotNull Pos spawnPosition) {
         return super.setInstance(instance, spawnPosition).thenAccept(v -> {
             // Initialize model when entity enters instance
-            model.init(instance, spawnPosition);
+            try {
+                model.init(instance, spawnPosition);
+                if (owner != null) {
+                    model.addViewer(owner);
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
         });
     }
 
